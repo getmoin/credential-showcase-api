@@ -9,9 +9,9 @@ on:
       docker_image:
         required: true
         type: string
-      sonar_project_key:
-        required: true
-        type: string
+      # sonar_project_key:
+      #   required: true
+      #   type: string
     secrets:
       # SONAR_TOKEN:
       #   required: true
