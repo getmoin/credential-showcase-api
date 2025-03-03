@@ -15,43 +15,96 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Run Trivy vulnerability scanner
+    # First scan the workspace root for dependencies
+    - name: Run Trivy Root Scan
+      if: inputs.scan-type == 'fs'
       uses: aquasecurity/trivy-action@master
       with:
-        scan-type: ${{ inputs.scan-type }}
-        ${{ inputs.scan-type == 'fs' && 'scan-ref' || 'image-ref' }}: ${{ inputs.scan-ref }}
+        scan-type: 'fs'
+        scan-ref: '.'
         format: 'json'
-        output: 'scan-results.json'
+        output: 'root-scan.json'
         severity: 'CRITICAL,HIGH,MEDIUM,LOW'
         exit-code: '0'
         scanners: 'vuln'
         skip-dirs: 'node_modules,.git,dist'
 
-    - name: Debug Directory Content
+    # Then scan the specific package
+    - name: Run Trivy Package Scan
+      if: inputs.scan-type == 'fs'
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: ${{ inputs.scan-ref }}
+        format: 'json'
+        output: 'package-scan.json'
+        severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+        exit-code: '0'
+        scanners: 'vuln'
+        skip-dirs: 'node_modules,.git,dist'
+
+    # For image scanning
+    - name: Run Trivy Image Scan
+      if: inputs.scan-type == 'image'
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'image'
+        image-ref: ${{ inputs.scan-ref }}
+        format: 'json'
+        output: 'scan-results.json'
+        severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+        exit-code: '0'
+
+    - name: Debug Information
       shell: bash
       run: |
-        echo "Contents of scan directory:"
-        ls -la ${{ inputs.scan-ref }}
-        echo "Package.json content:"
-        cat ${{ inputs.scan-ref }}/package.json || echo "No package.json found"
-        echo "Scan results:"
-        cat scan-results.json
+        echo "=== Workspace Structure ==="
+        pwd
+        ls -la
+        echo ""
+        echo "=== Root package.json ==="
+        cat package.json || echo "No root package.json found"
+        echo ""
+        echo "=== Package package.json ==="
+        cat ${{ inputs.scan-ref }}/package.json || echo "No package package.json found"
+        echo ""
+        echo "=== pnpm-lock.yaml ==="
+        cat pnpm-lock.yaml || echo "No pnpm-lock.yaml found"
+        echo ""
+        echo "=== Scan Results ==="
+        if [ "${{ inputs.scan-type }}" = "fs" ]; then
+          echo "Root scan results:"
+          cat root-scan.json
+          echo ""
+          echo "Package scan results:"
+          cat package-scan.json
+        else
+          echo "Image scan results:"
+          cat scan-results.json
+        fi
 
     - name: Generate Scan Summary
       shell: bash
       run: |
-        # Function to safely count vulnerabilities
-        count_vulnerabilities() {
+        combine_results() {
           local severity=$1
-          jq "([.Results[]?.Vulnerabilities[]? | select(.Severity==\"$severity\")] | length) // 0" scan-results.json
+          local root_count=0
+          local pkg_count=0
+          
+          if [ "${{ inputs.scan-type }}" = "fs" ]; then
+            root_count=$(jq "([.Results[]?.Vulnerabilities[]? | select(.Severity==\"$severity\")] | length) // 0" root-scan.json)
+            pkg_count=$(jq "([.Results[]?.Vulnerabilities[]? | select(.Severity==\"$severity\")] | length) // 0" package-scan.json)
+            echo $((root_count + pkg_count))
+          else
+            jq "([.Results[]?.Vulnerabilities[]? | select(.Severity==\"$severity\")] | length) // 0" scan-results.json
+          fi
         }
         
-        # Get counts with null safety
-        CRITICAL_COUNT=$(count_vulnerabilities "CRITICAL")
-        HIGH_COUNT=$(count_vulnerabilities "HIGH")
-        MEDIUM_COUNT=$(count_vulnerabilities "MEDIUM")
-        LOW_COUNT=$(count_vulnerabilities "LOW")
-        UNKNOWN_COUNT=$(count_vulnerabilities "UNKNOWN")
+        CRITICAL_COUNT=$(combine_results "CRITICAL")
+        HIGH_COUNT=$(combine_results "HIGH")
+        MEDIUM_COUNT=$(combine_results "MEDIUM")
+        LOW_COUNT=$(combine_results "LOW")
+        UNKNOWN_COUNT=$(combine_results "UNKNOWN")
         
         {
           echo "# ${{ inputs.scan-title }}"
@@ -63,6 +116,7 @@ runs:
             echo "\`\`\`"
             echo "Scan Path: ${{ inputs.scan-ref }}"
             echo "Scan Type: ${{ inputs.scan-type }}"
+            echo "Workspace Root: $(pwd)"
             echo "\`\`\`"
           else
             echo "| Severity  | Count |"
