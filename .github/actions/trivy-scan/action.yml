@@ -50,38 +50,6 @@ runs:
         severity: 'CRITICAL,HIGH,MEDIUM,LOW'
         exit-code: '0'
 
-    - name: Debug Information
-      shell: bash
-      run: |
-        echo "=== Workspace Structure ==="
-        pwd
-        ls -la
-        echo ""
-        echo "=== Root package.json ==="
-        cat package.json || echo "No root package.json found"
-        echo ""
-        echo "=== Package package.json ==="
-        cat ${{ inputs.scan-ref }}/package.json || echo "No package package.json found"
-        echo ""
-        echo "=== Node Modules Structure ==="
-        echo "Root node_modules:"
-        ls -la node_modules || echo "No root node_modules found"
-        echo ""
-        echo "Package node_modules:"
-        ls -la ${{ inputs.scan-ref }}/node_modules || echo "No package node_modules found"
-        echo ""
-        echo "=== Scan Results ==="
-        if [ "${{ inputs.scan-type }}" = "fs" ]; then
-          echo "Root scan results:"
-          cat root-scan.json
-          echo ""
-          echo "Package scan results:"
-          cat package-scan.json
-        else
-          echo "Image scan results:"
-          cat scan-results.json
-        fi
-
     - name: Generate Scan Summary
       shell: bash
       run: |
