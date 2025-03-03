@@ -20,44 +20,23 @@ runs:
       if: inputs.scan-type == 'fs'
       shell: bash
       run: |
-        # First scan the root dependencies
+        # Scan the root directory for vulnerabilities
         trivy fs \
           --security-checks vuln \
           --format json \
           --output root-scan.json \
           --severity CRITICAL,HIGH,MEDIUM,LOW \
           --debug \
-          --package-type npm \
-          --dependency-tree \
           .
 
-        # Then scan the specific package
+        # Scan the specific package directory
         trivy fs \
           --security-checks vuln \
           --format json \
           --output package-scan.json \
           --severity CRITICAL,HIGH,MEDIUM,LOW \
           --debug \
-          --package-type npm \
-          --dependency-tree \
           ${{ inputs.scan-ref }}
-
-        # Additional direct scan of package.json files
-        echo "Scanning root package.json..."
-        trivy fs \
-          --security-checks vuln \
-          --format json \
-          --output root-pkg-scan.json \
-          --severity CRITICAL,HIGH,MEDIUM,LOW \
-          package.json
-
-        echo "Scanning package package.json..."
-        trivy fs \
-          --security-checks vuln \
-          --format json \
-          --output pkg-direct-scan.json \
-          --severity CRITICAL,HIGH,MEDIUM,LOW \
-          ${{ inputs.scan-ref }}/package.json
 
     # For image scanning
     - name: Run Trivy Image Scan
@@ -108,13 +87,16 @@ runs:
       run: |
         combine_results() {
           local severity=$1
-          local root_count=0
-          local pkg_count=0
+          local total=0
           
           if [ "${{ inputs.scan-type }}" = "fs" ]; then
-            root_count=$(jq "([.Results[]?.Vulnerabilities[]? | select(.Severity==\"$severity\")] | length) // 0" root-scan.json)
-            pkg_count=$(jq "([.Results[]?.Vulnerabilities[]? | select(.Severity==\"$severity\")] | length) // 0" package-scan.json)
-            echo $((root_count + pkg_count))
+            for file in root-scan.json package-scan.json; do
+              if [ -f "$file" ]; then
+                count=$(jq "([.Results[]?.Vulnerabilities[]? | select(.Severity==\"$severity\")] | length) // 0" "$file")
+                total=$((total + count))
+              fi
+            done
+            echo $total
           else
             jq "([.Results[]?.Vulnerabilities[]? | select(.Severity==\"$severity\")] | length) // 0" scan-results.json
           fi
