@@ -13,10 +13,10 @@ on:
         required: true
         type: string
     secrets:
-      SONAR_TOKEN:
-        required: true
-      SONAR_HOST_URL:
-        required: true
+      # SONAR_TOKEN:
+      #   required: true
+      # SONAR_HOST_URL:
+      #   required: true
       DOCKERHUB_USERNAME:
         required: false
       DOCKERHUB_TOKEN:
@@ -91,26 +91,26 @@ jobs:
           scan-ref: '.'
           scan-title: 'Dependency Scan Results for ${{ inputs.package_name }}'
 
-  sonar:
-    name: SonarQube Analysis - ${{ inputs.package_name }}
-    needs: security-scan
-    runs-on: ubuntu-latest
+  # sonar:
+  #   name: SonarQube Analysis - ${{ inputs.package_name }}
+  #   needs: security-scan
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout Code
+  #       uses: actions/checkout@v4
 
-      - name: Run Static Code Analysis with SonarQube
-        uses: sonarsource/sonarqube-scan-action@v2
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        with:
-          projectBaseDir: .
-          projectKey: ${{ inputs.sonar_project_key }}
-          args: >
-            -Dsonar.sources=packages/${{ inputs.package_name }}/src
-            -Dsonar.tests=packages/${{ inputs.package_name }}/__tests__
+  #     - name: Run Static Code Analysis with SonarQube
+  #       uses: sonarsource/sonarqube-scan-action@v2
+  #       env:
+  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+  #       with:
+  #         projectBaseDir: .
+  #         projectKey: ${{ inputs.sonar_project_key }}
+  #         args: >
+  #           -Dsonar.sources=packages/${{ inputs.package_name }}/src
+  #           -Dsonar.tests=packages/${{ inputs.package_name }}/__tests__
 
   build:
     name: Build and Push Docker Image - ${{ inputs.package_name }}
