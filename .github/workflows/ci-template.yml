@@ -96,6 +96,14 @@ jobs:
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.57.1
           trivy --version
 
+      - name: NPM Audit Check
+        run: |
+          cd ${{ inputs.package_path }}/${{ inputs.package_name }}
+          echo "=== NPM Audit Results ===" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          npm audit --json | tee npm-audit.json >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
       - name: Scan Dependencies
         uses: ./.github/actions/trivy-scan
         with:
