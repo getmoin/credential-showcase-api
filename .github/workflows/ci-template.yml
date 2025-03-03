@@ -104,14 +104,6 @@ jobs:
           pnpm audit --json | tee pnpm-audit.json >> $GITHUB_STEP_SUMMARY || true
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
-          # Alternative approach using npm
-          echo "=== Running NPM Audit ===" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          # Create a package-lock.json by running npm install
-          npm install --package-lock-only
-          npm audit --json | tee npm-audit.json >> $GITHUB_STEP_SUMMARY || true
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-
       - name: Scan Dependencies
         uses: ./.github/actions/trivy-scan
         with:
