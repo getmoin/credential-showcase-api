@@ -6,7 +6,7 @@ info:
 servers:
   - url: https://virtserver.swaggerhub.com/SphereonInt/showcase/0.1.0/v1
     description: SwaggerHub API Auto Mocking
-  - url: https://api.example.com/v1
+  - url: https://bcshowcase-api-dev.nborbit.ca/
 
 tags:
   - name: Issuance Flow
@@ -2214,6 +2214,10 @@ components:
           properties:
             issuer:
               $ref: '#/components/schemas/Issuer'
+            isOnboarding:
+              type: boolean
+              description: Whether the issuance flow is an onboarding flow
+              example: false
       description: Workflow specialization for credential issuance
     IssuanceFlowRequest:
       type: object
@@ -2226,6 +2230,10 @@ components:
             issuer:
               type: string
               example: "313e4567-e89b-12d3-a456-426614174469"
+            isOnboarding:
+              type: boolean
+              description: Whether the issuance flow is an onboarding flow
+              example: false
       description: Workflow specialization for credential issuance
 
     PresentationFlowsResponse:
@@ -2691,7 +2699,7 @@ components:
           description: List of personas involved in this showcase
           items:
             $ref: '#/components/schemas/Persona'
-        asset:
+        bannerImage:
           $ref: '#/components/schemas/Asset'
         completionMessage:
           type: string
@@ -2760,7 +2768,7 @@ components:
           items:
             type: string
             example: 123e4567-e89b-12d3-a456-426614174469
-        asset:
+        bannerImage:
           type: string
           example: 123e4567-e89b-12d3-a456-426614174469
         completionMessage:
