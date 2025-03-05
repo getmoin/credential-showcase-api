@@ -13,6 +13,7 @@ classDiagram
         +personas: List~String~
         +credentialDefinitions: List~String~
         +hidden : Boolean
+        completionMessage : String
     }
     class Scenario {
         <!-- Scenarios is a collection of workflows -->
