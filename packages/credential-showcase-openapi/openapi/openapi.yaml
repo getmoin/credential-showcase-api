@@ -2348,6 +2348,12 @@ components:
               type: string
               example: "313e4567-e89b-12d3-a456-426614174469"
 
+    IdentifierType:
+      type: string
+      enum:
+        - DID
+      description: Types of supported identifiers
+      example: DID
     IssuerType:
       type: string
       enum:
@@ -2384,6 +2390,12 @@ components:
           example: This issuer issues credentials to users
         type:
           $ref: '#/components/schemas/IssuerType'
+        identifierType:
+          $ref: '#/components/schemas/IdentifierType'
+        identifier:
+          type: string
+          description: External identifier of this issuer
+          example: did:sov:XUeUZauFLeBNofY3NhaZCB
         organization:
           type: string
           description: Organization the issuer belongs to
@@ -2412,6 +2424,12 @@ components:
           example: This issuer issues credentials to users
         type:
           $ref: '#/components/schemas/IssuerType'
+        identifierType:
+          $ref: '#/components/schemas/IdentifierType'
+        identifier:
+          type: string
+          description: External identifier of this issuer
+          example: did:sov:XUeUZauFLeBNofY3NhaZCB
         organization:
           type: string
           description: Organization the issuer belongs to
