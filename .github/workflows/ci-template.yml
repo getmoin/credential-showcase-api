@@ -115,22 +115,44 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v2
-        with:
-          registry-type: public
+      - name: Login to Amazon Public ECR
+        run: |
+          aws ecr-public get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin public.ecr.aws
 
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: docker/dev/${{ inputs.package_name }}/Dockerfile
-          push: true
-          tags: |
-            ${{secrets.repository_url}}/${{ inputs.docker_image }}:latest
-            ${{secrets.repository_url}}/${{ inputs.docker_image }}:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      - name: Build, tag, and push Docker image to Public ECR
+        env:
+          ECR_REGISTRY: public.ecr.aws/k8o4d9r5
+          ECR_REPOSITORY: bcshowcase
+          IMAGE_TAG: latest
+        run: |
+          # Build the Docker image
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest docker/dev/${{ inputs.package_name }}/Dockerfile
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }} docker/dev/${{ inputs.package_name }}/Dockerfile
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }}
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v2
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ${{ secrets.AWS_REGION }}
+
+      # - name: Login to Amazon ECR
+      #   uses: aws-actions/amazon-ecr-login@v2
+      #   with:
+      #     registry-type: public
+
+      # - name: Build and Push Docker Image
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: .
+      #     file: docker/dev/${{ inputs.package_name }}/Dockerfile
+      #     push: true
+      #     tags: |
+      #       ${{secrets.repository_url}}/${{ inputs.docker_image }}:latest
+      #       ${{secrets.repository_url}}/${{ inputs.docker_image }}:${{ github.sha }}
+      #     cache-from: type=gha
+      #     cache-to: type=gha,mode=max
 
         # uses: docker/build-push-action@v5
         # with:
@@ -156,5 +178,5 @@ jobs:
         uses: ./.github/actions/trivy-scan
         with:
           scan-type: 'image'
-          scan-ref: 'ghcr.io/${{ github.repository_owner }}/${{ inputs.docker_image }}:${{ github.sha }}'
+          scan-ref: 'public.ecr.aws/k8o4d9r5/bcshowcase/${{ inputs.docker_image }}:${{ github.sha }}'
           scan-title: 'Docker Image Scan Results for ${{ inputs.package_name }}'
