@@ -79,6 +79,8 @@ export const issuanceFlowDTOFrom = (issuanceFlow: IssuanceFlow): IssuanceFlowDTO
         type: WorkflowType.ISSUANCE,
         steps: issuanceFlow.steps.map(step => stepDTOFrom(step)),
         personas: issuanceFlow.personas.map(persona => personaDTOFrom(persona)),
+        createdAt: issuanceFlow.createdAt.toISOString(),
+        updatedAt: issuanceFlow.updatedAt.toISOString(),
     }
 }
 
@@ -93,6 +95,8 @@ export const presentationFlowDTOFrom = (presentationFlow: PresentationFlow): Pre
         type: WorkflowType.PRESENTATION,
         steps: presentationFlow.steps.map(step => stepDTOFrom(step)),
         personas: presentationFlow.personas.map(persona => personaDTOFrom(persona)),
+        createdAt: presentationFlow.createdAt.toISOString(),
+        updatedAt: presentationFlow.updatedAt.toISOString(),
     }
 }
 
@@ -120,6 +124,9 @@ export const personaDTOFrom = (persona: Persona): PersonaDTO => {
         ...persona,
         headshotImage: persona.headshotImage ? assetDTOFrom(persona.headshotImage) : undefined,
         bodyImage: persona.bodyImage ? assetDTOFrom(persona.bodyImage) : undefined,
+        hidden: persona.hidden,
+        createdAt: persona.createdAt.toISOString(),
+        updatedAt: persona.updatedAt.toISOString(),
     }
 }
 
@@ -129,6 +136,9 @@ export const showcaseDTOFrom = (showcase: Showcase): ShowcaseDTO => {
         personas: showcase.personas.map(persona => personaDTOFrom(persona)),
         credentialDefinitions: showcase.credentialDefinitions.map(credentialsDefinition => credentialDefinitionDTOFrom(credentialsDefinition)),
         scenarios: showcase.scenarios.map(scenario => scenarioDTOFrom(scenario)),
+        bannerImage: showcase.bannerImage ? assetDTOFrom(showcase.bannerImage) : undefined,
+        createdAt: showcase.createdAt.toISOString(),
+        updatedAt: showcase.updatedAt.toISOString(),
     }
 }
 

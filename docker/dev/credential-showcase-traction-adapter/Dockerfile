@@ -18,7 +18,7 @@ COPY . /build
 RUN rm -rf $(pnpm store path) && pnpm install -g rimraf typescript tslib turbo
 RUN pnpm install
 RUN pnpm build
-RUN pnpm deploy /deploy --filter credential-showcase-traction-adapter --prod
+RUN pnpm deploy /deploy --filter credential-showcase-traction-adapter --prod --no-optional
 
 # Runtime stage
 FROM node:20-bookworm-slim

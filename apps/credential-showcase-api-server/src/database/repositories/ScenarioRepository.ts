@@ -147,7 +147,10 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
                 ...(isPresentationScenario(scenario) && {
                     relyingParty: <RelyingParty>scenarioPartyResult,
                 }),
-                personas: personasResult
+                personas: personasResult,
+                createdAt: scenarioResult.createdAt,
+                updatedAt: scenarioResult.updatedAt,
+                hidden: scenarioResult.hidden,
             }
         })
     }
@@ -267,7 +270,10 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
                 ...(isPresentationScenario(scenario) && {
                     relyingParty: <RelyingParty>scenarioPartyResult,
                 }),
-                personas: personasResult
+                personas: personasResult,
+                createdAt: scenarioResult.createdAt,
+                updatedAt: scenarioResult.updatedAt,
+                hidden: scenarioResult.hidden,
             }
         })
     }

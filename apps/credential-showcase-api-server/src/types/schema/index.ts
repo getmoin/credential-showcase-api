@@ -162,15 +162,17 @@ export type AriesRequestCredentialPredicate = {
 export type AriesProofRequest = typeof ariesProofRequests.$inferSelect;
 export type NewAriesProofRequest = Omit<typeof ariesProofRequests.$inferInsert, 'stepAction'>;
 
-export type Showcase = typeof showcases.$inferSelect & {
+export type Showcase = Omit<typeof showcases.$inferSelect, 'bannerImage'> & {
     scenarios: Scenario[]
     credentialDefinitions: CredentialDefinition[]
     personas: Persona[]
+    bannerImage: Asset | null
 };
 export type NewShowcase = typeof showcases.$inferInsert & {
     scenarios: string[]
     credentialDefinitions: string[]
     personas: string[]
+    bannerImage?: string | null
 };
 
 export type Scenario = IssuanceFlow | PresentationFlow

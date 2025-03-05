@@ -20,10 +20,10 @@ COPY . /build
 RUN rm -rf $(pnpm store path) && pnpm install -g rimraf typescript tslib
 RUN pnpm install
 # migrate db
-RUN pnpm db:migrate
+# RUN pnpm db:migrate
 
 RUN pnpm build
-RUN pnpm deploy /deploy --filter credential-showcase-api-server --prod
+RUN pnpm deploy /deploy --filter credential-showcase-api-server --prod --no-optional
 
 # Runtime stage
 FROM node:20-bookworm-slim
