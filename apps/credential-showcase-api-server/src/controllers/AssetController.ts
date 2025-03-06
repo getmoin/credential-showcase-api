@@ -35,7 +35,6 @@ class AssetController {
     @Get('/:id')
     public async getOne(@Param('id') id: string): Promise<AssetResponse> {
         const result = await this.assetService.getAsset(id);
-        console.log(`ASSET: ${JSON.stringify(result)}`)
         return AssetResponseFromJSONTyped({ asset: assetDTOFrom(result) }, false)
     }
 

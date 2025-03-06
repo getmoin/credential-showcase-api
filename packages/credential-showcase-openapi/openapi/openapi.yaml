@@ -1750,6 +1750,8 @@ components:
         - id
         - mediaType
         - content
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
@@ -1771,6 +1773,16 @@ components:
           type: string
           description: Description of the asset
           example: A beautiful image of a cat
+        createdAt:
+          type: string
+          description: Date and time the asset was created
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
+        updatedAt:
+          type: string
+          description: Date and time the asset was last updated
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
     AssetRequest:
       type: object
       required:
@@ -1819,6 +1831,8 @@ components:
         - order
         - type
         - actions
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
@@ -1849,6 +1863,16 @@ components:
             $ref: '#/components/schemas/StepAction'
         asset:
           $ref: '#/components/schemas/Asset'
+        createdAt:
+          type: string
+          description: Date and time the step was created
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
+        updatedAt:
+          type: string
+          description: Date and time the step was last updated
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
 
     StepRequest:
       type: object
@@ -1914,6 +1938,8 @@ components:
         - actionType
         - title
         - text
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
@@ -1931,6 +1957,16 @@ components:
           type: string
           description: Descriptive text for the action
           example: Connect your wallet to continue
+        createdAt:
+          type: string
+          description: Date and time the step action was created
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
+        updatedAt:
+          type: string
+          description: Date and time the step action was last updated
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
       discriminator:
         propertyName: actionType
         mapping:
@@ -1980,6 +2016,12 @@ components:
               $ref: '#/components/schemas/AriesProofRequest'
     AriesProofRequest:
       type: object
+      required:
+        - id
+        - attributes
+        - predicates
+        - createdAt
+        - updatedAt
       properties:
         attributes:
           type: object
@@ -1997,6 +2039,16 @@ components:
           example:
             age:
               value: 30
+        createdAt:
+          type: string
+          description: Date and time the Aries proof request was created
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
+        updatedAt:
+          type: string
+          description: Date and time the Aries proof request was last updated
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
     AriesRequestCredentialAttributes:
       type: object
       properties:
@@ -2043,8 +2095,12 @@ components:
     Persona:
       type: object
       required:
+        - id
         - name
         - role
+        - description
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
@@ -2073,11 +2129,13 @@ components:
         createdAt:
           type: string
           description: Date and time the persona was created
-          example: 2021-01-01T00:00:00Z
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
         updatedAt:
           type: string
           description: Date and time the persona was last updated
-          example: 2021-01-01T00:00:00Z
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
     PersonaRequest:
       type: object
       required:
@@ -2121,8 +2179,12 @@ components:
     Workflow:
       type: object
       required:
+        - id
+        - description
         - name
         - type
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
@@ -2157,11 +2219,14 @@ components:
           example: false
         createdAt:
           type: string
-          description: Date and time the workflow was created
-          example: 2021-01-01T00:00:00Z
+          description: Date and time the scenario was created
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
         updatedAt:
           type: string
-          description: Date and time the workflow was last updated
+          description: Date and time the scenario was last updated
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
     WorkflowRequest:
       type: object
       required:
@@ -2289,6 +2354,8 @@ components:
         - description
         - type
         - credentialDefinitions
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
@@ -2314,6 +2381,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CredentialDefinition'
+        createdAt:
+          type: string
+          description: Date and time the issuer was created
+          format: date-time
+          example: "2025-03-06T11:30:16.573Z"
+        updatedAt:
+          type: string
+          description: Date and time the issuer was last updated
+          format: date-time
+          example: "2025-03-06T11:30:16.573Z"
     IssuerRequest:
       type: object
       required:
@@ -2365,6 +2442,8 @@ components:
         - description
         - type
         - credentialDefinitions
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
@@ -2390,6 +2469,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CredentialDefinition'
+        createdAt:
+          type: string
+          description: Date and time the relying party was created
+          format: date-time
+          example: "2025-03-06T11:30:16.573Z"
+        updatedAt:
+          type: string
+          description: Date and time the relying party was last updated
+          format: date-time
+          example: "2025-03-06T11:30:16.573Z"
     RelyingPartyRequest:
       type: object
       required:
@@ -2460,6 +2549,8 @@ components:
         - icon
         - attributes
         - representations
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
@@ -2494,10 +2585,13 @@ components:
         createdAt:
           type: string
           description: Date and time the credential definition was created
-          example: 2021-01-01T00:00:00Z
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
         updatedAt:
           type: string
           description: Date and time the credential definition was last updated
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
     CredentialDefinitionRequest:
       type: object
       required:
@@ -2562,6 +2656,8 @@ components:
         - id
         - name
         - type
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
@@ -2577,6 +2673,16 @@ components:
           example: John Doe
         type:
           $ref: '#/components/schemas/CredentialAttributeType'
+        createdAt:
+          type: string
+          description: Date and time the credential attribute was created
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
+        updatedAt:
+          type: string
+          description: Date and time the credential attribute was last updated
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
     CredentialAttributeRequest:
       type: object
       required:
@@ -2598,11 +2704,23 @@ components:
       type: object
       required:
         - id
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
           description: Unique identifier for the credential representation
           example: 123e4567-e89b-12d3-abcd-426614174456
+        createdAt:
+          type: string
+          description: Date and time the credential representation was created
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
+        updatedAt:
+          type: string
+          description: Date and time the credential representation was last updated
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
     OCARepresentation:
       allOf:
         - $ref: '#/components/schemas/CredentialRepresentation'
@@ -2627,7 +2745,11 @@ components:
     RevocationInfo:
       type: object
       required:
+        - id
         - title
+        - description
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
@@ -2641,6 +2763,16 @@ components:
           type: string
           description: Detailed description of the revocation process or requirements
           example: This credential is revocable
+        createdAt:
+          type: string
+          description: Date and time the Revocation info was created
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
+        updatedAt:
+          type: string
+          description: Date and time the Revocation info was last updated
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
     AnonCredRevocation:
       allOf:
         - $ref: '#/components/schemas/RevocationInfo'
@@ -2665,6 +2797,8 @@ components:
         - personas
         - credentialDefinitions
         - hidden
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
@@ -2708,11 +2842,13 @@ components:
         createdAt:
           type: string
           description: Date and time the showcase was created
-          example: 2021-01-01T00:00:00Z
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
         updatedAt:
           type: string
           description: Date and time the showcase was last updated
-          example: 2021-01-01T00:00:00Z
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
     ShowcasesResponse:
       type: object
       properties:
@@ -2773,7 +2909,7 @@ components:
           example: 123e4567-e89b-12d3-a456-426614174469
         completionMessage:
           type: string
-          example: "You have successfully completed the showcase" 
+          example: "You have successfully completed the showcase"
 
     ShowcaseStatus:
       type: string
