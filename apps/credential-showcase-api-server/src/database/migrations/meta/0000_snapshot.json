@@ -1,5 +1,5 @@
 {
-  "id": "30fff8ac-7a57-46f6-ba21-f24f518c9b86",
+  "id": "0d75a487-9602-4443-991d-e07e309bcbd9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -552,14 +552,14 @@
           "primaryKey": false,
           "notNull": true
         },
-        "sub_flow": {
-          "name": "sub_flow",
+        "sub_scenario": {
+          "name": "sub_scenario",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "workflow": {
-          "name": "workflow",
+        "scenario": {
+          "name": "scenario",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -573,12 +573,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "step_sub_flow_workflow_id_fk": {
-          "name": "step_sub_flow_workflow_id_fk",
+        "step_sub_scenario_scenario_id_fk": {
+          "name": "step_sub_scenario_scenario_id_fk",
           "tableFrom": "step",
-          "tableTo": "workflow",
+          "tableTo": "scenario",
           "columnsFrom": [
-            "sub_flow"
+            "sub_scenario"
           ],
           "columnsTo": [
             "id"
@@ -586,12 +586,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "step_workflow_workflow_id_fk": {
-          "name": "step_workflow_workflow_id_fk",
+        "step_scenario_scenario_id_fk": {
+          "name": "step_scenario_scenario_id_fk",
           "tableFrom": "step",
-          "tableTo": "workflow",
+          "tableTo": "scenario",
           "columnsFrom": [
-            "workflow"
+            "scenario"
           ],
           "columnsTo": [
             "id"
@@ -615,12 +615,12 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "step_order_workflow_unique": {
-          "name": "step_order_workflow_unique",
+        "step_order_scenario_unique": {
+          "name": "step_order_scenario_unique",
           "nullsNotDistinct": false,
           "columns": [
             "order",
-            "workflow"
+            "scenario"
           ]
         }
       },
@@ -686,8 +686,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.workflow": {
-      "name": "workflow",
+    "public.scenario": {
+      "name": "scenario",
       "schema": "",
       "columns": {
         "id": {
@@ -709,9 +709,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "workflow_type": {
-          "name": "workflow_type",
-          "type": "WorkflowType",
+        "scenario_type": {
+          "name": "scenario_type",
+          "type": "ScenarioType",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
@@ -731,9 +731,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "workflow_issuer_issuer_id_fk": {
-          "name": "workflow_issuer_issuer_id_fk",
-          "tableFrom": "workflow",
+        "scenario_issuer_issuer_id_fk": {
+          "name": "scenario_issuer_issuer_id_fk",
+          "tableFrom": "scenario",
           "tableTo": "issuer",
           "columnsFrom": [
             "issuer"
@@ -744,9 +744,9 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "workflow_relying_party_relyingParty_id_fk": {
-          "name": "workflow_relying_party_relyingParty_id_fk",
-          "tableFrom": "workflow",
+        "scenario_relying_party_relyingParty_id_fk": {
+          "name": "scenario_relying_party_relyingParty_id_fk",
+          "tableFrom": "scenario",
           "tableTo": "relyingParty",
           "columnsFrom": [
             "relying_party"
@@ -762,9 +762,9 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {
-        "workflow_type_check": {
-          "name": "workflow_type_check",
-          "value": "\n            (workflow_type = 'PRESENTATION' AND relying_party IS NOT NULL) OR\n            (workflow_type = 'ISSUANCE' AND issuer IS NOT NULL)\n        "
+        "scenario_type_check": {
+          "name": "scenario_type_check",
+          "value": "\n            (scenario_type = 'PRESENTATION' AND relying_party IS NOT NULL) OR\n            (scenario_type = 'ISSUANCE' AND issuer IS NOT NULL)\n        "
         }
       },
       "isRLSEnabled": false
@@ -906,12 +906,12 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.workflowsToPersonas": {
-      "name": "workflowsToPersonas",
+    "public.scenariosToPersonas": {
+      "name": "scenariosToPersonas",
       "schema": "",
       "columns": {
-        "workflow": {
-          "name": "workflow",
+        "scenario": {
+          "name": "scenario",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -925,12 +925,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "workflowsToPersonas_workflow_workflow_id_fk": {
-          "name": "workflowsToPersonas_workflow_workflow_id_fk",
-          "tableFrom": "workflowsToPersonas",
-          "tableTo": "workflow",
+        "scenariosToPersonas_scenario_scenario_id_fk": {
+          "name": "scenariosToPersonas_scenario_scenario_id_fk",
+          "tableFrom": "scenariosToPersonas",
+          "tableTo": "scenario",
           "columnsFrom": [
-            "workflow"
+            "scenario"
           ],
           "columnsTo": [
             "id"
@@ -938,9 +938,9 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "workflowsToPersonas_persona_persona_id_fk": {
-          "name": "workflowsToPersonas_persona_persona_id_fk",
-          "tableFrom": "workflowsToPersonas",
+        "scenariosToPersonas_persona_persona_id_fk": {
+          "name": "scenariosToPersonas_persona_persona_id_fk",
+          "tableFrom": "scenariosToPersonas",
           "tableTo": "persona",
           "columnsFrom": [
             "persona"
@@ -953,10 +953,10 @@
         }
       },
       "compositePrimaryKeys": {
-        "workflowsToPersonas_workflow_persona_pk": {
-          "name": "workflowsToPersonas_workflow_persona_pk",
+        "scenariosToPersonas_scenario_persona_pk": {
+          "name": "scenariosToPersonas_scenario_persona_pk",
           "columns": [
-            "workflow",
+            "scenario",
             "persona"
           ]
         }
@@ -1163,10 +1163,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "showcasesToScenarios_scenario_workflow_id_fk": {
-          "name": "showcasesToScenarios_scenario_workflow_id_fk",
+        "showcasesToScenarios_scenario_scenario_id_fk": {
+          "name": "showcasesToScenarios_scenario_scenario_id_fk",
           "tableFrom": "showcasesToScenarios",
-          "tableTo": "workflow",
+          "tableTo": "scenario",
           "columnsFrom": [
             "scenario"
           ],
@@ -1224,11 +1224,11 @@
       "values": [
         "HUMAN_TASK",
         "SERVICE",
-        "WORKFLOW"
+        "SCENARIO"
       ]
     },
-    "public.WorkflowType": {
-      "name": "WorkflowType",
+    "public.ScenarioType": {
+      "name": "ScenarioType",
       "schema": "public",
       "values": [
         "ISSUANCE",
