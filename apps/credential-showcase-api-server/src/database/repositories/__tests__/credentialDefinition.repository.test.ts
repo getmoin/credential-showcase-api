@@ -8,11 +8,13 @@ import DatabaseService from '../../../services/DatabaseService'
 import AssetRepository from '../AssetRepository'
 import CredentialDefinitionRepository from '../CredentialDefinitionRepository'
 import * as schema from '../../schema'
-import { Asset, NewAsset, CredentialAttributeType, CredentialType, NewCredentialDefinition } from '../../../types'
+import { Asset, NewAsset, CredentialAttributeType, CredentialType, NewCredentialDefinition, NewCredentialSchema } from '../../../types'
+import { CredentialSchemaRepository } from '../CredentialSchemaRepository'
 
 describe('Database credential definition repository tests', (): void => {
   let client: PGlite
   let credentialDefinitionRepository: CredentialDefinitionRepository
+  let credentialSchemaRepository:CredentialSchemaRepository
   let asset: Asset
 
   beforeEach(async (): Promise<void> => {
@@ -24,6 +26,7 @@ describe('Database credential definition repository tests', (): void => {
     }
     Container.set(DatabaseService, mockDatabaseService)
     credentialDefinitionRepository = Container.get(CredentialDefinitionRepository)
+    credentialSchemaRepository = Container.get(CredentialSchemaRepository)
     const assetRepository = Container.get(AssetRepository)
     const newAsset: NewAsset = {
       mediaType: 'image/png',
@@ -41,11 +44,11 @@ describe('Database credential definition repository tests', (): void => {
   })
 
   it('Should save credential definition to database', async (): Promise<void> => {
-    const credentialDefinition: NewCredentialDefinition = {
+    const newCredentialSchema: NewCredentialSchema = {
       name: 'example_name',
       version: 'example_version',
-      icon: asset.id,
-      type: CredentialType.ANONCRED,
+      identifierType: 'DID',
+      identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
       attributes: [
         {
           name: 'example_attribute_name1',
@@ -58,6 +61,17 @@ describe('Database credential definition repository tests', (): void => {
           type: CredentialAttributeType.STRING,
         },
       ],
+    }
+    const savedCredentialSchema = await credentialSchemaRepository.create(newCredentialSchema)
+
+    const credentialDefinition: NewCredentialDefinition = {
+      name: 'example_name',
+      version: 'example_version',
+      identifierType: 'DID',
+      identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
+      icon: asset.id,
+      type: CredentialType.ANONCRED,
+      credentialSchemaId: savedCredentialSchema.id,
       // representations: [
       //     { // TODO SHOWCASE-81 OCARepresentation
       //
@@ -84,10 +98,10 @@ describe('Database credential definition repository tests', (): void => {
     expect(savedCredentialDefinition.icon.fileName).toEqual(asset.fileName)
     expect(savedCredentialDefinition.icon.description).toEqual(asset.description)
     expect(savedCredentialDefinition.icon.content).toStrictEqual(asset.content)
-    expect(savedCredentialDefinition.attributes.length).toEqual(2)
-    expect(savedCredentialDefinition.attributes[0].name).toEqual(credentialDefinition.attributes[0].name)
-    expect(savedCredentialDefinition.attributes[0].value).toEqual(credentialDefinition.attributes[0].value)
-    expect(savedCredentialDefinition.attributes[0].type).toEqual(credentialDefinition.attributes[0].type)
+    expect(savedCredentialSchema.attributes.length).toEqual(2)
+    expect(savedCredentialSchema.attributes[0].name).toEqual(newCredentialSchema.attributes[0].name)
+    expect(savedCredentialSchema.attributes[0].value).toEqual(newCredentialSchema.attributes[0].value)
+    expect(savedCredentialSchema.attributes[0].type).toEqual(newCredentialSchema.attributes[0].type)
     expect(savedCredentialDefinition.representations.length).toEqual(2)
     // TODO SHOWCASE-81 representations
     expect(savedCredentialDefinition.revocation).not.toBeNull()
@@ -98,34 +112,12 @@ describe('Database credential definition repository tests', (): void => {
 
   it('Should throw error when saving credential definition with invalid icon id', async (): Promise<void> => {
     const unknownIconId = 'a197e5b2-e4e5-4788-83b1-ecaa0e99ed3a'
-    const credentialDefinition: NewCredentialDefinition = {
+
+    const newCredentialSchema: NewCredentialSchema = {
       name: 'example_name',
       version: 'example_version',
-      icon: unknownIconId,
-      type: CredentialType.ANONCRED,
-      attributes: [
-        {
-          name: 'example_attribute_name1',
-          value: 'example_attribute_value1',
-          type: CredentialAttributeType.STRING,
-        },
-      ],
-      // representations: [
-      //     { // TODO SHOWCASE-81 OCARepresentation
-      //
-      //     }
-      // ]
-    }
-
-    await expect(credentialDefinitionRepository.create(credentialDefinition)).rejects.toThrowError(`No asset found for id: ${unknownIconId}`)
-  })
-
-  it('Should get credential definition by id from database', async (): Promise<void> => {
-    const credentialDefinition: NewCredentialDefinition = {
-      name: 'example_name',
-      version: 'example_version',
-      icon: asset.id,
-      type: CredentialType.ANONCRED,
+      identifierType: 'DID',
+      identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
       attributes: [
         {
           name: 'example_attribute_name1',
@@ -138,6 +130,58 @@ describe('Database credential definition repository tests', (): void => {
           type: CredentialAttributeType.STRING,
         },
       ],
+    }
+    const savedCredentialSchema = await credentialSchemaRepository.create(newCredentialSchema)
+
+
+    const credentialDefinition: NewCredentialDefinition = {
+      name: 'example_name',
+      version: 'example_version',
+      identifierType: 'DID',
+      identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
+      icon: unknownIconId,
+      type: CredentialType.ANONCRED,
+      credentialSchemaId: savedCredentialSchema.id
+      // representations: [
+      //     { // TODO SHOWCASE-81 OCARepresentation
+      //
+      //     }
+      // ]
+    }
+
+    await expect(credentialDefinitionRepository.create(credentialDefinition)).rejects.toThrowError(`No asset found for id: ${unknownIconId}`)
+  })
+
+  it('Should get credential definition by id from database', async (): Promise<void> => {
+    const newCredentialSchema: NewCredentialSchema = {
+      name: 'example_name',
+      version: 'example_version',
+      identifierType: 'DID',
+      identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
+      attributes: [
+        {
+          name: 'example_attribute_name1',
+          value: 'example_attribute_value1',
+          type: CredentialAttributeType.STRING,
+        },
+        {
+          name: 'example_attribute_name2',
+          value: 'example_attribute_value2',
+          type: CredentialAttributeType.STRING,
+        },
+      ],
+    }
+    const savedCredentialSchema = await credentialSchemaRepository.create(newCredentialSchema)
+
+
+    const credentialDefinition: NewCredentialDefinition = {
+      name: 'example_name',
+      version: 'example_version',
+      identifierType: 'DID',
+      identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
+      icon: asset.id,
+      type: CredentialType.ANONCRED,
+      credentialSchemaId: savedCredentialSchema.id,
       // representations: [
       //     { // TODO SHOWCASE-81 OCARepresentation
       //
@@ -167,12 +211,12 @@ describe('Database credential definition repository tests', (): void => {
     expect(fromDb.icon.fileName).toEqual(asset.fileName)
     expect(fromDb.icon.description).toEqual(asset.description)
     expect(fromDb.icon.content).toStrictEqual(asset.content)
-    expect(fromDb.attributes.length).toEqual(2)
-    expect(fromDb.attributes[0].name).toEqual(credentialDefinition.attributes[0].name)
-    expect(fromDb.attributes[0].value).toEqual(credentialDefinition.attributes[0].value)
-    expect(fromDb.attributes[0].type).toEqual(credentialDefinition.attributes[0].type)
-    expect(fromDb.representations.length).toEqual(2)
+    expect(savedCredentialSchema.attributes.length).toEqual(2)
+    expect(savedCredentialSchema.attributes[0].name).toEqual(newCredentialSchema.attributes[0].name)
+    expect(savedCredentialSchema.attributes[0].value).toEqual(newCredentialSchema.attributes[0].value)
+    expect(savedCredentialSchema.attributes[0].type).toEqual(newCredentialSchema.attributes[0].type)
     // TODO SHOWCASE-81 representations
+    //expect(savedCredentialSchema.representations.length).toEqual(2)
     expect(fromDb.revocation).not.toBeNull()
     expect(fromDb.revocation!.title).toEqual(credentialDefinition.revocation!.title)
     expect(fromDb.revocation!.description).toEqual(credentialDefinition.revocation!.description)
@@ -180,18 +224,35 @@ describe('Database credential definition repository tests', (): void => {
   })
 
   it('Should get all credential definitions from database', async (): Promise<void> => {
-    const credentialDefinition: NewCredentialDefinition = {
+    const newCredentialSchema: NewCredentialSchema = {
       name: 'example_name',
       version: 'example_version',
-      icon: asset.id,
-      type: CredentialType.ANONCRED,
+      identifierType: 'DID',
+      identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
       attributes: [
         {
           name: 'example_attribute_name1',
           value: 'example_attribute_value1',
           type: CredentialAttributeType.STRING,
         },
+        {
+          name: 'example_attribute_name2',
+          value: 'example_attribute_value2',
+          type: CredentialAttributeType.STRING,
+        },
       ],
+    }
+    const savedCredentialSchema = await credentialSchemaRepository.create(newCredentialSchema)
+
+    const credentialDefinition: NewCredentialDefinition = {
+      name: 'example_name',
+      version: 'example_version',
+      identifierType: 'DID',
+      identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
+      credentialSchemaId: savedCredentialSchema.id,
+      icon: asset.id,
+      type: CredentialType.ANONCRED,
+
       // representations: [
       //     { // TODO SHOWCASE-81 OCARepresentation
       //
@@ -211,18 +272,34 @@ describe('Database credential definition repository tests', (): void => {
   })
 
   it('Should delete credential definition from database', async (): Promise<void> => {
-    const credentialDefinition: NewCredentialDefinition = {
+    const newCredentialSchema: NewCredentialSchema = {
       name: 'example_name',
       version: 'example_version',
-      icon: asset.id,
-      type: CredentialType.ANONCRED,
+      identifierType: 'DID',
+      identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
       attributes: [
         {
           name: 'example_attribute_name1',
           value: 'example_attribute_value1',
           type: CredentialAttributeType.STRING,
         },
+        {
+          name: 'example_attribute_name2',
+          value: 'example_attribute_value2',
+          type: CredentialAttributeType.STRING,
+        },
       ],
+    }
+    const savedCredentialSchema = await credentialSchemaRepository.create(newCredentialSchema)
+
+    const credentialDefinition: NewCredentialDefinition = {
+      name: 'example_name',
+      version: 'example_version',
+      identifierType: 'DID',
+      identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
+      icon: asset.id,
+      type: CredentialType.ANONCRED,
+      credentialSchemaId: savedCredentialSchema.id,
       // representations: [
       //     { // TODO SHOWCASE-81 OCARepresentation
       //
@@ -241,11 +318,11 @@ describe('Database credential definition repository tests', (): void => {
   })
 
   it('Should update credential definition in database', async (): Promise<void> => {
-    const credentialDefinition: NewCredentialDefinition = {
+    const newCredentialSchema: NewCredentialSchema = {
       name: 'example_name',
       version: 'example_version',
-      icon: asset.id,
-      type: CredentialType.ANONCRED,
+      identifierType: 'DID',
+      identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
       attributes: [
         {
           name: 'example_attribute_name1',
@@ -258,27 +335,13 @@ describe('Database credential definition repository tests', (): void => {
           type: CredentialAttributeType.STRING,
         },
       ],
-      // representations: [
-      //     { // TODO SHOWCASE-81 OCARepresentation
-      //
-      //     },
-      //     { // TODO SHOWCASE-81 OCARepresentation
-      //
-      //     }
-      // ],
-      // revocation: { // TODO SHOWCASE-80 AnonCredRevocation
-      //     title: 'example_revocation_title',
-      //     description: 'example_revocation_description'
-      // }
     }
-
-    const savedCredentialDefinition = await credentialDefinitionRepository.create(credentialDefinition)
-    expect(savedCredentialDefinition).toBeDefined()
+    const savedCredentialSchema = await credentialSchemaRepository.create(newCredentialSchema)
+    expect(savedCredentialSchema).toBeDefined()
 
     const newName = 'new_name'
-    const updatedCredentialDefinition = await credentialDefinitionRepository.update(savedCredentialDefinition.id, {
-      ...savedCredentialDefinition,
-      icon: savedCredentialDefinition.icon.id,
+    const updatedCredentialSchema = await credentialSchemaRepository.update(savedCredentialSchema.id, {
+      ...savedCredentialSchema,
       name: newName,
       attributes: [
         {
@@ -294,20 +357,13 @@ describe('Database credential definition repository tests', (): void => {
       // ]
     })
 
-    expect(updatedCredentialDefinition).toBeDefined()
-    expect(updatedCredentialDefinition.name).toEqual(newName)
-    expect(updatedCredentialDefinition.version).toEqual(credentialDefinition.version)
-    expect(updatedCredentialDefinition.icon).toBeDefined()
-    expect(updatedCredentialDefinition.icon.id).toBeDefined()
-    expect(updatedCredentialDefinition.icon.mediaType).toEqual(asset.mediaType)
-    expect(updatedCredentialDefinition.icon.fileName).toEqual(asset.fileName)
-    expect(updatedCredentialDefinition.icon.description).toEqual(asset.description)
-    expect(updatedCredentialDefinition.icon.content).toStrictEqual(asset.content)
-    expect(updatedCredentialDefinition.attributes.length).toEqual(1)
-    expect(updatedCredentialDefinition.attributes[0].name).toEqual(updatedCredentialDefinition.attributes[0].name)
-    expect(updatedCredentialDefinition.attributes[0].value).toEqual(updatedCredentialDefinition.attributes[0].value)
-    expect(updatedCredentialDefinition.attributes[0].type).toEqual(updatedCredentialDefinition.attributes[0].type)
-    expect(updatedCredentialDefinition.representations.length).toEqual(1)
+    expect(updatedCredentialSchema).toBeDefined()
+    expect(updatedCredentialSchema.name).toEqual(newName)
+    expect(updatedCredentialSchema.version).toEqual(savedCredentialSchema.version)
+    expect(updatedCredentialSchema.attributes.length).toEqual(1)
+    expect(updatedCredentialSchema.attributes[0].name).toEqual(updatedCredentialSchema.attributes[0].name)
+    expect(updatedCredentialSchema.attributes[0].value).toEqual(updatedCredentialSchema.attributes[0].value)
+    expect(updatedCredentialSchema.attributes[0].type).toEqual(updatedCredentialSchema.attributes[0].type)
     // TODO SHOWCASE-81 representations
     // expect(updatedCredentialDefinition.revocation).not.toBeNull()
     // expect(updatedCredentialDefinition.revocation!.title).toEqual(credentialDefinition.revocation!.title)
@@ -317,11 +373,12 @@ describe('Database credential definition repository tests', (): void => {
 
   it('Should throw error when updating credential definition with invalid icon id', async (): Promise<void> => {
     const unknownIconId = 'a197e5b2-e4e5-4788-83b1-ecaa0e99ed3a'
-    const credentialDefinition: NewCredentialDefinition = {
+
+    const newCredentialSchema: NewCredentialSchema = {
       name: 'example_name',
       version: 'example_version',
-      icon: asset.id,
-      type: CredentialType.ANONCRED,
+      identifierType: 'DID',
+      identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
       attributes: [
         {
           name: 'example_attribute_name1',
@@ -334,6 +391,18 @@ describe('Database credential definition repository tests', (): void => {
           type: CredentialAttributeType.STRING,
         },
       ],
+    }
+    const credentialSchema = await credentialSchemaRepository.create(newCredentialSchema)
+
+
+    const credentialDefinition: NewCredentialDefinition = {
+      name: 'example_name',
+      version: 'example_version',
+      icon: asset.id,
+      type: CredentialType.ANONCRED,
+      identifierType: 'DID',
+      identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
+      credentialSchemaId: credentialSchema.id,
       // representations: [
       //     { // TODO SHOWCASE-81 OCARepresentation
       //

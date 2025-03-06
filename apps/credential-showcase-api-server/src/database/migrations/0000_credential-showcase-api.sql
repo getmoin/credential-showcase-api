@@ -5,6 +5,8 @@ CREATE TYPE "public"."StepType" AS ENUM('HUMAN_TASK', 'SERVICE', 'SCENARIO');-->
 CREATE TYPE "public"."ScenarioType" AS ENUM('ISSUANCE', 'PRESENTATION');--> statement-breakpoint
 CREATE TYPE "public"."ShowcaseStatus" AS ENUM('PENDING', 'ACTIVE', 'ARCHIVED');--> statement-breakpoint
 CREATE TYPE "public"."RelyingPartyType" AS ENUM('ARIES');--> statement-breakpoint
+CREATE TYPE "public"."IdentifierType" AS ENUM('URI', 'DID');--> statement-breakpoint
+
 CREATE TABLE "ariesProofRequest" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"attributes" jsonb NOT NULL,
@@ -21,18 +23,31 @@ CREATE TABLE "asset" (
 	"content" "bytea" NOT NULL
 );
 --> statement-breakpoint
+
+CREATE TABLE "credentialSchema" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"identifier_type" "IdentifierType" NOT NULL,
+	"identifier" text NOT NULL,
+	"name" text NOT NULL,
+	"version" text NOT NULL
+);
+--> statement-breakpoint
+
 CREATE TABLE "credentialAttribute" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" text NOT NULL,
 	"value" text NOT NULL,
 	"type" "CredentialAttributeType" NOT NULL,
-	"credential_definition" uuid NOT NULL
+	"credential_schema" uuid NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "credentialDefinition" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" text NOT NULL,
 	"version" text NOT NULL,
+    "identifier_type" "IdentifierType"                           NOT NULL,
+    "identifier"      text                                       NOT NULL,
+	"credential_schema_id" uuid NOT NULL,
 	"icon" uuid NOT NULL,
 	"type" "CredentialType" NOT NULL
 );
@@ -72,6 +87,14 @@ CREATE TABLE "issuersToCredentialDefinitions" (
 	CONSTRAINT "issuersToCredentialDefinitions_issuer_credential_definition_pk" PRIMARY KEY("issuer","credential_definition")
 );
 --> statement-breakpoint
+
+CREATE TABLE "issuersToCredentialSchemas" (
+	"issuer" uuid NOT NULL,
+	"credential_schema" uuid NOT NULL,
+	CONSTRAINT "issuersToCredentialSchemas_issuer_credential_schema_pk" PRIMARY KEY("issuer","credential_schema")
+);
+--> statement-breakpoint
+
 CREATE TABLE "step" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"title" text NOT NULL,
@@ -155,7 +178,11 @@ CREATE TABLE "showcasesToScenarios" (
 );
 --> statement-breakpoint
 ALTER TABLE "ariesProofRequest" ADD CONSTRAINT "ariesProofRequest_step_action_stepAction_id_fk" FOREIGN KEY ("step_action") REFERENCES "public"."stepAction"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "credentialAttribute" ADD CONSTRAINT "credentialAttribute_credential_definition_credentialDefinition_id_fk" FOREIGN KEY ("credential_definition") REFERENCES "public"."credentialDefinition"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+
+ALTER TABLE "credentialAttribute" ADD CONSTRAINT "credentialAttribute_credential_schema_credentialSchema_id_fk" FOREIGN KEY ("credential_schema") REFERENCES "public"."credentialSchema"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+
+ALTER TABLE "credentialDefinition" ADD CONSTRAINT "credentialDefinition_credential_schema_id_credentialSchema_id_fk" FOREIGN KEY ("credential_schema_id") REFERENCES "public"."credentialSchema"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+
 ALTER TABLE "credentialDefinition" ADD CONSTRAINT "credentialDefinition_icon_asset_id_fk" FOREIGN KEY ("icon") REFERENCES "public"."asset"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "credentialRepresentation" ADD CONSTRAINT "credentialRepresentation_credential_definition_credentialDefinition_id_fk" FOREIGN KEY ("credential_definition") REFERENCES "public"."credentialDefinition"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "relyingPartiesToCredentialDefinitions" ADD CONSTRAINT "relyingPartiesToCredentialDefinitions_relying_party_relyingParty_id_fk" FOREIGN KEY ("relying_party") REFERENCES "public"."relyingParty"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -164,6 +191,11 @@ ALTER TABLE "relyingParty" ADD CONSTRAINT "relyingParty_logo_asset_id_fk" FOREIG
 ALTER TABLE "issuer" ADD CONSTRAINT "issuer_logo_asset_id_fk" FOREIGN KEY ("logo") REFERENCES "public"."asset"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "issuersToCredentialDefinitions" ADD CONSTRAINT "issuersToCredentialDefinitions_issuer_issuer_id_fk" FOREIGN KEY ("issuer") REFERENCES "public"."issuer"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "issuersToCredentialDefinitions" ADD CONSTRAINT "issuersToCredentialDefinitions_credential_definition_credentialDefinition_id_fk" FOREIGN KEY ("credential_definition") REFERENCES "public"."credentialDefinition"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+
+ALTER TABLE "issuersToCredentialSchemas" ADD CONSTRAINT "issuersToCredentialSchemas_issuer_issuer_id_fk" FOREIGN KEY ("issuer") REFERENCES "public"."issuer"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+
+ALTER TABLE "issuersToCredentialSchemas" ADD CONSTRAINT "issuersToCredentialSchemas_credential_schema_credentialSchema_id_fk" FOREIGN KEY ("credential_schema") REFERENCES "public"."credentialSchema"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+
 ALTER TABLE "step" ADD CONSTRAINT "step_sub_scenario_scenario_id_fk" FOREIGN KEY ("sub_scenario") REFERENCES "public"."scenario"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "step" ADD CONSTRAINT "step_scenario_scenario_id_fk" FOREIGN KEY ("scenario") REFERENCES "public"."scenario"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "step" ADD CONSTRAINT "step_asset_asset_id_fk" FOREIGN KEY ("asset") REFERENCES "public"."asset"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint

@@ -16,7 +16,7 @@ export const credentialDefinitions = pgTable('credentialDefinition', {
   version: text().notNull(),
   identifierType: IdentifierTypePg('identifier_type').notNull().$type<IdentifierType>(),
   identifier: text().notNull(),
-  credentialSchemaId: uuid()
+  credentialSchemaId: uuid('credential_schema_id')
     .references(() => credentialSchemas.id)
     .notNull(),
   icon: uuid()
