@@ -220,7 +220,8 @@ describe('Database scenario repository tests', (): void => {
                     ]
                 }
             ],
-            personas: [persona1.id, persona2.id]
+            personas: [persona1.id, persona2.id],
+            bannerImage: asset.id
         };
 
         const savedIssuanceScenario = await repository.create(issuanceScenario)
@@ -277,6 +278,11 @@ describe('Database scenario repository tests', (): void => {
         expect(savedIssuanceScenario.personas[0].bodyImage!.fileName).toEqual(asset.fileName)
         expect(savedIssuanceScenario.personas[0].bodyImage!.description).toEqual(asset.description)
         expect(savedIssuanceScenario.personas[0].bodyImage!.content).toStrictEqual(asset.content)
+        expect(savedIssuanceScenario.bannerImage!.id).toBeDefined()
+        expect(savedIssuanceScenario.bannerImage!.mediaType).toEqual(asset.mediaType)
+        expect(savedIssuanceScenario.bannerImage!.fileName).toEqual(asset.fileName)
+        expect(savedIssuanceScenario.bannerImage!.description).toEqual(asset.description)
+        expect(savedIssuanceScenario.bannerImage!.content).toStrictEqual(asset.content);
     })
 
     it('Should save presentation scenario to database', async (): Promise<void> => {
@@ -518,6 +524,101 @@ describe('Database scenario repository tests', (): void => {
         };
 
         await expect(repository.create(issuanceScenario)).rejects.toThrowError(`No issuer found for id: ${unknownIssuerId}`)
+    })
+
+    it('Should throw error when saving scenario with banner image id', async (): Promise<void> => {
+        const unknownBannerImageId = 'a197e5b2-e4e5-4788-83b1-ecaa0e99ed3a'
+        const issuanceScenario: NewIssuanceScenario = {
+            name: 'example_name',
+            description: 'example_description',
+            issuer: issuer.id,
+            steps: [
+                {
+                    title: 'example_title',
+                    description: 'example_description',
+                    order: 1,
+                    type: StepType.HUMAN_TASK,
+                    asset: asset.id,
+                    actions: [
+                        {
+                            title: 'example_title',
+                            actionType: StepActionType.ARIES_OOB,
+                            text: 'example_text',
+                            proofRequest: {
+                                attributes: {
+                                    attribute1: {
+                                        attributes: ['attribute1', 'attribute2'],
+                                        restrictions: ['restriction1', 'restriction2']
+                                    },
+                                    attribute2: {
+                                        attributes: ['attribute1', 'attribute2'],
+                                        restrictions: ['restriction1', 'restriction2']
+                                    }
+                                },
+                                predicates: {
+                                    predicate1: {
+                                        name: 'example_name',
+                                        type: 'example_type',
+                                        value: 'example_value',
+                                        restrictions: ['restriction1', 'restriction2']
+                                    },
+                                    predicate2: {
+                                        name: 'example_name',
+                                        type: 'example_type',
+                                        value: 'example_value',
+                                        restrictions: ['restriction1', 'restriction2']
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    title: 'example_title',
+                    description: 'example_description',
+                    order: 2,
+                    type: StepType.HUMAN_TASK,
+                    asset: asset.id,
+                    actions: [
+                        {
+                            title: 'example_title',
+                            actionType: StepActionType.ARIES_OOB,
+                            text: 'example_text',
+                            proofRequest: {
+                                attributes: {
+                                    attribute1: {
+                                        attributes: ['attribute1', 'attribute2'],
+                                        restrictions: ['restriction1', 'restriction2']
+                                    },
+                                    attribute2: {
+                                        attributes: ['attribute1', 'attribute2'],
+                                        restrictions: ['restriction1', 'restriction2']
+                                    }
+                                },
+                                predicates: {
+                                    predicate1: {
+                                        name: 'example_name',
+                                        type: 'example_type',
+                                        value: 'example_value',
+                                        restrictions: ['restriction1', 'restriction2']
+                                    },
+                                    predicate2: {
+                                        name: 'example_name',
+                                        type: 'example_type',
+                                        value: 'example_value',
+                                        restrictions: ['restriction1', 'restriction2']
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            personas: [persona1.id],
+            bannerImage: unknownBannerImageId
+        };
+
+        await expect(repository.create(issuanceScenario)).rejects.toThrowError(`No asset found for id: ${unknownBannerImageId}`)
     })
 
     it('Should throw error when saving scenario with duplicate step order', async (): Promise<void> => {
@@ -1522,8 +1623,154 @@ describe('Database scenario repository tests', (): void => {
         await expect(repository.update(savedIssuanceScenario.id, updatedIssuanceScenario)).rejects.toThrowError(`No issuer found for id: ${unknownIssuerId}`)
     })
 
-    it('Should throw error when updating scenario with invalid persona id', async (): Promise<void> => {
-        const unknownPersonaId = 'a197e5b2-e4e5-4788-83b1-ecaa0e99ed3a'
+    it('Should throw error when updating scenario with invalid issuer id', async (): Promise<void> => {
+        const unknownIssuerId = 'a197e5b2-e4e5-4788-83b1-ecaa0e99ed3a'
+        const issuanceScenario: NewIssuanceScenario = {
+            name: 'example_name',
+            description: 'example_description',
+            issuer: issuer.id,
+            steps: [
+                {
+                    title: 'example_title',
+                    description: 'example_description',
+                    order: 1,
+                    type: StepType.HUMAN_TASK,
+                    asset: asset.id,
+                    actions: [
+                        {
+                            title: 'example_title',
+                            actionType: StepActionType.ARIES_OOB,
+                            text: 'example_text',
+                            proofRequest: {
+                                attributes: {
+                                    attribute1: {
+                                        attributes: ['attribute1', 'attribute2'],
+                                        restrictions: ['restriction1', 'restriction2']
+                                    },
+                                    attribute2: {
+                                        attributes: ['attribute1', 'attribute2'],
+                                        restrictions: ['restriction1', 'restriction2']
+                                    }
+                                },
+                                predicates: {
+                                    predicate1: {
+                                        name: 'example_name',
+                                        type: 'example_type',
+                                        value: 'example_value',
+                                        restrictions: ['restriction1', 'restriction2']
+                                    },
+                                    predicate2: {
+                                        name: 'example_name',
+                                        type: 'example_type',
+                                        value: 'example_value',
+                                        restrictions: ['restriction1', 'restriction2']
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    title: 'example_title',
+                    description: 'example_description',
+                    order: 2,
+                    type: StepType.HUMAN_TASK,
+                    asset: asset.id,
+                    actions: [
+                        {
+                            title: 'example_title',
+                            actionType: StepActionType.ARIES_OOB,
+                            text: 'example_text',
+                            proofRequest: {
+                                attributes: {
+                                    attribute1: {
+                                        attributes: ['attribute1', 'attribute2'],
+                                        restrictions: ['restriction1', 'restriction2']
+                                    },
+                                    attribute2: {
+                                        attributes: ['attribute1', 'attribute2'],
+                                        restrictions: ['restriction1', 'restriction2']
+                                    }
+                                },
+                                predicates: {
+                                    predicate1: {
+                                        name: 'example_name',
+                                        type: 'example_type',
+                                        value: 'example_value',
+                                        restrictions: ['restriction1', 'restriction2']
+                                    },
+                                    predicate2: {
+                                        name: 'example_name',
+                                        type: 'example_type',
+                                        value: 'example_value',
+                                        restrictions: ['restriction1', 'restriction2']
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            personas: [persona1.id]
+        };
+
+        const savedIssuanceScenario = await repository.create(issuanceScenario)
+        expect(savedIssuanceScenario).toBeDefined()
+
+        const updatedIssuanceScenario: NewIssuanceScenario = {
+            ...savedIssuanceScenario,
+            steps: [
+                {
+                    title: 'example_title',
+                    description: 'example_description',
+                    order: 1,
+                    type: StepType.HUMAN_TASK,
+                    asset: asset.id,
+                    actions: [
+                        {
+                            title: 'example_title',
+                            actionType: StepActionType.ARIES_OOB,
+                            text: 'example_text',
+                            proofRequest: {
+                                attributes: {
+                                    attribute1: {
+                                        attributes: ['attribute1', 'attribute2'],
+                                        restrictions: ['restriction1', 'restriction2']
+                                    },
+                                    attribute2: {
+                                        attributes: ['attribute1', 'attribute2'],
+                                        restrictions: ['restriction1', 'restriction2']
+                                    }
+                                },
+                                predicates: {
+                                    predicate1: {
+                                        name: 'example_name',
+                                        type: 'example_type',
+                                        value: 'example_value',
+                                        restrictions: ['restriction1', 'restriction2']
+                                    },
+                                    predicate2: {
+                                        name: 'example_name',
+                                        type: 'example_type',
+                                        value: 'example_value',
+                                        restrictions: ['restriction1', 'restriction2']
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+            ],
+            issuer: unknownIssuerId,
+            personas: [persona1.id],
+            bannerImage: null
+        }
+
+        await expect(repository.update(savedIssuanceScenario.id, updatedIssuanceScenario)).rejects.toThrowError(`No issuer found for id: ${unknownIssuerId}`)
+    })
+
+    it('Should throw error when updating scenario with invalid banner image id', async (): Promise<void> => {
+        const unknownBannerImageId = 'a197e5b2-e4e5-4788-83b1-ecaa0e99ed3a'
         const issuanceScenario: NewIssuanceScenario = {
             name: 'example_name',
             description: 'example_description',
@@ -1621,11 +1868,11 @@ describe('Database scenario repository tests', (): void => {
                 },
             ],
             issuer: issuer.id,
-            personas: [unknownPersonaId],
-            bannerImage: null
+            personas: [persona1.id],
+            bannerImage: unknownBannerImageId
         }
 
-        await expect(repository.update(savedIssuanceScenario.id, updatedIssuanceScenario)).rejects.toThrowError(`No persona found for id: ${unknownPersonaId}`)
+        await expect(repository.update(savedIssuanceScenario.id, updatedIssuanceScenario)).rejects.toThrowError(`No asset found for id: ${unknownBannerImageId}`)
     })
 
     it('Should throw error when updating scenario with no personas', async (): Promise<void> => {

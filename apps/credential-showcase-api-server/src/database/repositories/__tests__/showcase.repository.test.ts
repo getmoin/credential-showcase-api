@@ -319,7 +319,7 @@ describe('Database showcase repository tests', (): void => {
             description: 'example_description',
             status: ShowcaseStatus.ACTIVE,
             hidden: false,
-            scenarios: [issuanceFlow1.id, issuanceFlow2.id],
+            scenarios: [issuanceScenario1.id, issuanceScenario2.id],
             credentialDefinitions: [credentialDefinition1.id, credentialDefinition2.id],
             personas: [persona1.id, persona2.id],
             bannerImage: unknownBannerImageId
@@ -601,7 +601,7 @@ describe('Database showcase repository tests', (): void => {
             description: 'example_description',
             status: ShowcaseStatus.ACTIVE,
             hidden: false,
-            scenarios: [issuanceFlow1.id, issuanceFlow2.id],
+            scenarios: [issuanceScenario1.id, issuanceScenario2.id],
             credentialDefinitions: [credentialDefinition1.id, credentialDefinition2.id],
             personas: [persona1.id, persona2.id]
         };
@@ -610,7 +610,7 @@ describe('Database showcase repository tests', (): void => {
 
         const updatedShowcase: NewShowcase = {
             ...savedShowcase,
-            scenarios: [issuanceFlow1.id, issuanceFlow2.id],
+            scenarios: [issuanceScenario1.id, issuanceScenario2.id],
             credentialDefinitions: [credentialDefinition1.id, credentialDefinition2.id],
             personas: [persona1.id, persona2.id],
             bannerImage: unknownBannerImageId
