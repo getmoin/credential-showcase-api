@@ -11,12 +11,21 @@ import PresentationScenarioController from './controllers/PresentationScenarioCo
 import ShowcaseController from './controllers/ShowcaseController'
 import { CredentialDefinitionController } from './controllers/CredentialDefinitionController'
 import { CredentialSchemaController } from './controllers/CredentialSchemaController'
+import DatabaseService from './services/DatabaseService'
 
 require('dotenv-flow').config()
 
 // Ensure routing-controllers uses typedi for DI
 useContainer(Container)
 
+async function bootstrap() {
+  try {
+    // Run database migrations
+    const databaseService = Container.get(DatabaseService)
+    await databaseService.runMigrations()
+    console.log('Database migrations completed successfully')
+
+    // Create and configure Express server
 const app = createExpressServer({
   controllers: [
     AssetController,
@@ -33,7 +42,16 @@ const app = createExpressServer({
   defaultErrorHandler: false,
 })
 
+    // Start the server
 const port = Number(process.env.PORT)
 app.listen(port, (): void => {
   console.log(`Server is running on port ${port}`)
 })
+  } catch (error) {
+    console.error('Failed to start application:', error)
+    process.exit(1)
+  }
+}
+
+// Start the application
+bootstrap()

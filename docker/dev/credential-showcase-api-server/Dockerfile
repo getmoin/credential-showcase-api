@@ -27,6 +27,7 @@ RUN pnpm deploy /deploy --filter credential-showcase-api-server --prod --no-opti
 FROM node:20-bookworm-slim
 WORKDIR /app
 COPY --from=builder /deploy /app
+COPY --from=builder /build/apps/credential-showcase-api-server/src/database/migrations /app/dist/database/migrations
 ENV NODE_ENV=production
 RUN echo PORT=3000  > .env
 CMD ["node", "dist/index.js"]
