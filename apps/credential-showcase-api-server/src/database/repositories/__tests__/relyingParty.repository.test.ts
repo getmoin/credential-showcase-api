@@ -17,7 +17,10 @@ import {
   NewAsset,
   NewCredentialDefinition,
   NewRelyingParty,
-  RelyingPartyType, NewCredentialSchema, IdentifierType, CredentialSchema,
+  RelyingPartyType,
+  NewCredentialSchema,
+  IdentifierType,
+  CredentialSchema,
 } from '../../../types'
 import { CredentialSchemaRepository } from '../CredentialSchemaRepository'
 
@@ -76,7 +79,7 @@ describe('Database relying party repository tests', (): void => {
       identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
       icon: asset.id,
       type: CredentialType.ANONCRED,
-      credentialSchema: credentialSchema.id
+      credentialSchema: credentialSchema.id,
 
       // representations: [
       //     { // TODO SHOWCASE-81 OCARepresentation

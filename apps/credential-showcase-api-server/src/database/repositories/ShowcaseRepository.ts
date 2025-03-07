@@ -536,8 +536,8 @@ class ShowcaseRepository implements RepositoryDefinition<Showcase, NewShowcase> 
         personas: scenario.scenario.personas.map((item) => item.persona),
       })),
       credentialDefinitions: result.credentialDefinitions.map((item: any) => ({
-      ...item,
-      credentialSchema: item.cs,
+        ...item,
+        credentialSchema: item.cs,
       })),
       personas: result.personas.map((item) => item.persona),
     }

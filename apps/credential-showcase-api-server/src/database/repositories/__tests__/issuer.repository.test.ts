@@ -17,7 +17,10 @@ import {
   NewAsset,
   NewCredentialDefinition,
   NewIssuer,
-  IssuerType, NewCredentialSchema, CredentialSchema, IdentifierType,
+  IssuerType,
+  NewCredentialSchema,
+  CredentialSchema,
+  IdentifierType,
 } from '../../../types'
 import { CredentialSchemaRepository } from '../CredentialSchemaRepository'
 
@@ -363,7 +366,7 @@ describe('Database issuer repository tests', (): void => {
 
     await expect(repository.update(savedIssuer.id, updatedIssuer)).rejects.toThrowError(`At least one credential schema is required`)
   })
-  
+
   it('Should throw error when updating issuer with invalid credential definition id', async (): Promise<void> => {
     const unknownCredentialDefinitionId = '498e1086-a2ac-4189-b951-fe863d0fe9fc'
     const issuer: NewIssuer = {

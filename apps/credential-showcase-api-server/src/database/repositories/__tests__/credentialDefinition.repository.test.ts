@@ -8,7 +8,15 @@ import DatabaseService from '../../../services/DatabaseService'
 import AssetRepository from '../AssetRepository'
 import CredentialDefinitionRepository from '../CredentialDefinitionRepository'
 import * as schema from '../../schema'
-import { Asset, NewAsset, CredentialAttributeType, CredentialType, NewCredentialDefinition, NewCredentialSchema, IdentifierType } from '../../../types'
+import {
+  Asset,
+  NewAsset,
+  CredentialAttributeType,
+  CredentialType,
+  NewCredentialDefinition,
+  NewCredentialSchema,
+  IdentifierType,
+} from '../../../types'
 import { CredentialSchemaRepository } from '../CredentialSchemaRepository'
 
 describe('Database credential definition repository tests', (): void => {

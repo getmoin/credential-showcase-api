@@ -15,7 +15,8 @@ import * as schema from '../../../database/schema'
 import {
   Asset,
   CredentialAttributeType,
-  CredentialType, IdentifierType,
+  CredentialType,
+  IdentifierType,
   IssuanceScenario,
   Issuer,
   IssuerType,

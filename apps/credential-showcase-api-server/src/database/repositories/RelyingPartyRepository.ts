@@ -174,8 +174,8 @@ class RelyingPartyRepository implements RepositoryDefinition<RelyingParty, NewRe
     return {
       ...result,
       credentialDefinitions: result.cds.map((item: any) => ({
-      ...item,
-      credentialSchema: item.cs,
+        ...item,
+        credentialSchema: item.cs,
       })),
     }
   }
@@ -208,9 +208,9 @@ class RelyingPartyRepository implements RepositoryDefinition<RelyingParty, NewRe
     return result.map((relyingParty) => ({
       ...relyingParty,
       credentialDefinitions: relyingParty.cds.map((item: any) => ({
-      ...item,
-      credentialSchema: item.cs,
-      }))
+        ...item,
+        credentialSchema: item.cs,
+      })),
     }))
   }
 }

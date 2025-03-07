@@ -134,7 +134,9 @@ class CredentialDefinitionRepository implements RepositoryDefinition<CredentialD
   }
 
   async findAll(): Promise<CredentialDefinition[]> {
-    const result = await (await this.databaseService.getConnection()).query.credentialDefinitions.findMany({
+    const result = await (
+      await this.databaseService.getConnection()
+    ).query.credentialDefinitions.findMany({
       with: {
         icon: true,
         cs: {
