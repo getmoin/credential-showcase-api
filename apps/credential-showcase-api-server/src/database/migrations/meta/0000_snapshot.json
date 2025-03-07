@@ -1,5 +1,5 @@
 {
-  "id": "4cd0edbe-47ca-40a6-9cd5-ed92a134d48e",
+  "id": "8452c662-737a-4a51-b046-fb271f4afdbf",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -160,8 +160,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "credential_definition": {
-          "name": "credential_definition",
+        "credential_schema": {
+          "name": "credential_schema",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -183,11 +183,11 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "credentialAttribute_credential_definition_credentialDefinition_id_fk": {
-          "name": "credentialAttribute_credential_definition_credentialDefinition_id_fk",
+        "credentialAttribute_credential_schema_credentialSchema_id_fk": {
+          "name": "credentialAttribute_credential_schema_credentialSchema_id_fk",
           "tableFrom": "credentialAttribute",
-          "tableTo": "credentialDefinition",
-          "columnsFrom": ["credential_definition"],
+          "tableTo": "credentialSchema",
+          "columnsFrom": ["credential_schema"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -222,6 +222,25 @@
           "primaryKey": false,
           "notNull": true
         },
+        "identifier_type": {
+          "name": "identifier_type",
+          "type": "IdentifierType",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "identifier": {
+          "name": "identifier",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "credential_schema": {
+          "name": "credential_schema",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
         "icon": {
           "name": "icon",
           "type": "uuid",
@@ -252,6 +271,15 @@
       },
       "indexes": {},
       "foreignKeys": {
+        "credentialDefinition_credential_schema_credentialSchema_id_fk": {
+          "name": "credentialDefinition_credential_schema_credentialSchema_id_fk",
+          "tableFrom": "credentialDefinition",
+          "tableTo": "credentialSchema",
+          "columnsFrom": ["credential_schema"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "credentialDefinition_icon_asset_id_fk": {
           "name": "credentialDefinition_icon_asset_id_fk",
           "tableFrom": "credentialDefinition",
@@ -312,6 +340,51 @@
           "onUpdate": "no action"
         }
       },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.credentialSchema": {
+      "name": "credentialSchema",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "identifier_type": {
+          "name": "identifier_type",
+          "type": "IdentifierType",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "identifier": {
+          "name": "identifier",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "version": {
+          "name": "version",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -587,6 +660,55 @@
         "issuersToCredentialDefinitions_issuer_credential_definition_pk": {
           "name": "issuersToCredentialDefinitions_issuer_credential_definition_pk",
           "columns": ["issuer", "credential_definition"]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.issuersToCredentialSchemas": {
+      "name": "issuersToCredentialSchemas",
+      "schema": "",
+      "columns": {
+        "issuer": {
+          "name": "issuer",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "credential_schema": {
+          "name": "credential_schema",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "issuersToCredentialSchemas_issuer_issuer_id_fk": {
+          "name": "issuersToCredentialSchemas_issuer_issuer_id_fk",
+          "tableFrom": "issuersToCredentialSchemas",
+          "tableTo": "issuer",
+          "columnsFrom": ["issuer"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "issuersToCredentialSchemas_credential_schema_credentialSchema_id_fk": {
+          "name": "issuersToCredentialSchemas_credential_schema_credentialSchema_id_fk",
+          "tableFrom": "issuersToCredentialSchemas",
+          "tableTo": "credentialSchema",
+          "columnsFrom": ["credential_schema"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "issuersToCredentialSchemas_issuer_credential_schema_pk": {
+          "name": "issuersToCredentialSchemas_issuer_credential_schema_pk",
+          "columns": ["issuer", "credential_schema"]
         }
       },
       "uniqueConstraints": {},
@@ -879,7 +1001,7 @@
       "checkConstraints": {
         "scenario_type_check": {
           "name": "scenario_type_check",
-          "value": "\n            (scenario_type = 'PRESENTATION' AND relying_party IS NOT NULL) OR\n            (scenario_type = 'ISSUANCE' AND issuer IS NOT NULL)\n        "
+          "value": "\n            (scenario_type = 'PRESENTATION' AND relying_party IS NOT NULL) OR\n            (scenario_type = 'ISSUANCE' AND issuer IS NOT NULL)\n    "
         }
       },
       "isRLSEnabled": false
@@ -1387,6 +1509,11 @@
       "name": "CredentialType",
       "schema": "public",
       "values": ["ANONCRED"]
+    },
+    "public.IdentifierType": {
+      "name": "IdentifierType",
+      "schema": "public",
+      "values": ["DID"]
     },
     "public.IssuerType": {
       "name": "IssuerType",

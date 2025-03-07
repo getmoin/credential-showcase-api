@@ -3,24 +3,21 @@ import { Service } from 'typedi'
 import DatabaseService from '../../services/DatabaseService'
 import AssetRepository from './AssetRepository'
 import { NotFoundError } from '../../errors'
-import { credentialAttributes, credentialDefinitions, credentialRepresentations, revocationInfo } from '../schema'
-import {
-  CredentialDefinition,
-  NewCredentialAttribute,
-  NewCredentialDefinition,
-  // NewCredentialRepresentation, TODO SHOWCASE-81 enable
-  RepositoryDefinition,
-} from '../../types'
+import { credentialDefinitions, credentialRepresentations, revocationInfo } from '../schema'
+import { CredentialDefinition, NewCredentialDefinition, RepositoryDefinition } from '../../types'
+import { CredentialSchemaRepository } from './CredentialSchemaRepository'
 
 @Service()
 class CredentialDefinitionRepository implements RepositoryDefinition<CredentialDefinition, NewCredentialDefinition> {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly assetRepository: AssetRepository,
+    private readonly credentialSchemaRepository: CredentialSchemaRepository,
   ) {}
 
   async create(credentialDefinition: NewCredentialDefinition): Promise<CredentialDefinition> {
     const iconResult = await this.assetRepository.findById(credentialDefinition.icon)
+    const credentialSchemaResult = await this.credentialSchemaRepository.findById(credentialDefinition.credentialSchema)
 
     return (await this.databaseService.getConnection()).transaction(async (tx): Promise<CredentialDefinition> => {
       const [credentialDefinitionResult] = await tx
@@ -28,16 +25,6 @@ class CredentialDefinitionRepository implements RepositoryDefinition<CredentialD
         .values({
           ...credentialDefinition,
         })
-        .returning()
-
-      const credentialAttributesResult = await tx
-        .insert(credentialAttributes)
-        .values(
-          credentialDefinition.attributes.map((attribute: NewCredentialAttribute) => ({
-            ...attribute,
-            credentialDefinition: credentialDefinitionResult.id,
-          })),
-        )
         .returning()
 
       // TODO SHOWCASE-81 enable
@@ -61,8 +48,8 @@ class CredentialDefinitionRepository implements RepositoryDefinition<CredentialD
 
       return {
         ...credentialDefinitionResult,
+        credentialSchema: credentialSchemaResult,
         icon: iconResult,
-        attributes: credentialAttributesResult,
         representations: [], //credentialRepresentationsResult, TODO SHOWCASE-81 enable
         revocation: revocationResult,
       }
@@ -87,19 +74,8 @@ class CredentialDefinitionRepository implements RepositoryDefinition<CredentialD
         .where(eq(credentialDefinitions.id, id))
         .returning()
 
-      await tx.delete(credentialAttributes).where(eq(credentialAttributes.credentialDefinition, id))
       await tx.delete(credentialRepresentations).where(eq(credentialRepresentations.credentialDefinition, id))
       await tx.delete(revocationInfo).where(eq(revocationInfo.credentialDefinition, id))
-
-      const credentialAttributesResult = await tx
-        .insert(credentialAttributes)
-        .values(
-          credentialDefinition.attributes.map((attribute: NewCredentialAttribute) => ({
-            ...attribute,
-            credentialDefinition: credentialDefinitionResult.id,
-          })),
-        )
-        .returning()
 
       // TODO SHOWCASE-81 enable
       // const credentialRepresentationsResult = await tx.insert(credentialRepresentations)
@@ -119,11 +95,12 @@ class CredentialDefinitionRepository implements RepositoryDefinition<CredentialD
       //         })
       //         .returning();
       // }
+      const credentialSchemaResult = await this.credentialSchemaRepository.findById(credentialDefinition.credentialSchema)
 
       return {
         ...credentialDefinitionResult,
+        credentialSchema: credentialSchemaResult,
         icon: iconResult,
-        attributes: credentialAttributesResult,
         representations: [], //credentialRepresentationsResult, TODO SHOWCASE-81 enable
         revocation: revocationResult,
       }
@@ -137,7 +114,11 @@ class CredentialDefinitionRepository implements RepositoryDefinition<CredentialD
       where: eq(credentialDefinitions.id, id),
       with: {
         icon: true,
-        attributes: true,
+        cs: {
+          with: {
+            attributes: true,
+          },
+        },
         representations: true,
         revocation: true,
       },
@@ -146,19 +127,31 @@ class CredentialDefinitionRepository implements RepositoryDefinition<CredentialD
     if (!result) {
       return Promise.reject(new NotFoundError(`No credential definition found for id: ${id}`))
     }
-
-    return result
+    return {
+      ...result,
+      credentialSchema: result.cs,
+    }
   }
 
   async findAll(): Promise<CredentialDefinition[]> {
-    return (await this.databaseService.getConnection()).query.credentialDefinitions.findMany({
+    const result = await (
+      await this.databaseService.getConnection()
+    ).query.credentialDefinitions.findMany({
       with: {
         icon: true,
-        attributes: true,
+        cs: {
+          with: {
+            attributes: true,
+          },
+        },
         representations: true,
         revocation: true,
       },
     })
+    return result.map((item: any) => ({
+      ...item,
+      credentialSchema: item.cs,
+    }))
   }
 }
 

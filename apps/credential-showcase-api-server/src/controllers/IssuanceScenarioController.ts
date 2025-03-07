@@ -2,8 +2,6 @@ import { Body, Delete, Get, HttpCode, JsonController, OnUndefined, Param, Post, 
 import { Service } from 'typedi'
 import ScenarioService from '../services/ScenarioService'
 import {
-  IssuanceScenarioRequest,
-  IssuanceScenarioRequestToJSONTyped,
   IssuanceScenarioResponse,
   IssuanceScenarioResponseFromJSONTyped,
   IssuanceScenariosResponse,
@@ -20,6 +18,8 @@ import {
   StepActionResponseFromJSONTyped,
   StepActionRequest,
   StepActionRequestToJSONTyped,
+  IssuanceScenarioRequest,
+  IssuanceScenarioRequestToJSONTyped,
 } from 'credential-showcase-openapi'
 import { issuanceScenarioDTOFrom, stepDTOFrom } from '../utils/mappers'
 import { ScenarioType } from '../types'

@@ -51,7 +51,11 @@ class RelyingPartyRepository implements RepositoryDefinition<RelyingParty, NewRe
           relyingPartiesToCredentialDefinitionsResult.map((item) => item.credentialDefinition),
         ),
         with: {
-          attributes: true,
+          cs: {
+            with: {
+              attributes: true,
+            },
+          },
           representations: true,
           revocation: true,
           icon: true,
@@ -61,7 +65,10 @@ class RelyingPartyRepository implements RepositoryDefinition<RelyingParty, NewRe
       return {
         ...relyingPartyResult,
         logo: logoResult,
-        credentialDefinitions: credentialDefinitionsResult,
+        credentialDefinitions: credentialDefinitionsResult.map((item: any) => ({
+          ...item,
+          credentialSchema: item.cs,
+        })),
       }
     })
   }
@@ -112,7 +119,11 @@ class RelyingPartyRepository implements RepositoryDefinition<RelyingParty, NewRe
           relyingPartiesToCredentialDefinitionsResult.map((item) => item.credentialDefinition),
         ),
         with: {
-          attributes: true,
+          cs: {
+            with: {
+              attributes: true,
+            },
+          },
           representations: true,
           revocation: true,
           icon: true,
@@ -122,7 +133,10 @@ class RelyingPartyRepository implements RepositoryDefinition<RelyingParty, NewRe
       return {
         ...relyingPartyResult,
         logo: logoResult,
-        credentialDefinitions: credentialDefinitionsResult,
+        credentialDefinitions: credentialDefinitionsResult.map((item: any) => ({
+          ...item,
+          credentialSchema: item.cs,
+        })),
       }
     })
   }
@@ -138,7 +152,11 @@ class RelyingPartyRepository implements RepositoryDefinition<RelyingParty, NewRe
             cd: {
               with: {
                 icon: true,
-                attributes: true,
+                cs: {
+                  with: {
+                    attributes: true,
+                  },
+                },
                 representations: true,
                 revocation: true,
               },
@@ -155,7 +173,10 @@ class RelyingPartyRepository implements RepositoryDefinition<RelyingParty, NewRe
 
     return {
       ...result,
-      credentialDefinitions: result.cds.map((item) => item.cd),
+      credentialDefinitions: result.cds.map((item: any) => ({
+        ...item,
+        credentialSchema: item.cs,
+      })),
     }
   }
 
@@ -169,7 +190,11 @@ class RelyingPartyRepository implements RepositoryDefinition<RelyingParty, NewRe
             cd: {
               with: {
                 icon: true,
-                attributes: true,
+                cs: {
+                  with: {
+                    attributes: true,
+                  },
+                },
                 representations: true,
                 revocation: true,
               },
@@ -182,7 +207,10 @@ class RelyingPartyRepository implements RepositoryDefinition<RelyingParty, NewRe
 
     return result.map((relyingParty) => ({
       ...relyingParty,
-      credentialDefinitions: relyingParty.cds.map((item) => item.cd),
+      credentialDefinitions: relyingParty.cds.map((item: any) => ({
+        ...item,
+        credentialSchema: item.cs,
+      })),
     }))
   }
 }
