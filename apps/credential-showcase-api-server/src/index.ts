@@ -10,6 +10,7 @@ import IssuanceScenarioController from './controllers/IssuanceScenarioController
 import PresentationScenarioController from './controllers/PresentationScenarioController'
 import ShowcaseController from './controllers/ShowcaseController'
 import { CredentialDefinitionController } from './controllers/CredentialDefinitionController'
+import { CredentialSchemaController } from './controllers/CredentialSchemaController'
 
 require('dotenv-flow').config()
 
@@ -20,6 +21,7 @@ const app = createExpressServer({
   controllers: [
     AssetController,
     PersonaController,
+    CredentialSchemaController,
     CredentialDefinitionController,
     RelyingPartyController,
     IssuerController,
