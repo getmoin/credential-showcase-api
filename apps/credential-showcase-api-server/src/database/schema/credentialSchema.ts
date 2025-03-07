@@ -1,8 +1,8 @@
 import { pgTable, text, uuid } from 'drizzle-orm/pg-core'
+import { IdentifierTypePg } from './identifierType'
+import { IdentifierType } from '../../types'
 import { relations } from 'drizzle-orm'
 import { credentialAttributes } from './credentialAttribute'
-import { IdentifierTypePg } from './identifierType'
-import { IdentifierType } from 'credential-showcase-openapi'
 
 export const credentialSchemas = pgTable('credentialSchema', {
   id: uuid('id').notNull().primaryKey().defaultRandom(),

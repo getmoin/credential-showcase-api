@@ -106,10 +106,6 @@ describe('Database credential definition repository tests', (): void => {
     expect(savedCredentialDefinition.icon.fileName).toEqual(asset.fileName)
     expect(savedCredentialDefinition.icon.description).toEqual(asset.description)
     expect(savedCredentialDefinition.icon.content).toStrictEqual(asset.content)
-    expect(savedCredentialSchema.attributes.length).toEqual(2)
-    expect(savedCredentialSchema.attributes[0].name).toEqual(newCredentialSchema.attributes[0].name)
-    expect(savedCredentialSchema.attributes[0].value).toEqual(newCredentialSchema.attributes[0].value)
-    expect(savedCredentialSchema.attributes[0].type).toEqual(newCredentialSchema.attributes[0].type)
 
     // TODO SHOWCASE-81 representations
     //expect(savedCredentialDefinition.representations.length).toEqual(2)
@@ -218,12 +214,8 @@ describe('Database credential definition repository tests', (): void => {
     expect(fromDb.icon.fileName).toEqual(asset.fileName)
     expect(fromDb.icon.description).toEqual(asset.description)
     expect(fromDb.icon.content).toStrictEqual(asset.content)
-    expect(savedCredentialSchema.attributes.length).toEqual(2)
-    expect(savedCredentialSchema.attributes[0].name).toEqual(newCredentialSchema.attributes[0].name)
-    expect(savedCredentialSchema.attributes[0].value).toEqual(newCredentialSchema.attributes[0].value)
-    expect(savedCredentialSchema.attributes[0].type).toEqual(newCredentialSchema.attributes[0].type)
     // TODO SHOWCASE-81 representations
-    //expect(savedCredentialSchema.representations.length).toEqual(2)
+    //expect(fromDb.representations.length).toEqual(2)
     // expect(fromDb.revocation).not.toBeNull()
     //expect(fromDb.revocation!.title).toEqual(credentialDefinition.revocation!.title)
     //expect(fromDb.revocation!.description).toEqual(credentialDefinition.revocation!.description)

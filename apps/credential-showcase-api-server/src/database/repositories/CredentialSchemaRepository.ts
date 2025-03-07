@@ -14,11 +14,7 @@ export class CredentialSchemaRepository implements RepositoryDefinition<Credenti
       const [credentialSchemaResult] = await tx
         .insert(credentialSchemas)
         .values({
-          identifierType: credentialSchema.identifierType,
-          identifier: credentialSchema.identifier,
-          name: credentialSchema.name,
-          version: credentialSchema.version,
-          // issuerId: credentialSchema.issuerId,
+          ...credentialSchema
         })
         .returning()
 
@@ -51,10 +47,7 @@ export class CredentialSchemaRepository implements RepositoryDefinition<Credenti
       const [credentialSchemaResult] = await tx
         .update(credentialSchemas)
         .set({
-          name: credentialSchema.name,
-          version: credentialSchema.version,
-          identifierType: credentialSchema.identifierType,
-          identifier: credentialSchema.identifier,
+          ...credentialSchema
         })
         .where(eq(credentialSchemas.id, id))
         .returning()

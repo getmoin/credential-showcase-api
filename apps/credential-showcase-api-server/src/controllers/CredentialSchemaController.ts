@@ -9,7 +9,6 @@ import {
   CredentialSchemasResponse,
   CredentialSchemasResponseFromJSONTyped,
 } from 'credential-showcase-openapi'
-import { credentialSchemaDTOFrom } from '../utils/mappers'
 
 @JsonController('/credentials/schemas')
 @Service()
@@ -19,27 +18,26 @@ export class CredentialSchemaController {
   @Get('/')
   public async getAll(): Promise<CredentialSchemasResponse> {
     const result = await this.credentialSchemaService.getCredentialSchemas()
-    const credentialSchemas = result.map((schema) => credentialSchemaDTOFrom(schema))
-    return CredentialSchemasResponseFromJSONTyped({ credentialSchemas }, false)
+    return CredentialSchemasResponseFromJSONTyped({ result }, false)
   }
 
   @Get('/:id')
   public async getOne(@Param('id') id: string): Promise<CredentialSchemaResponse> {
-    const result = await this.credentialSchemaService.getCredentialSchema(id)
-    return CredentialSchemaResponseFromJSONTyped({ credentialSchema: credentialSchemaDTOFrom(result) }, false)
+    const credentialSchema = await this.credentialSchemaService.getCredentialSchema(id)
+    return CredentialSchemaResponseFromJSONTyped({ credentialSchema }, false)
   }
 
   @HttpCode(201)
   @Post('/')
   public async post(@Body() credentialSchemaRequest: CredentialSchemaRequest): Promise<CredentialSchemaResponse> {
-    const result = await this.credentialSchemaService.createCredentialSchema(CredentialSchemaRequestToJSONTyped(credentialSchemaRequest))
-    return CredentialSchemaResponseFromJSONTyped({ credentialSchema: credentialSchemaDTOFrom(result) }, false)
+    const credentialSchema = await this.credentialSchemaService.createCredentialSchema(CredentialSchemaRequestToJSONTyped(credentialSchemaRequest))
+    return CredentialSchemaResponseFromJSONTyped({ credentialSchema }, false)
   }
 
   @Put('/:id')
   public async put(@Param('id') id: string, @Body() credentialSchemaRequest: CredentialSchemaRequest): Promise<CredentialSchemaResponse> {
-    const result = await this.credentialSchemaService.updateCredentialSchema(id, CredentialSchemaRequestToJSONTyped(credentialSchemaRequest))
-    return CredentialSchemaResponseFromJSONTyped({ credentialSchema: credentialSchemaDTOFrom(result) }, false)
+    const credentialSchema = await this.credentialSchemaService.updateCredentialSchema(id, CredentialSchemaRequestToJSONTyped(credentialSchemaRequest))
+    return CredentialSchemaResponseFromJSONTyped({ credentialSchema }, false)
   }
 
   @OnUndefined(204)
