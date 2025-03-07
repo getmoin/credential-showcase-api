@@ -98,7 +98,7 @@ jobs:
           projectBaseDir: .
           args: >
             -Dsonar.projectKey=${{ inputs.sonar_project_key }}
-            -Dsonar.sources=${{ inputs.package_path }}/${{ inputs.package_name }}/src
+            -Dsonar.sources=${{ inputs.package_path }}${{ inputs.package_path && '/' }}${{ inputs.package_name }}/src
 
   build:
     name: Build and Push Docker Image - ${{ inputs.package_name }}
