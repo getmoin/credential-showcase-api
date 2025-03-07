@@ -991,7 +991,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /credential-definitions:
+  /credentials/definitions:
     get:
       tags:
         - Credential Definitions
@@ -1038,7 +1038,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /credential-definitions/{definitionId}:
+  /credentials/definitions/{definitionId}:
     parameters:
       - name: definitionId
         in: path
@@ -1099,7 +1099,154 @@ paths:
       responses:
         '204':
           description: Deleted
+  /credentials/definitions/{definitionId}/representations:
+    parameters:
+      - name: definitionId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Credential Definitions
+      summary: List credential representations
+      operationId: listCredentialRepresentations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  oneOf:
+                    - $ref: '#/components/schemas/CredentialRepresentation'
+                    - $ref: '#/components/schemas/OCARepresentation'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
+  /credentials/schemas:
+    get:
+      tags:
+        - Credential Definitions
+      summary: List credential schemas
+      operationId: listCredentialSchemas
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialSchemasResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags:
+        - Credential Definitions
+      summary: Create a credential schema
+      operationId: createCredentialSchema
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CredentialSchemaRequest'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialSchemaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /credentials/schemas/{schemaId}:
+    parameters:
+      - name: schemaId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Credential Definitions
+      summary: Get a specific credential schema
+      operationId: getCredentialSchema
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialSchemaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags:
+        - Credential Definitions
+      summary: Update a credential schema
+      operationId: updateCredentialSchema
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CredentialSchemaRequest'
+        required: true
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialSchemaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      tags:
+        - Credential Definitions
+      summary: Delete a credential schema
+      operationId: deleteCredentialSchema
+      responses:
+        '204':
+          description: Deleted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /personas:
     get:
       tags:
@@ -1584,13 +1731,13 @@ paths:
                 items:
                   $ref: '#/components/schemas/ShowcasesResponse'
         '400':
-            $ref: '#/components/responses/BadRequest'
+          $ref: '#/components/responses/BadRequest'
         '401':
-            $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-            $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/Forbidden'
         '500':
-            $ref: '#/components/responses/InternalServerError'
+          $ref: '#/components/responses/InternalServerError'
     post:
       tags:
         - Showcases
@@ -1610,13 +1757,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/ShowcaseResponse'
         '400':
-            $ref: '#/components/responses/BadRequest'
+          $ref: '#/components/responses/BadRequest'
         '401':
-            $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-            $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/Forbidden'
         '500':
-            $ref: '#/components/responses/InternalServerError'
+          $ref: '#/components/responses/InternalServerError'
   /showcases/{showcaseId}:
     parameters:
       - name: showcaseId
@@ -1638,13 +1785,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/ShowcaseResponse'
         '400':
-            $ref: '#/components/responses/BadRequest'
+          $ref: '#/components/responses/BadRequest'
         '401':
-            $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-            $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/Forbidden'
         '500':
-            $ref: '#/components/responses/InternalServerError'
+          $ref: '#/components/responses/InternalServerError'
     put:
       tags:
         - Showcases
@@ -1664,13 +1811,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/ShowcaseResponse'
         '400':
-            $ref: '#/components/responses/BadRequest'
+          $ref: '#/components/responses/BadRequest'
         '401':
-            $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-            $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/Forbidden'
         '500':
-            $ref: '#/components/responses/InternalServerError'
+          $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
         - Showcases
@@ -1678,23 +1825,23 @@ paths:
       operationId: deleteShowcase
       responses:
         '204':
-            description: Deleted
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    message:
-                      type: string
-                      description: A message indicating the showcase was deleted
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: A message indicating the showcase was deleted
         '400':
-            $ref: '#/components/responses/BadRequest'
+          $ref: '#/components/responses/BadRequest'
         '401':
-            $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-            $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/Forbidden'
         '500':
-            $ref: '#/components/responses/InternalServerError'
+          $ref: '#/components/responses/InternalServerError'
 
 components:
   securitySchemes:
@@ -2298,6 +2445,12 @@ components:
               type: string
               example: "313e4567-e89b-12d3-a456-426614174469"
 
+    IdentifierType:
+      type: string
+      enum:
+        - DID
+      description: Types of supported identifiers
+      example: DID
     IssuerType:
       type: string
       enum:
@@ -2344,6 +2497,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CredentialDefinition'
+        credentialSchemas:
+          type: array
+          items:
+            $ref: '#/components/schemas/CredentialSchema'
         createdAt:
           type: string
           description: Date and time the issuer was created
@@ -2372,6 +2529,12 @@ components:
           example: This issuer issues credentials to users
         type:
           $ref: '#/components/schemas/IssuerType'
+        identifierType:
+          $ref: '#/components/schemas/IdentifierType'
+        identifier:
+          type: string
+          description: External identifier of this issuer
+          example: did:sov:XUeUZauFLeBNofY3NhaZCB
         organization:
           type: string
           description: Organization the issuer belongs to
@@ -2509,8 +2672,8 @@ components:
         - name
         - version
         - type
+        - schemaId
         - icon
-        - attributes
         # TODO enable back in SHOWCASE-81
         # - representations
         - createdAt
@@ -2524,16 +2687,22 @@ components:
           type: string
           description: Name of the credential definition
           example: Credential Definition Name
+        schemaId:
+          type: string
+          description: Identifier of the associated credential schema
+          example: 123e4567-e89b-12d3-a456-426614174123
+        identifierType:
+          $ref: '#/components/schemas/IdentifierType'
+        identifier:
+          type: string
+          description: External identifier of this issuer
+          example: did:sov:XUeUZauFLeBNofY3NhaZCB
         version:
           type: string
           description: Version of the credential definition
           example: '1.0'
         type:
           $ref: '#/components/schemas/CredentialType'
-        attributes:
-          type: array
-          items:
-            $ref: '#/components/schemas/CredentialAttribute'
         representations:
           type: array
           items:
@@ -2563,7 +2732,7 @@ components:
         - version
         - type
         - icon
-        - attributes
+        - schemaId
         - representations
       properties:
         name:
@@ -2576,10 +2745,10 @@ components:
           example: '1.0'
         type:
           $ref: '#/components/schemas/CredentialType'
-        attributes:
-          type: array
-          items:
-            $ref: '#/components/schemas/CredentialAttributeRequest'
+        schemaId:
+          type: string
+          description: Reference to the associated credential schema
+          example: 456e4567-e89b-12d3-a456-426614174789
         representations:
           type: array
           description: List of representations for this credential definition
@@ -2749,6 +2918,75 @@ components:
               description: Identifier of the revocation registry for AnonCreds
               example: 123e4567-e89b-12d3-a456-426614174123
       description: Anonymous Credentials specific revocation information
+
+    CredentialSchema:
+      type: object
+      required:
+        - id
+        - name
+        - version
+        - attrNames
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the credential schema
+          example:  123e4567-e89b-12d3-a456-426614174123
+        name:
+          type: string
+          description: Name of the credential schema
+          example: Diploma Schema
+        version:
+          type: string
+          description: Version of the credential schema
+          example: '1.0'
+        identifierType:
+          $ref: '#/components/schemas/IdentifierType'
+        identifier:
+          type: string
+          description: External identifier of this schema
+          example: did:sov:XUeUZauFLeBNofY3NhaZCB
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CredentialAttribute'
+    CredentialSchemaRequest:
+      type: object
+      required:
+        - name
+        - version
+        - attrNames
+      properties:
+        name:
+          type: string
+          description: Name of the credential schema
+          example: Diploma Schema
+        version:
+          type: string
+          description: Version of the credential schema
+          example: '1.0'
+        identifierType:
+          $ref: '#/components/schemas/IdentifierType'
+        identifier:
+          type: string
+          description: External identifier of this schema
+          example: did:sov:XUeUZauFLeBNofY3NhaZCB
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CredentialAttribute'
+    CredentialSchemasResponse:
+      type: object
+      properties:
+        credentialSchemas:
+          type: array
+          description: "List of credential schemas"
+          items:
+            $ref: '#/components/schemas/CredentialSchema'
+    CredentialSchemaResponse:
+      type: object
+      properties:
+        credentialSchema:
+          $ref: '#/components/schemas/CredentialSchema'
 
     Showcase:
       type: object
