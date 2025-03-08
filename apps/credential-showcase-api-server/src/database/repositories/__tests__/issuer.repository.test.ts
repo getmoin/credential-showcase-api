@@ -18,11 +18,16 @@ import {
   NewCredentialDefinition,
   NewIssuer,
   IssuerType,
+  NewCredentialSchema,
+  CredentialSchema,
+  IdentifierType,
 } from '../../../types'
+import { CredentialSchemaRepository } from '../CredentialSchemaRepository'
 
 describe('Database issuer repository tests', (): void => {
   let client: PGlite
   let repository: IssuerRepository
+  let credentialSchema: CredentialSchema
   let credentialDefinition1: CredentialDefinition
   let credentialDefinition2: CredentialDefinition
   let asset: Asset
@@ -45,11 +50,13 @@ describe('Database issuer repository tests', (): void => {
     }
     asset = await assetRepository.create(newAsset)
     const credentialDefinitionRepository = Container.get(CredentialDefinitionRepository)
-    const newCredentialDefinition: NewCredentialDefinition = {
+    const credentialSchemaRepository = Container.get(CredentialSchemaRepository)
+
+    const newCredentialSchema: NewCredentialSchema = {
       name: 'example_name',
       version: 'example_version',
-      icon: asset.id,
-      type: CredentialType.ANONCRED,
+      identifierType: IdentifierType.DID,
+      identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
       attributes: [
         {
           name: 'example_attribute_name1',
@@ -62,6 +69,17 @@ describe('Database issuer repository tests', (): void => {
           type: CredentialAttributeType.STRING,
         },
       ],
+    }
+    credentialSchema = await credentialSchemaRepository.create(newCredentialSchema)
+
+    const newCredentialDefinition: NewCredentialDefinition = {
+      name: 'example_name',
+      version: 'example_version',
+      identifierType: IdentifierType.DID,
+      identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
+      icon: asset.id,
+      type: CredentialType.ANONCRED,
+      credentialSchema: credentialSchema.id,
       // representations: [
       //   { // TODO SHOWCASE-81 OCARepresentation
       //
@@ -90,6 +108,7 @@ describe('Database issuer repository tests', (): void => {
       name: 'example_name',
       type: IssuerType.ARIES,
       credentialDefinitions: [credentialDefinition1.id, credentialDefinition2.id],
+      credentialSchemas: [credentialSchema.id],
       description: 'example_description',
       organization: 'example_organization',
       logo: asset.id,
@@ -117,6 +136,7 @@ describe('Database issuer repository tests', (): void => {
       name: 'example_name',
       type: IssuerType.ARIES,
       credentialDefinitions: [credentialDefinition1.id, credentialDefinition2.id],
+      credentialSchemas: [credentialSchema.id],
       description: 'example_description',
       organization: 'example_organization',
       logo: unknownIconId,
@@ -130,6 +150,7 @@ describe('Database issuer repository tests', (): void => {
       name: 'example_name',
       type: IssuerType.ARIES,
       credentialDefinitions: [],
+      credentialSchemas: [credentialSchema.id],
       description: 'example_description',
       organization: 'example_organization',
       logo: asset.id,
@@ -138,12 +159,27 @@ describe('Database issuer repository tests', (): void => {
     await expect(repository.create(issuer)).rejects.toThrowError(`At least one credential definition is required`)
   })
 
+  it('Should throw error when saving issuer with no credential schemas', async (): Promise<void> => {
+    const issuer: NewIssuer = {
+      name: 'example_name',
+      type: IssuerType.ARIES,
+      credentialDefinitions: [credentialDefinition1.id, credentialDefinition2.id],
+      credentialSchemas: [],
+      description: 'example_description',
+      organization: 'example_organization',
+      logo: asset.id,
+    }
+
+    await expect(repository.create(issuer)).rejects.toThrowError(`At least one credential schema is required`)
+  })
+
   it('Should throw error when saving issuer with invalid credential definition id', async (): Promise<void> => {
     const unknownCredentialDefinitionId = '498e1086-a2ac-4189-b951-fe863d0fe9fc'
     const issuer: NewIssuer = {
       name: 'example_name',
       type: IssuerType.ARIES,
       credentialDefinitions: [unknownCredentialDefinitionId],
+      credentialSchemas: [credentialSchema.id],
       description: 'example_description',
       organization: 'example_organization',
       logo: asset.id,
@@ -157,6 +193,7 @@ describe('Database issuer repository tests', (): void => {
       name: 'example_name',
       type: IssuerType.ARIES,
       credentialDefinitions: [credentialDefinition1.id, credentialDefinition2.id],
+      credentialSchemas: [credentialSchema.id],
       description: 'example_description',
       organization: 'example_organization',
       logo: asset.id,
@@ -186,6 +223,7 @@ describe('Database issuer repository tests', (): void => {
       name: 'example_name',
       type: IssuerType.ARIES,
       credentialDefinitions: [credentialDefinition1.id],
+      credentialSchemas: [credentialSchema.id],
       description: 'example_description',
       organization: 'example_organization',
     }
@@ -206,6 +244,7 @@ describe('Database issuer repository tests', (): void => {
       name: 'example_name',
       type: IssuerType.ARIES,
       credentialDefinitions: [credentialDefinition1.id],
+      credentialSchemas: [credentialSchema.id],
       description: 'example_description',
       organization: 'example_organization',
     }
@@ -223,6 +262,7 @@ describe('Database issuer repository tests', (): void => {
       name: 'example_name',
       type: IssuerType.ARIES,
       credentialDefinitions: [credentialDefinition1.id, credentialDefinition2.id],
+      credentialSchemas: [credentialSchema.id],
       description: 'example_description',
       organization: 'example_organization',
       logo: asset.id,
@@ -236,6 +276,7 @@ describe('Database issuer repository tests', (): void => {
       ...savedIssuer,
       name: newName,
       credentialDefinitions: [credentialDefinition1.id],
+      credentialSchemas: [credentialSchema.id],
       logo: savedIssuer.logo?.id,
     })
 
@@ -259,6 +300,7 @@ describe('Database issuer repository tests', (): void => {
       name: 'example_name',
       type: IssuerType.ARIES,
       credentialDefinitions: [credentialDefinition1.id, credentialDefinition2.id],
+      credentialSchemas: [credentialSchema.id],
       description: 'example_description',
       organization: 'example_organization',
       logo: asset.id,
@@ -270,6 +312,7 @@ describe('Database issuer repository tests', (): void => {
     const updatedIssuer: NewIssuer = {
       ...savedIssuer,
       credentialDefinitions: savedIssuer.credentialDefinitions.map((credentialDefinition) => credentialDefinition.id),
+      credentialSchemas: savedIssuer.credentialSchemas.map((credentialSchema) => credentialSchema.id),
       logo: unknownIconId,
     }
 
@@ -281,6 +324,7 @@ describe('Database issuer repository tests', (): void => {
       name: 'example_name',
       type: IssuerType.ARIES,
       credentialDefinitions: [credentialDefinition1.id, credentialDefinition2.id],
+      credentialSchemas: [credentialSchema.id],
       description: 'example_description',
       organization: 'example_organization',
       logo: asset.id,
@@ -292,10 +336,35 @@ describe('Database issuer repository tests', (): void => {
     const updatedIssuer: NewIssuer = {
       ...savedIssuer,
       credentialDefinitions: [],
+      credentialSchemas: savedIssuer.credentialSchemas.map((credentialSchema) => credentialSchema.id),
       logo: asset.id,
     }
 
     await expect(repository.update(savedIssuer.id, updatedIssuer)).rejects.toThrowError(`At least one credential definition is required`)
+  })
+
+  it('Should throw error when updating issuer with no credential schemas', async (): Promise<void> => {
+    const issuer: NewIssuer = {
+      name: 'example_name',
+      type: IssuerType.ARIES,
+      credentialDefinitions: [credentialDefinition1.id, credentialDefinition2.id],
+      credentialSchemas: [credentialSchema.id],
+      description: 'example_description',
+      organization: 'example_organization',
+      logo: asset.id,
+    }
+
+    const savedIssuer = await repository.create(issuer)
+    expect(savedIssuer).toBeDefined()
+
+    const updatedIssuer: NewIssuer = {
+      ...savedIssuer,
+      credentialDefinitions: savedIssuer.credentialDefinitions.map((credentialDefinition) => credentialDefinition.id),
+      credentialSchemas: [],
+      logo: asset.id,
+    }
+
+    await expect(repository.update(savedIssuer.id, updatedIssuer)).rejects.toThrowError(`At least one credential schema is required`)
   })
 
   it('Should throw error when updating issuer with invalid credential definition id', async (): Promise<void> => {
@@ -304,6 +373,7 @@ describe('Database issuer repository tests', (): void => {
       name: 'example_name',
       type: IssuerType.ARIES,
       credentialDefinitions: [credentialDefinition1.id, credentialDefinition2.id],
+      credentialSchemas: [credentialSchema.id],
       description: 'example_description',
       organization: 'example_organization',
       logo: asset.id,
@@ -315,11 +385,39 @@ describe('Database issuer repository tests', (): void => {
     const updatedIssuer: NewIssuer = {
       ...savedIssuer,
       credentialDefinitions: [unknownCredentialDefinitionId],
+      credentialSchemas: savedIssuer.credentialSchemas.map((credentialSchema) => credentialSchema.id),
       logo: asset.id,
     }
 
     await expect(repository.update(savedIssuer.id, updatedIssuer)).rejects.toThrowError(
       `No credential definition found for id: ${unknownCredentialDefinitionId}`,
+    )
+  })
+
+  it('Should throw error when updating issuer with invalid credential schema id', async (): Promise<void> => {
+    const unknownCredentialSchemaId = '498e1086-a2ac-4189-b951-fe863d0fe9fc'
+    const issuer: NewIssuer = {
+      name: 'example_name',
+      type: IssuerType.ARIES,
+      credentialDefinitions: [credentialDefinition1.id, credentialDefinition2.id],
+      credentialSchemas: [credentialSchema.id],
+      description: 'example_description',
+      organization: 'example_organization',
+      logo: asset.id,
+    }
+
+    const savedIssuer = await repository.create(issuer)
+    expect(savedIssuer).toBeDefined()
+
+    const updatedIssuer: NewIssuer = {
+      ...savedIssuer,
+      credentialDefinitions: savedIssuer.credentialDefinitions.map((credentialDefinition) => credentialDefinition.id),
+      credentialSchemas: [unknownCredentialSchemaId],
+      logo: asset.id,
+    }
+
+    await expect(repository.update(savedIssuer.id, updatedIssuer)).rejects.toThrowError(
+      `No credential schema found for id: ${unknownCredentialSchemaId}`,
     )
   })
 })

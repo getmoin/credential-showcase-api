@@ -3,6 +3,7 @@ import {
   personas,
   credentialAttributes,
   credentialDefinitions,
+  credentialSchemas,
   credentialRepresentations,
   issuers,
   relyingParties,
@@ -30,25 +31,33 @@ export type NewPersona = typeof personas.$inferInsert & {
   hidden: boolean
 }
 
-export type CredentialDefinition = Omit<typeof credentialDefinitions.$inferSelect, 'icon' | 'type'> & {
+export type CredentialDefinition = Omit<typeof credentialDefinitions.$inferSelect, 'icon' | 'type' | 'credentialSchema'> & {
   type: CredentialType
   icon: Asset
-  attributes: CredentialAttribute[]
+  credentialSchema: CredentialSchema
   representations: CredentialRepresentation[]
   revocation?: RevocationInfo | null
 }
+
 export type NewCredentialDefinition = Omit<typeof credentialDefinitions.$inferInsert, 'type'> & {
   type: CredentialType
-  attributes: NewCredentialAttribute[]
   representations?: NewCredentialRepresentation[] // TODO SHOWCASE-81 make required
   revocation?: NewRevocationInfo | null
 }
 
-export type CredentialAttribute = Omit<typeof credentialAttributes.$inferSelect, 'credentialDefinition'> & {
+export type CredentialAttribute = Omit<typeof credentialAttributes.$inferSelect, 'credentialSchema'> & {
   type: CredentialAttributeType
 }
-export type NewCredentialAttribute = Omit<typeof credentialAttributes.$inferInsert, 'credentialDefinition'> & {
+export type NewCredentialAttribute = Omit<typeof credentialAttributes.$inferInsert, 'credentialSchema'> & {
   type: CredentialAttributeType
+}
+
+export type CredentialSchema = typeof credentialSchemas.$inferSelect & {
+  attributes: CredentialAttribute[]
+}
+
+export type NewCredentialSchema = typeof credentialSchemas.$inferInsert & {
+  attributes: NewCredentialAttribute[]
 }
 
 export type CredentialRepresentation = Omit<typeof credentialRepresentations.$inferSelect, 'credentialDefinition'>
@@ -69,10 +78,12 @@ export type NewRelyingParty = Omit<typeof relyingParties.$inferInsert, 'logo'> &
 
 export type Issuer = Omit<typeof issuers.$inferSelect, 'logo'> & {
   credentialDefinitions: CredentialDefinition[]
+  credentialSchemas: CredentialSchema[]
   logo: Asset | null
 }
 export type NewIssuer = Omit<typeof issuers.$inferInsert, 'logo'> & {
   credentialDefinitions: string[]
+  credentialSchemas: string[]
   organization?: string | null
   logo?: string | null
 }
@@ -91,6 +102,10 @@ export enum CredentialAttributeType {
 
 export enum RelyingPartyType {
   ARIES = 'ARIES',
+}
+
+export enum IdentifierType {
+  DID = 'DID',
 }
 
 export enum IssuerType {

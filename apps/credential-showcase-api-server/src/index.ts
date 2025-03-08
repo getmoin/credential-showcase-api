@@ -4,7 +4,6 @@ import Container from 'typedi'
 
 import { ExpressErrorHandler } from './middleware/ExpressErrorHandler'
 import AssetController from './controllers/AssetController'
-import CredentialDefinitionController from './controllers/CredentialDefinitionController'
 import PersonaController from './controllers/PersonaController'
 import RelyingPartyController from './controllers/RelyingPartyController'
 import IssuerController from './controllers/IssuerController'
@@ -12,6 +11,8 @@ import IssuanceScenarioController from './controllers/IssuanceScenarioController
 import PresentationScenarioController from './controllers/PresentationScenarioController'
 import ShowcaseController from './controllers/ShowcaseController'
 import { corsOptions, corsDisabled } from './utils/cors'
+import { CredentialDefinitionController } from './controllers/CredentialDefinitionController'
+import { CredentialSchemaController } from './controllers/CredentialSchemaController'
 
 require('dotenv-flow').config()
 
@@ -22,6 +23,7 @@ const app = createExpressServer({
   controllers: [
     AssetController,
     PersonaController,
+    CredentialSchemaController,
     CredentialDefinitionController,
     RelyingPartyController,
     IssuerController,

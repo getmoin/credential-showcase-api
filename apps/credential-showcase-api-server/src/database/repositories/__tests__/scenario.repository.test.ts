@@ -16,12 +16,14 @@ import {
   Asset,
   CredentialAttributeType,
   CredentialType,
+  IdentifierType,
   IssuanceScenario,
   Issuer,
   IssuerType,
   NewAriesOOBAction,
   NewAsset,
   NewCredentialDefinition,
+  NewCredentialSchema,
   NewIssuanceScenario,
   NewIssuer,
   NewPersona,
@@ -32,10 +34,11 @@ import {
   PresentationScenario,
   RelyingParty,
   RelyingPartyType,
+  ScenarioType,
   StepActionType,
   StepType,
-  ScenarioType,
 } from '../../../types'
+import { CredentialSchemaRepository } from '../CredentialSchemaRepository'
 
 describe('Database scenario repository tests', (): void => {
   let client: PGlite
@@ -58,6 +61,7 @@ describe('Database scenario repository tests', (): void => {
     const issuerRepository = Container.get(IssuerRepository)
     const relyingPartyRepository = Container.get(RelyingPartyRepository)
     const credentialDefinitionRepository = Container.get(CredentialDefinitionRepository)
+    const credentialSchemaRepository = Container.get(CredentialSchemaRepository)
     const assetRepository = Container.get(AssetRepository)
     const newAsset: NewAsset = {
       mediaType: 'image/png',
@@ -66,11 +70,12 @@ describe('Database scenario repository tests', (): void => {
       content: Buffer.from('some binary data'),
     }
     asset = await assetRepository.create(newAsset)
-    const newCredentialDefinition: NewCredentialDefinition = {
+
+    const newCredentialSchema: NewCredentialSchema = {
       name: 'example_name',
       version: 'example_version',
-      icon: asset.id,
-      type: CredentialType.ANONCRED,
+      identifierType: IdentifierType.DID,
+      identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
       attributes: [
         {
           name: 'example_attribute_name1',
@@ -83,6 +88,17 @@ describe('Database scenario repository tests', (): void => {
           type: CredentialAttributeType.STRING,
         },
       ],
+    }
+    const credentialSchema = await credentialSchemaRepository.create(newCredentialSchema)
+
+    const newCredentialDefinition: NewCredentialDefinition = {
+      name: 'example_name',
+      version: 'example_version',
+      identifierType: IdentifierType.DID,
+      identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
+      icon: asset.id,
+      type: CredentialType.ANONCRED,
+      credentialSchema: credentialSchema.id,
       // representations: [
       //     { // TODO SHOWCASE-81 OCARepresentation
       //
@@ -102,6 +118,7 @@ describe('Database scenario repository tests', (): void => {
       name: 'example_name',
       type: IssuerType.ARIES,
       credentialDefinitions: [credentialDefinition.id],
+      credentialSchemas: [credentialSchema.id],
       description: 'example_description',
       organization: 'example_organization',
       logo: asset.id,

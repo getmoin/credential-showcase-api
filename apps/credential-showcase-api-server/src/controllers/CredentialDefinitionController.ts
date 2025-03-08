@@ -2,18 +2,18 @@ import { Body, Delete, Get, HttpCode, JsonController, OnUndefined, Param, Post, 
 import { Service } from 'typedi'
 import {
   CredentialDefinitionRequest,
+  CredentialDefinitionRequestToJSONTyped,
   CredentialDefinitionResponse,
   CredentialDefinitionResponseFromJSONTyped,
   CredentialDefinitionsResponse,
   CredentialDefinitionsResponseFromJSONTyped,
-  CredentialDefinitionRequestToJSONTyped,
 } from 'credential-showcase-openapi'
 import CredentialDefinitionService from '../services/CredentialDefinitionService'
 import { credentialDefinitionDTOFrom } from '../utils/mappers'
 
-@JsonController('/credential-definitions')
+@JsonController('/credentials/definitions')
 @Service()
-class CredentialDefinitionController {
+export class CredentialDefinitionController {
   constructor(private credentialDefinitionService: CredentialDefinitionService) {}
 
   @Get('/')
@@ -53,5 +53,3 @@ class CredentialDefinitionController {
     return this.credentialDefinitionService.deleteCredentialDefinition(id)
   }
 }
-
-export default CredentialDefinitionController
