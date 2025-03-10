@@ -7,8 +7,17 @@ import RelyingPartyRepository from './RelyingPartyRepository'
 import AssetRepository from './AssetRepository'
 import { isIssuanceScenario, isPresentationScenario } from '../../utils/mappers'
 import { sortSteps } from '../../utils/sortUtils'
+import { generateSlug } from '../../utils/slugUtils'
 import { NotFoundError } from '../../errors'
-import { ariesProofRequests, assets, credentialDefinitions, stepActions, steps, scenarios, scenariosToPersonas } from '../schema'
+import {
+  ariesProofRequests,
+  assets,
+  credentialDefinitions,
+  stepActions,
+  steps,
+  scenarios,
+  scenariosToPersonas,
+} from '../schema'
 import {
   AriesOOBAction,
   Issuer,
@@ -54,11 +63,19 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
       ? await this.issuerRepository.findById((<NewIssuanceScenario>scenario).issuer)
       : await this.relyingPartyRepository.findById((<NewPresentationScenario>scenario).relyingParty)
 
-    return (await this.databaseService.getConnection()).transaction(async (tx): Promise<Scenario> => {
+    const connection = await this.databaseService.getConnection()
+    const slug = await generateSlug({
+      value: scenario.name,
+      connection,
+      schema: scenarios
+    })
+
+    return connection.transaction(async (tx): Promise<Scenario> => {
       const [scenarioResult] = await tx
         .insert(scenarios)
         .values({
           ...scenario,
+          slug,
           ...(isIssuanceScenario(scenario) && {
             issuer: scenarioPartyResult.id,
           }),
@@ -148,6 +165,7 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
       return {
         id: scenarioResult.id,
         name: scenarioResult.name,
+        slug: scenarioResult.slug,
         description: scenarioResult.description,
         steps: sortSteps(scenarioSteps),
         scenarioType: scenarioType,
@@ -190,11 +208,20 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
       ? await this.issuerRepository.findById((<NewIssuanceScenario>scenario).issuer)
       : await this.relyingPartyRepository.findById((<NewPresentationScenario>scenario).relyingParty)
 
-    return (await this.databaseService.getConnection()).transaction(async (tx): Promise<Scenario> => {
+    const connection = await this.databaseService.getConnection()
+    const slug = await generateSlug({
+      value: scenario.name,
+      id: scenarioId,
+      connection,
+      schema: scenarios
+    })
+
+    return connection.transaction(async (tx): Promise<Scenario> => {
       const [scenarioResult] = await tx
         .update(scenarios)
         .set({
           ...scenario,
+          slug,
           ...(isIssuanceScenario(scenario) && {
             issuer: scenarioPartyResult.id,
           }),
@@ -289,6 +316,7 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
       return {
         id: scenarioResult.id,
         name: scenarioResult.name,
+        slug: scenarioResult.slug, // TODO
         description: scenarioResult.description,
         steps: sortSteps(scenarioSteps),
         scenarioType: scenarioType,
@@ -732,6 +760,19 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
         proofRequest: true,
       },
     })
+  }
+
+  async findIdBySlug(slug: string): Promise<string> {
+    const result = await (await this.databaseService.getConnection()).query.scenarios.findFirst({
+      where: eq(scenarios.slug, slug)
+    })
+
+
+    if (!result) {
+      return Promise.reject(new NotFoundError(`No scenario found for slug: ${slug}`))
+    }
+
+    return result.id
   }
 }
 

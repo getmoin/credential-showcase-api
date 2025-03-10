@@ -4,7 +4,9 @@ import DatabaseService from '../../services/DatabaseService'
 import CredentialDefinitionRepository from './CredentialDefinitionRepository'
 import PersonaRepository from './PersonaRepository'
 import ScenarioRepository from './ScenarioRepository'
+import AssetRepository from './AssetRepository'
 import { sortSteps } from '../../utils/sortUtils'
+import { generateSlug } from '../../utils/slugUtils'
 import { NotFoundError } from '../../errors'
 import {
   credentialDefinitions,
@@ -16,7 +18,6 @@ import {
   showcasesToScenarios,
 } from '../schema'
 import { Showcase, NewShowcase, RepositoryDefinition } from '../../types'
-import AssetRepository from './AssetRepository'
 
 @Service()
 class ShowcaseRepository implements RepositoryDefinition<Showcase, NewShowcase> {
@@ -48,8 +49,18 @@ class ShowcaseRepository implements RepositoryDefinition<Showcase, NewShowcase> 
     const scenarioPromises = showcase.scenarios.map(async (scenario) => this.scenarioRepository.findById(scenario))
     await Promise.all(scenarioPromises)
 
-    return (await this.databaseService.getConnection()).transaction(async (tx): Promise<Showcase> => {
-      const [showcaseResult] = await tx.insert(showcases).values(showcase).returning()
+    const connection = await this.databaseService.getConnection()
+    const slug = await generateSlug({
+      value: showcase.name,
+      connection,
+      schema: showcases
+    })
+
+    return connection.transaction(async (tx): Promise<Showcase> => {
+      const [showcaseResult] = await tx.insert(showcases).values({
+        ...showcase,
+        slug
+      }).returning()
 
       const showcasesToScenariosResult = await tx
         .insert(showcasesToScenarios)
@@ -240,8 +251,19 @@ class ShowcaseRepository implements RepositoryDefinition<Showcase, NewShowcase> 
     const scenarioPromises = showcase.scenarios.map(async (scenario) => this.scenarioRepository.findById(scenario))
     await Promise.all(scenarioPromises)
 
-    return (await this.databaseService.getConnection()).transaction(async (tx): Promise<Showcase> => {
-      const [showcaseResult] = await tx.update(showcases).set(showcase).where(eq(showcases.id, id)).returning()
+    const connection = await this.databaseService.getConnection()
+    const slug = await generateSlug({
+      value: showcase.name,
+      id,
+      connection,
+      schema: showcases
+    })
+
+    return connection.transaction(async (tx): Promise<Showcase> => {
+      const [showcaseResult] = await tx.update(showcases).set({
+        ...showcase,
+        slug
+      }).where(eq(showcases.id, id)).returning()
 
       await tx.delete(showcasesToCredentialDefinitions).where(eq(showcasesToCredentialDefinitions.showcase, id))
       await tx.delete(showcasesToPersonas).where(eq(showcasesToPersonas.showcase, id))
@@ -671,6 +693,20 @@ class ShowcaseRepository implements RepositoryDefinition<Showcase, NewShowcase> 
       personas: showcase.personas.map((item: any) => item.persona), // TODO check this typing issue at a later point in time
     }))
   }
+
+  async findIdBySlug(slug: string): Promise<string> {
+    const result = await (await this.databaseService.getConnection()).query.showcases.findFirst({
+      where: eq(showcases.slug, slug)
+    })
+
+
+    if (!result) {
+      return Promise.reject(new NotFoundError(`No showcase found for slug: ${slug}`))
+    }
+
+    return result.id
+  }
+
 }
 
 export default ShowcaseRepository

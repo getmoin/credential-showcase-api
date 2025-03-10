@@ -11,6 +11,7 @@ import CredentialDefinitionRepository from '../../../database/repositories/Crede
 import AssetRepository from '../../../database/repositories/AssetRepository'
 import PersonaRepository from '../PersonaRepository'
 import RelyingPartyRepository from '../RelyingPartyRepository'
+import CredentialSchemaRepository from '../CredentialSchemaRepository'
 import * as schema from '../../../database/schema'
 import {
   Asset,
@@ -38,7 +39,6 @@ import {
   StepActionType,
   StepType,
 } from '../../../types'
-import { CredentialSchemaRepository } from '../CredentialSchemaRepository'
 
 describe('Database scenario repository tests', (): void => {
   let client: PGlite
@@ -248,6 +248,7 @@ describe('Database scenario repository tests', (): void => {
 
     expect(savedIssuanceScenario).toBeDefined()
     expect(savedIssuanceScenario.name).toEqual(issuanceScenario.name)
+    expect(savedIssuanceScenario.slug).toEqual('example-name')
     expect(savedIssuanceScenario.description).toEqual(issuanceScenario.description)
     expect(savedIssuanceScenario.hidden).toEqual(issuanceScenario.hidden)
     expect(savedIssuanceScenario.steps).toBeDefined()
@@ -864,6 +865,105 @@ describe('Database scenario repository tests', (): void => {
     await expect(repository.create(issuanceScenario)).rejects.toThrowError(`At least one persona is required`)
   })
 
+  it('Should append slug counter on duplicate scenario name', async (): Promise<void> => {
+    const issuanceScenario: NewIssuanceScenario = {
+      name: 'example_name',
+      description: 'example_description',
+      issuer: issuer.id,
+      steps: [
+        {
+          title: 'example_title',
+          description: 'example_description',
+          order: 1,
+          type: StepType.HUMAN_TASK,
+          asset: asset.id,
+          actions: [
+            {
+              title: 'example_title',
+              actionType: StepActionType.ARIES_OOB,
+              text: 'example_text',
+              proofRequest: {
+                attributes: {
+                  attribute1: {
+                    attributes: ['attribute1', 'attribute2'],
+                    restrictions: ['restriction1', 'restriction2'],
+                  },
+                  attribute2: {
+                    attributes: ['attribute1', 'attribute2'],
+                    restrictions: ['restriction1', 'restriction2'],
+                  },
+                },
+                predicates: {
+                  predicate1: {
+                    name: 'example_name',
+                    type: 'example_type',
+                    value: 'example_value',
+                    restrictions: ['restriction1', 'restriction2'],
+                  },
+                  predicate2: {
+                    name: 'example_name',
+                    type: 'example_type',
+                    value: 'example_value',
+                    restrictions: ['restriction1', 'restriction2'],
+                  },
+                },
+              },
+            },
+          ],
+        },
+        {
+          title: 'example_title',
+          description: 'example_description',
+          order: 2,
+          type: StepType.HUMAN_TASK,
+          asset: asset.id,
+          actions: [
+            {
+              title: 'example_title',
+              actionType: StepActionType.ARIES_OOB,
+              text: 'example_text',
+              proofRequest: {
+                attributes: {
+                  attribute1: {
+                    attributes: ['attribute1', 'attribute2'],
+                    restrictions: ['restriction1', 'restriction2'],
+                  },
+                  attribute2: {
+                    attributes: ['attribute1', 'attribute2'],
+                    restrictions: ['restriction1', 'restriction2'],
+                  },
+                },
+                predicates: {
+                  predicate1: {
+                    name: 'example_name',
+                    type: 'example_type',
+                    value: 'example_value',
+                    restrictions: ['restriction1', 'restriction2'],
+                  },
+                  predicate2: {
+                    name: 'example_name',
+                    type: 'example_type',
+                    value: 'example_value',
+                    restrictions: ['restriction1', 'restriction2'],
+                  },
+                },
+              },
+            },
+          ],
+        },
+      ],
+      personas: [persona1.id, persona2.id],
+      bannerImage: asset.id,
+      hidden: true,
+    }
+
+    const savedIssuanceScenario = await repository.create(issuanceScenario)
+    expect(savedIssuanceScenario).toBeDefined()
+
+    const fromDb = await repository.create(issuanceScenario)
+    expect(fromDb.slug).toEqual('example-name-2')
+  })
+
   it('Should get scenario by id from database', async (): Promise<void> => {
     const issuanceScenario: NewIssuanceScenario = {
       name: 'example_name',
@@ -1381,6 +1481,7 @@ describe('Database scenario repository tests', (): void => {
 
     expect(updatedIssuanceScenarioResult).toBeDefined()
     expect(updatedIssuanceScenarioResult.name).toEqual(updatedIssuanceScenario.name)
+    expect(updatedIssuanceScenarioResult.slug).toEqual('new-name')
     expect(updatedIssuanceScenarioResult.description).toEqual(updatedIssuanceScenario.description)
     expect(updatedIssuanceScenarioResult.hidden).toEqual(updatedIssuanceScenario.hidden)
     expect(updatedIssuanceScenarioResult.steps).toBeDefined()

@@ -23,8 +23,9 @@ class ShowcaseController {
     return ShowcasesResponseFromJSONTyped({ showcases }, false)
   }
 
-  @Get('/:id')
-  public async getOne(@Param('id') id: string): Promise<ShowcaseResponse> {
+  @Get('/:slug')
+  public async getOne(@Param('slug') slug: string): Promise<ShowcaseResponse> {
+    const id = await this.showcaseService.getIdBySlug(slug)
     const result = await this.showcaseService.getShowcase(id)
     return ShowcaseResponseFromJSONTyped({ showcase: showcaseDTOFrom(result) }, false)
   }
@@ -36,15 +37,17 @@ class ShowcaseController {
     return ShowcaseResponseFromJSONTyped({ showcase: showcaseDTOFrom(result) }, false)
   }
 
-  @Put('/:id')
-  public async put(@Param('id') id: string, @Body() showcaseRequest: ShowcaseRequest): Promise<ShowcaseResponse> {
+  @Put('/:slug')
+  public async put(@Param('slug') slug: string, @Body() showcaseRequest: ShowcaseRequest): Promise<ShowcaseResponse> {
+    const id = await this.showcaseService.getIdBySlug(slug)
     const result = await this.showcaseService.updateShowcase(id, ShowcaseRequestToJSONTyped(showcaseRequest))
     return ShowcaseResponseFromJSONTyped({ showcase: showcaseDTOFrom(result) }, false)
   }
 
   @OnUndefined(204)
-  @Delete('/:id')
-  public async delete(@Param('id') id: string): Promise<void> {
+  @Delete('/:slug')
+  public async delete(@Param('slug') slug: string): Promise<void> {
+    const id = await this.showcaseService.getIdBySlug(slug)
     return this.showcaseService.deleteShowcase(id)
   }
 }

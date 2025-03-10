@@ -3,11 +3,10 @@ import { Service } from 'typedi'
 import DatabaseService from '../../services/DatabaseService'
 import CredentialDefinitionRepository from './CredentialDefinitionRepository'
 import AssetRepository from './AssetRepository'
+import CredentialSchemaRepository from './CredentialSchemaRepository'
 import { NotFoundError } from '../../errors'
-import { credentialDefinitions, credentialSchemas, issuers, issuersToCredentialDefinitions } from '../schema'
+import { credentialDefinitions, credentialSchemas, issuers, issuersToCredentialDefinitions, issuersToCredentialSchemas } from '../schema'
 import { Issuer, NewIssuer, RepositoryDefinition } from '../../types'
-import { issuersToCredentialSchemas } from '../schema/issuersToCredentialSchemas'
-import { CredentialSchemaRepository } from './CredentialSchemaRepository'
 
 @Service()
 class IssuerRepository implements RepositoryDefinition<Issuer, NewIssuer> {

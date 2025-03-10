@@ -1051,7 +1051,6 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-
   /personas:
     get:
       tags:
@@ -1793,7 +1792,6 @@ components:
           description: Date and time the step was last updated
           format: date-time
           example: 2025-03-06T11:30:16.573Z
-
     StepRequest:
       type: object
       required:
@@ -1891,7 +1889,6 @@ components:
         propertyName: actionType
         mapping:
           ARIES_OOB: '#/components/schemas/AriesOOBAction'
-
     StepActionRequest:
       type: object
       required:
@@ -2265,11 +2262,13 @@ components:
         - DID
       description: Types of supported identifiers
       example: DID
+
     IssuerType:
       type: string
       enum:
         - ARIES
       description: Types of supported issuers
+
     RelyingPartyType:
       type: string
       enum:
@@ -2449,7 +2448,6 @@ components:
           items:
             type: string
             example: 123e4567-e89b-12d3-a456-426614174469
-
     RelyingPartiesResponse:
       type: object
       properties:
@@ -2468,6 +2466,7 @@ components:
       enum:
         - ANONCRED
       description: Types of supported credentials
+
     CredentialAttributeType:
       type: string
       enum:
@@ -2547,7 +2546,8 @@ components:
         - type
         - icon
         - schemaId
-        - representations
+        # TODO enable back in SHOWCASE-81
+        # - representations
       properties:
         name:
           type: string
@@ -2647,6 +2647,7 @@ components:
           example: John Doe
         type:
           $ref: '#/components/schemas/CredentialAttributeType'
+
     CredentialRepresentation:
       type: object
       required:
@@ -2689,6 +2690,7 @@ components:
               description: URL to the OCA bundle for this representation
               example: https://example.com/ocaBundle.json
       description: Overlay Capture Architecture representation of a credential
+
     RevocationInfo:
       type: object
       required:
@@ -2787,7 +2789,7 @@ components:
         attributes:
           type: array
           items:
-            $ref: '#/components/schemas/CredentialAttribute'
+            $ref: '#/components/schemas/CredentialAttributeRequest'
     CredentialSchemasResponse:
       type: object
       properties:

@@ -6,16 +6,14 @@ import { credentialAttributes, credentialSchemas } from '../schema'
 import { CredentialSchema, NewCredentialAttribute, NewCredentialSchema, RepositoryDefinition } from '../../types'
 
 @Service()
-export class CredentialSchemaRepository implements RepositoryDefinition<CredentialSchema, NewCredentialSchema> {
+class CredentialSchemaRepository implements RepositoryDefinition<CredentialSchema, NewCredentialSchema> {
   constructor(private readonly databaseService: DatabaseService) {}
 
   async create(credentialSchema: NewCredentialSchema): Promise<CredentialSchema> {
     return (await this.databaseService.getConnection()).transaction(async (tx): Promise<CredentialSchema> => {
       const [credentialSchemaResult] = await tx
         .insert(credentialSchemas)
-        .values({
-          ...credentialSchema
-        })
+        .values(credentialSchema)
         .returning()
 
       const credentialAttributesResult = await tx
@@ -46,9 +44,7 @@ export class CredentialSchemaRepository implements RepositoryDefinition<Credenti
     return (await this.databaseService.getConnection()).transaction(async (tx): Promise<CredentialSchema> => {
       const [credentialSchemaResult] = await tx
         .update(credentialSchemas)
-        .set({
-          ...credentialSchema
-        })
+        .set(credentialSchema)
         .where(eq(credentialSchemas.id, id))
         .returning()
 
@@ -113,3 +109,5 @@ export class CredentialSchemaRepository implements RepositoryDefinition<Credenti
     })
   }
 }
+
+export default CredentialSchemaRepository

@@ -23,8 +23,9 @@ class PersonaController {
     return PersonasResponseFromJSONTyped({ personas }, false)
   }
 
-  @Get('/:id')
-  public async get(@Param('id') id: string): Promise<PersonaResponse> {
+  @Get('/:slug')
+  public async get(@Param('slug') slug: string): Promise<PersonaResponse> {
+    const id = await this.personaService.getIdBySlug(slug)
     const result = await this.personaService.get(id)
     return PersonaResponseFromJSONTyped({ persona: personaDTOFrom(result) }, false)
   }
@@ -36,15 +37,17 @@ class PersonaController {
     return PersonaResponseFromJSONTyped({ persona: personaDTOFrom(result) }, false)
   }
 
-  @Put('/:id')
-  public async put(@Param('id') id: string, @Body() personaRequest: PersonaRequest): Promise<PersonaResponse> {
+  @Put('/:slug')
+  public async put(@Param('slug') slug: string, @Body() personaRequest: PersonaRequest): Promise<PersonaResponse> {
+    const id = await this.personaService.getIdBySlug(slug)
     const result = await this.personaService.update(id, PersonaRequestToJSONTyped(personaRequest))
     return PersonaResponseFromJSONTyped({ persona: personaDTOFrom(result) }, false)
   }
 
   @OnUndefined(204)
-  @Delete('/:id')
-  public async delete(@Param('id') id: string): Promise<void> {
+  @Delete('/:slug')
+  public async delete(@Param('slug') slug: string): Promise<void> {
+    const id = await this.personaService.getIdBySlug(slug)
     return this.personaService.delete(id)
   }
 }

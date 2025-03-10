@@ -7,6 +7,7 @@ import { Container } from 'typedi'
 import DatabaseService from '../../../services/DatabaseService'
 import AssetRepository from '../AssetRepository'
 import CredentialDefinitionRepository from '../CredentialDefinitionRepository'
+import CredentialSchemaRepository from '../CredentialSchemaRepository'
 import * as schema from '../../schema'
 import {
   Asset,
@@ -17,7 +18,6 @@ import {
   NewCredentialSchema,
   IdentifierType,
 } from '../../../types'
-import { CredentialSchemaRepository } from '../CredentialSchemaRepository'
 
 describe('Database credential definition repository tests', (): void => {
   let client: PGlite

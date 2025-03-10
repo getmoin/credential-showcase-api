@@ -5,7 +5,7 @@ import AssetRepository from './AssetRepository'
 import { NotFoundError } from '../../errors'
 import { credentialDefinitions, credentialRepresentations, revocationInfo } from '../schema'
 import { CredentialDefinition, NewCredentialDefinition, RepositoryDefinition } from '../../types'
-import { CredentialSchemaRepository } from './CredentialSchemaRepository'
+import CredentialSchemaRepository from './CredentialSchemaRepository'
 
 @Service()
 class CredentialDefinitionRepository implements RepositoryDefinition<CredentialDefinition, NewCredentialDefinition> {
@@ -22,9 +22,7 @@ class CredentialDefinitionRepository implements RepositoryDefinition<CredentialD
     return (await this.databaseService.getConnection()).transaction(async (tx): Promise<CredentialDefinition> => {
       const [credentialDefinitionResult] = await tx
         .insert(credentialDefinitions)
-        .values({
-          ...credentialDefinition,
-        })
+        .values(credentialDefinition)
         .returning()
 
       // TODO SHOWCASE-81 enable
@@ -68,9 +66,7 @@ class CredentialDefinitionRepository implements RepositoryDefinition<CredentialD
     return (await this.databaseService.getConnection()).transaction(async (tx): Promise<CredentialDefinition> => {
       const [credentialDefinitionResult] = await tx
         .update(credentialDefinitions)
-        .set({
-          ...credentialDefinition,
-        })
+        .set(credentialDefinition)
         .where(eq(credentialDefinitions.id, id))
         .returning()
 
@@ -127,6 +123,7 @@ class CredentialDefinitionRepository implements RepositoryDefinition<CredentialD
     if (!result) {
       return Promise.reject(new NotFoundError(`No credential definition found for id: ${id}`))
     }
+
     return {
       ...result,
       credentialSchema: result.cs,
@@ -148,6 +145,7 @@ class CredentialDefinitionRepository implements RepositoryDefinition<CredentialD
         revocation: true,
       },
     })
+
     return result.map((item: any) => ({
       ...item,
       credentialSchema: item.cs,
