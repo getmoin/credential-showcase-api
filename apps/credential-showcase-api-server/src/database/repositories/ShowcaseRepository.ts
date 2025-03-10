@@ -5,8 +5,8 @@ import CredentialDefinitionRepository from './CredentialDefinitionRepository'
 import PersonaRepository from './PersonaRepository'
 import ScenarioRepository from './ScenarioRepository'
 import AssetRepository from './AssetRepository'
-import { sortSteps } from '../../utils/sortUtils'
-import { generateSlug } from '../../utils/slugUtils'
+import { sortSteps } from '../../utils/sort'
+import { generateSlug } from '../../utils/slug'
 import { NotFoundError } from '../../errors'
 import {
   credentialDefinitions,
