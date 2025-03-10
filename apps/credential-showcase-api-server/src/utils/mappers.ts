@@ -43,7 +43,7 @@ export const assetDTOFrom = (asset: Asset): AssetDTO => {
   }
 }
 
-export const credentialDefinitionFrom = (dto: any): NewCredentialDefinition => {
+export const credentialDefinitionFromDTO = (dto: any): NewCredentialDefinition => {
   const { schemaId, ...dtoMinusSchemaId } = dto
   return {
     ...dtoMinusSchemaId,

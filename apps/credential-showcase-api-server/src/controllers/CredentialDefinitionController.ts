@@ -8,7 +8,7 @@ import {
   CredentialDefinitionsResponseFromJSONTyped,
 } from 'credential-showcase-openapi'
 import CredentialDefinitionService from '../services/CredentialDefinitionService'
-import { credentialDefinitionDTOFrom, credentialDefinitionFrom } from '../utils/mappers'
+import { credentialDefinitionDTOFrom, credentialDefinitionFromDTO } from '../utils/mappers'
 import { NotFoundError } from '../errors'
 
 @JsonController('/credentials/definitions')
@@ -47,7 +47,7 @@ export class CredentialDefinitionController {
   @Post('/')
   public async post(@Body() credentialDefinitionRequest: CredentialDefinitionRequest): Promise<CredentialDefinitionResponse> {
     try {
-      const result = await this.credentialDefinitionService.createCredentialDefinition(credentialDefinitionFrom(credentialDefinitionRequest))
+      const result = await this.credentialDefinitionService.createCredentialDefinition(credentialDefinitionFromDTO(credentialDefinitionRequest))
       return CredentialDefinitionResponseFromJSONTyped({ credentialDefinition: credentialDefinitionDTOFrom(result) }, false)
     } catch (e) {
       console.error('credentialDefinitionRequest post failed:', e)
@@ -59,7 +59,7 @@ export class CredentialDefinitionController {
   public async put(@Param('id') id: string, @Body() credentialDefinitionRequest: CredentialDefinitionRequest): Promise<CredentialDefinitionResponse> {
     try {
       // Convert DTO to domain model
-      const result = await this.credentialDefinitionService.updateCredentialDefinition(id, credentialDefinitionFrom(credentialDefinitionRequest))
+      const result = await this.credentialDefinitionService.updateCredentialDefinition(id, credentialDefinitionFromDTO(credentialDefinitionRequest))
       return CredentialDefinitionResponseFromJSONTyped({ credentialDefinition: credentialDefinitionDTOFrom(result) }, false)
     } catch (e) {
       if (!(e instanceof NotFoundError)) {
