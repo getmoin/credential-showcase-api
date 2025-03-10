@@ -6,7 +6,7 @@ import AssetRepository from './AssetRepository'
 import { NotFoundError } from '../../errors'
 import { credentialDefinitions, credentialSchemas, issuers, issuersToCredentialDefinitions } from '../schema'
 import { Issuer, NewIssuer, RepositoryDefinition } from '../../types'
-import { issuersToCredentialSchemas } from '../schema/issuersToCredentialSchemas'
+import { issuersToCredentialSchemas } from '../schema'
 import { CredentialSchemaRepository } from './CredentialSchemaRepository'
 
 @Service()

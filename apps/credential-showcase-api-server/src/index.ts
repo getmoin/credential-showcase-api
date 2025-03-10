@@ -10,10 +10,9 @@ import IssuerController from './controllers/IssuerController'
 import IssuanceScenarioController from './controllers/IssuanceScenarioController'
 import PresentationScenarioController from './controllers/PresentationScenarioController'
 import ShowcaseController from './controllers/ShowcaseController'
-import { corsOptions, corsDisabled } from './utils/cors'
+import { corsDisabled, corsOptions } from './utils/cors'
 import { CredentialDefinitionController } from './controllers/CredentialDefinitionController'
 import { CredentialSchemaController } from './controllers/CredentialSchemaController'
-import DatabaseService from './services/DatabaseService'
 
 require('dotenv-flow').config()
 
@@ -22,11 +21,6 @@ useContainer(Container)
 
 async function bootstrap() {
   try {
-    // Run database migrations
-    const databaseService = Container.get(DatabaseService)
-    await databaseService.runMigrations()
-    console.log('Database migrations completed successfully')
-
     // Create and configure Express server
     const app = createExpressServer({
       controllers: [
@@ -42,7 +36,7 @@ async function bootstrap() {
       ],
       middlewares: [ExpressErrorHandler],
       defaultErrorHandler: false,
-  cors: corsDisabled ? false : corsOptions,
+      cors: corsDisabled ? false : corsOptions,
     })
 
     // Start the server

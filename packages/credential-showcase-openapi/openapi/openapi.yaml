@@ -2739,6 +2739,12 @@ components:
           type: string
           description: Name of the credential definition
           example: Credential Definition Name
+        identifierType:
+          $ref: '#/components/schemas/IdentifierType'
+        identifier:
+          type: string
+          description: External identifier of this schema
+          example: did:sov:XUeUZauFLeBNofY3NhaZCB
         version:
           type: string
           description: Version of the credential definition
@@ -2926,6 +2932,8 @@ components:
         - name
         - version
         - attrNames
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
@@ -2949,6 +2957,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CredentialAttribute'
+        createdAt:
+          type: string
+          description: Date and time the credential attribute was created
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
+        updatedAt:
+          type: string
+          description: Date and time the credential attribute was last updated
+          format: date-time
+          example: 2025-03-06T11:30:16.573Z
     CredentialSchemaRequest:
       type: object
       required:
@@ -2973,7 +2991,7 @@ components:
         attributes:
           type: array
           items:
-            $ref: '#/components/schemas/CredentialAttribute'
+            $ref: '#/components/schemas/CredentialAttributeRequest'
     CredentialSchemasResponse:
       type: object
       properties:

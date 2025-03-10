@@ -16,6 +16,7 @@ import {
   IssuanceScenario,
   Issuer,
   NewAsset,
+  NewCredentialDefinition,
   NewScenario,
   Persona,
   PresentationScenario,
@@ -42,10 +43,19 @@ export const assetDTOFrom = (asset: Asset): AssetDTO => {
   }
 }
 
+export const credentialDefinitionFrom = (dto: any): NewCredentialDefinition => {
+  const { schemaId, ...dtoMinusSchemaId } = dto
+  return {
+    ...dtoMinusSchemaId,
+    credentialSchema: dto.schemaId,
+  }
+}
+
 export const credentialDefinitionDTOFrom = (credentialDefinition: CredentialDefinition): CredentialDefinitionDTO => {
   return {
     ...credentialDefinition,
     schemaId: credentialDefinition.credentialSchema.id,
+    representations: credentialDefinition.representations,
     revocation: credentialDefinition.revocation ? credentialDefinition.revocation : undefined,
     icon: assetDTOFrom(credentialDefinition.icon),
   }
@@ -66,6 +76,7 @@ export const issuerDTOFrom = (issuer: Issuer): IssuerDTO => {
     organization: issuer.organization ? issuer.organization : undefined,
     logo: issuer.logo ? assetDTOFrom(issuer.logo) : undefined,
     credentialDefinitions: issuer.credentialDefinitions.map((credentialDefinition) => credentialDefinitionDTOFrom(credentialDefinition)),
+    credentialSchemas: issuer.credentialSchemas,
   }
 }
 

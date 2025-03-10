@@ -23,27 +23,10 @@ export class DatabaseService {
 
       const migrationsFolder = path.resolve(__dirname, '../database/migrations')
       await migrate(this.db, { migrationsFolder })
+      console.log('Database migrations completed successfully')
     }
 
     return this.db
-  }
-
-  public async runMigrations(): Promise<void> {
-    try {
-      // Get database connection
-      const db = await this.getConnection()
-
-      // Path to migrations folder
-      const migrationsFolder = path.resolve(__dirname, '../database/migrations')
-
-      // Run migrations
-      await migrate(db, { migrationsFolder })
-
-      console.log('Database migrations completed successfully')
-    } catch (error) {
-      console.error('Error running database migrations:', error)
-      // return Promise.reject(Error("Failed to run database migrations")) // TODO test with enabled later
-    }
   }
 }
 

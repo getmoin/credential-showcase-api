@@ -17,35 +17,60 @@ export class CredentialSchemaController {
 
   @Get('/')
   public async getAll(): Promise<CredentialSchemasResponse> {
-    const result = await this.credentialSchemaService.getCredentialSchemas()
-    return CredentialSchemasResponseFromJSONTyped({ result }, false)
+    try {
+      const result = await this.credentialSchemaService.getCredentialSchemas()
+      return CredentialSchemasResponseFromJSONTyped({ result }, false)
+    } catch (e) {
+      console.error('getAll schemas failed:', e)
+      return Promise.reject(e)
+    }
   }
 
   @Get('/:id')
   public async getOne(@Param('id') id: string): Promise<CredentialSchemaResponse> {
-    const credentialSchema = await this.credentialSchemaService.getCredentialSchema(id)
-    return CredentialSchemaResponseFromJSONTyped({ credentialSchema }, false)
+    try {
+      const credentialSchema = await this.credentialSchemaService.getCredentialSchema(id)
+      return CredentialSchemaResponseFromJSONTyped({ credentialSchema }, false)
+    } catch (e) {
+      console.error(`getOne schema id=${id} failed:`, e)
+      return Promise.reject(e)
+    }
   }
 
   @HttpCode(201)
   @Post('/')
   public async post(@Body() credentialSchemaRequest: CredentialSchemaRequest): Promise<CredentialSchemaResponse> {
-    const credentialSchema = await this.credentialSchemaService.createCredentialSchema(CredentialSchemaRequestToJSONTyped(credentialSchemaRequest))
-    return CredentialSchemaResponseFromJSONTyped({ credentialSchema }, false)
+    try {
+      const credentialSchema = await this.credentialSchemaService.createCredentialSchema(CredentialSchemaRequestToJSONTyped(credentialSchemaRequest))
+      return CredentialSchemaResponseFromJSONTyped({ credentialSchema }, false)
+    } catch (e) {
+      console.error('credentialSchemaRequest post failed:', e)
+      return Promise.reject(e)
+    }
   }
 
   @Put('/:id')
   public async put(@Param('id') id: string, @Body() credentialSchemaRequest: CredentialSchemaRequest): Promise<CredentialSchemaResponse> {
-    const credentialSchema = await this.credentialSchemaService.updateCredentialSchema(
-      id,
-      CredentialSchemaRequestToJSONTyped(credentialSchemaRequest),
-    )
-    return CredentialSchemaResponseFromJSONTyped({ credentialSchema }, false)
+    try {
+      const credentialSchema = await this.credentialSchemaService.updateCredentialSchema(
+        id,
+        CredentialSchemaRequestToJSONTyped(credentialSchemaRequest),
+      )
+      return CredentialSchemaResponseFromJSONTyped({ credentialSchema }, false)
+    } catch (e) {
+      console.error(`put schema id=${id} failed:`, e)
+      return Promise.reject(e)
+    }
   }
 
   @OnUndefined(204)
   @Delete('/:id')
   public async delete(@Param('id') id: string): Promise<void> {
-    return this.credentialSchemaService.deleteCredentialSchema(id)
+    try {
+      return this.credentialSchemaService.deleteCredentialSchema(id)
+    } catch (e) {
+      console.error(`delete schema id=${id} failed:`, e)
+      return Promise.reject(e)
+    }
   }
 }

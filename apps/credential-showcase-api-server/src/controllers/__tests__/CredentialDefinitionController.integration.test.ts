@@ -1,0 +1,124 @@
+import 'reflect-metadata'
+import { createExpressServer, useContainer } from 'routing-controllers'
+import supertest = require('supertest')
+import { Container } from 'typedi'
+import { CredentialDefinitionController } from '../CredentialDefinitionController'
+import CredentialDefinitionService from '../../services/CredentialDefinitionService'
+import CredentialDefinitionRepository from '../../database/repositories/CredentialDefinitionRepository'
+import { CredentialSchemaRepository } from '../../database/repositories/CredentialSchemaRepository'
+import AssetRepository from '../../database/repositories/AssetRepository'
+import { Application } from 'express'
+import { CredentialAttributeType, IdentifierType, NewCredentialSchema } from '../../types'
+import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql'
+import { CredentialDefinitionRequest } from 'credential-showcase-openapi'
+
+let app: Application
+let request: any
+let container: StartedPostgreSqlContainer
+
+describe('CredentialDefinitionController Integration Tests', () => {
+  beforeAll(async () => {
+    // Start a new Postgres container
+    container = await new PostgreSqlContainer().start()
+    // Set the connection URL environment variable for your DatabaseService
+    process.env.DB_URL = container.getConnectionUri()
+    process.env.DB_USERNAME = 'postgres'
+    process.env.DB_PASSWORD = 'postgres'
+    process.env.DB_HOST = container.getHost()
+    process.env.DB_PORT = container.getMappedPort(5432).toString()
+    process.env.DB_NAME = 'postgres'
+
+    // Configure routing-controllers to use TypeDI
+    useContainer(Container)
+
+    // The repositories and services are auto-registered via @Service decorators.
+    // Ensure they are instantiated in the container.
+    Container.get(AssetRepository)
+    Container.get(CredentialSchemaRepository)
+    Container.get(CredentialDefinitionRepository)
+    Container.get(CredentialDefinitionService)
+
+    // Create Express server using routing-controllers.
+    app = createExpressServer({
+      controllers: [CredentialDefinitionController],
+    })
+    request = supertest(app)
+  })
+
+  afterAll(async () => {
+    Container.reset()
+  })
+
+  it('should create, retrieve, update, and delete a credential definition', async () => {
+    // Create prerequisite: an asset and a credential schema
+    const assetRepository = Container.get(AssetRepository)
+    const asset = await assetRepository.create({
+      mediaType: 'image/png',
+      fileName: 'test.png',
+      description: 'Test image',
+      content: Buffer.from('binary data'),
+    })
+
+    const credentialSchemaRepository = Container.get(CredentialSchemaRepository)
+    const newCredentialSchema: NewCredentialSchema = {
+      name: 'example_name',
+      version: 'example_version',
+      identifierType: IdentifierType.DID,
+      identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
+      attributes: [
+        {
+          name: 'example_attribute_name1',
+          value: 'example_attribute_value1',
+          type: CredentialAttributeType.STRING,
+        },
+        {
+          name: 'example_attribute_name2',
+          value: 'example_attribute_value2',
+          type: CredentialAttributeType.STRING,
+        },
+      ],
+    }
+    const credentialSchema = await credentialSchemaRepository.create(newCredentialSchema)
+
+    // Create a credential definition
+    const createResponse = await request
+      .post('/credentials/definitions')
+      .send({
+        name: 'Test Credential',
+        version: '1.0',
+        identifierType: 'DID',
+        identifier: 'did:test:456',
+        schemaId: credentialSchema.id,
+        icon: asset.id,
+        type: 'ANONCRED',
+        representations: [],
+      } satisfies CredentialDefinitionRequest)
+      .expect(201)
+    const created = createResponse.body.credentialDefinition
+    expect(created).toHaveProperty('id')
+
+    // Retrieve the created definition
+    const getResponse = await request.get(`/credentials/definitions/${created.id}`).expect(200)
+    expect(getResponse.body.credentialDefinition.name).toEqual('Test Credential')
+
+    // Update the credential definition
+    const updateResponse = await request
+      .put(`/credentials/definitions/${created.id}`)
+      .send({
+        name: 'Updated Credential',
+        version: '1.0',
+        schemaId: credentialSchema.id,
+        icon: asset.id,
+        type: 'ANONCRED',
+        representations: [],
+      } satisfies CredentialDefinitionRequest)
+      .expect(200)
+    expect(updateResponse.body.credentialDefinition.name).toEqual('Updated Credential')
+
+    // Delete the credential definition
+    await request.delete(`/credentials/definitions/${created.id}`).expect(204)
+
+    // Verify deletion (assuming a 404 is returned when not found)
+    await request.get(`/credentials/definitions/${created.id}`).expect(404)
+  })
+})
