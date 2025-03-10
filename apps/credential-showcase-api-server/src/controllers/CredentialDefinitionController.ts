@@ -9,6 +9,7 @@ import {
 } from 'credential-showcase-openapi'
 import CredentialDefinitionService from '../services/CredentialDefinitionService'
 import { credentialDefinitionDTOFrom, credentialDefinitionFrom } from '../utils/mappers'
+import { NotFoundError } from '../errors'
 
 @JsonController('/credentials/definitions')
 @Service()
@@ -22,7 +23,9 @@ export class CredentialDefinitionController {
       const credentialDefinitions = result.map((credentialDefinition) => credentialDefinitionDTOFrom(credentialDefinition))
       return CredentialDefinitionsResponseFromJSONTyped({ credentialDefinitions }, false)
     } catch (e) {
-      console.error('getAll definitions failed:', e)
+      if (!(e instanceof NotFoundError)) {
+        console.error('getAll definitions failed:', e)
+      }
       return Promise.reject(e)
     }
   }
@@ -33,7 +36,9 @@ export class CredentialDefinitionController {
       const result = await this.credentialDefinitionService.getCredentialDefinition(id)
       return CredentialDefinitionResponseFromJSONTyped({ credentialDefinition: credentialDefinitionDTOFrom(result) }, false)
     } catch (e) {
-      console.error(`getOne definition id=${id} failed:`, e)
+      if (!(e instanceof NotFoundError)) {
+        console.error(`getOne definition id=${id} failed:`, e)
+      }
       return Promise.reject(e)
     }
   }
@@ -57,7 +62,9 @@ export class CredentialDefinitionController {
       const result = await this.credentialDefinitionService.updateCredentialDefinition(id, credentialDefinitionFrom(credentialDefinitionRequest))
       return CredentialDefinitionResponseFromJSONTyped({ credentialDefinition: credentialDefinitionDTOFrom(result) }, false)
     } catch (e) {
-      console.error(`put definition id=${id} failed:`, e)
+      if (!(e instanceof NotFoundError)) {
+        console.error(`put definition id=${id} failed:`, e)
+      }
       return Promise.reject(e)
     }
   }
@@ -68,7 +75,9 @@ export class CredentialDefinitionController {
     try {
       return this.credentialDefinitionService.deleteCredentialDefinition(id)
     } catch (e) {
-      console.error(`delete definition id=${id} failed:`, e)
+      if (!(e instanceof NotFoundError)) {
+        console.error(`delete definition id=${id} failed:`, e)
+      }
       return Promise.reject(e)
     }
   }

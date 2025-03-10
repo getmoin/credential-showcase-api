@@ -9,6 +9,7 @@ import {
   CredentialSchemasResponse,
   CredentialSchemasResponseFromJSONTyped,
 } from 'credential-showcase-openapi'
+import { NotFoundError } from '../errors'
 
 @JsonController('/credentials/schemas')
 @Service()
@@ -44,7 +45,9 @@ export class CredentialSchemaController {
       const credentialSchema = await this.credentialSchemaService.createCredentialSchema(CredentialSchemaRequestToJSONTyped(credentialSchemaRequest))
       return CredentialSchemaResponseFromJSONTyped({ credentialSchema }, false)
     } catch (e) {
-      console.error('credentialSchemaRequest post failed:', e)
+      if (!(e instanceof NotFoundError)) {
+        console.error('credentialSchemaRequest post failed:', e)
+      }
       return Promise.reject(e)
     }
   }
@@ -58,7 +61,9 @@ export class CredentialSchemaController {
       )
       return CredentialSchemaResponseFromJSONTyped({ credentialSchema }, false)
     } catch (e) {
-      console.error(`put schema id=${id} failed:`, e)
+      if (!(e instanceof NotFoundError)) {
+        console.error(`put schema id=${id} failed:`, e)
+      }
       return Promise.reject(e)
     }
   }
@@ -69,7 +74,9 @@ export class CredentialSchemaController {
     try {
       return this.credentialSchemaService.deleteCredentialSchema(id)
     } catch (e) {
-      console.error(`delete schema id=${id} failed:`, e)
+      if (!(e instanceof NotFoundError)) {
+        console.error(`delete schema id=${id} failed:`, e)
+      }
       return Promise.reject(e)
     }
   }
