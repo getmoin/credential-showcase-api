@@ -5,7 +5,7 @@ import ShowcaseController from '../ShowcaseController'
 import { Application } from 'express'
 import { CredentialAttributeType, CredentialType, IdentifierType, IssuerType, ShowcaseStatus, StepActionType, StepType } from '../../types'
 import AssetRepository from '../../database/repositories/AssetRepository'
-import { CredentialSchemaRepository } from '../../database/repositories/CredentialSchemaRepository'
+import CredentialSchemaRepository from '../../database/repositories/CredentialSchemaRepository'
 import CredentialDefinitionRepository from '../../database/repositories/CredentialDefinitionRepository'
 import IssuerRepository from '../../database/repositories/IssuerRepository'
 import PersonaRepository from '../../database/repositories/PersonaRepository'
@@ -13,18 +13,28 @@ import ScenarioRepository from '../../database/repositories/ScenarioRepository'
 import ShowcaseRepository from '../../database/repositories/ShowcaseRepository'
 import ShowcaseService from '../../services/ShowcaseService'
 import { ShowcaseRequest } from 'credential-showcase-openapi'
-import testDbContainer from './testDbContainer'
 import supertest = require('supertest')
-
-let app: Application
-let request: any
+import {PGlite} from "@electric-sql/pglite";
+import {drizzle} from "drizzle-orm/pglite";
+import * as schema from "../../database/schema";
+import {NodePgDatabase} from "drizzle-orm/node-postgres";
+import {migrate} from "drizzle-orm/node-postgres/migrator";
+import DatabaseService from "../../services/DatabaseService";
 
 describe('ShowcaseController Integration Tests', () => {
-  beforeAll(async () => {
-    await testDbContainer.start()
-    useContainer(Container)
+  let client: PGlite
+  let app: Application
+  let request: any
 
-    // Initialize necessary repositories and services
+  beforeAll(async () => {
+    client = new PGlite()
+    const database = drizzle(client, { schema }) as unknown as NodePgDatabase
+    await migrate(database, { migrationsFolder: './apps/credential-showcase-api-server/src/database/migrations' })
+    const mockDatabaseService = {
+      getConnection: jest.fn().mockResolvedValue(database),
+    }
+    Container.set(DatabaseService, mockDatabaseService)
+    useContainer(Container)
     Container.get(AssetRepository)
     Container.get(CredentialSchemaRepository)
     Container.get(CredentialDefinitionRepository)
@@ -33,8 +43,6 @@ describe('ShowcaseController Integration Tests', () => {
     Container.get(ScenarioRepository)
     Container.get(ShowcaseRepository)
     Container.get(ShowcaseService)
-
-    // Create Express server using routing-controllers
     app = createExpressServer({
       controllers: [ShowcaseController],
     })
@@ -42,7 +50,7 @@ describe('ShowcaseController Integration Tests', () => {
   })
 
   afterAll(async () => {
-    await testDbContainer.stop()
+    await client.close()
     Container.reset()
   })
 

@@ -1,9 +1,26 @@
-import { Body, Delete, Get, HttpCode, JsonController, OnUndefined, Param, Post, Put } from 'routing-controllers'
+import {
+  BadRequestError,
+  Body,
+  Delete,
+  Get,
+  HttpCode,
+  JsonController,
+  OnUndefined,
+  Param,
+  Post,
+  Put
+} from 'routing-controllers'
 import { Service } from 'typedi'
-import { AssetResponse, AssetResponseFromJSONTyped, AssetRequest, AssetsResponse, AssetsResponseFromJSONTyped } from 'credential-showcase-openapi'
+import {
+  AssetResponse,
+  AssetResponseFromJSONTyped,
+  AssetRequest,
+  AssetsResponse,
+  AssetsResponseFromJSONTyped,
+  instanceOfAssetRequest
+} from 'credential-showcase-openapi'
 import AssetService from '../services/AssetService'
 import { assetDTOFrom, newAssetFrom } from '../utils/mappers'
-import { NotFoundError } from '../errors'
 
 @JsonController('/assets')
 @Service()
@@ -28,7 +45,7 @@ class AssetController {
       const result = await this.assetService.getAsset(id)
       return AssetResponseFromJSONTyped({ asset: assetDTOFrom(result) }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`getOne id=${id} failed:`, e)
       }
       return Promise.reject(e)
@@ -39,6 +56,9 @@ class AssetController {
   @Post('/')
   public async post(@Body() assetRequest: AssetRequest): Promise<AssetResponse> {
     try {
+      if (!instanceOfAssetRequest(assetRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
       const result = await this.assetService.createAsset(newAssetFrom(assetRequest))
       return AssetResponseFromJSONTyped({ asset: assetDTOFrom(result) }, false)
     } catch (e) {
@@ -50,10 +70,13 @@ class AssetController {
   @Put('/:id')
   public async put(@Param('id') id: string, @Body() assetRequest: AssetRequest): Promise<AssetResponse> {
     try {
+      if (!instanceOfAssetRequest(assetRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
       const result = await this.assetService.updateAsset(id, newAssetFrom(assetRequest))
       return AssetResponseFromJSONTyped({ asset: assetDTOFrom(result) }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`put id=${id} failed:`, e)
       }
       return Promise.reject(e)
@@ -66,7 +89,7 @@ class AssetController {
     try {
       return await this.assetService.deleteAsset(id)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`delete id=${id} failed:`, e)
       }
       return Promise.reject(e)

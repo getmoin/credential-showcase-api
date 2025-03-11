@@ -2022,7 +2022,8 @@ components:
           type: array
           description: List of actions associated with this step
           items:
-            $ref: '#/components/schemas/StepActionRequest'
+            oneOf:
+              - $ref: '#/components/schemas/AriesOOBActionRequest'
         asset:
           type: string
           description: Asset referenced by this step
@@ -2109,7 +2110,7 @@ components:
       discriminator:
         propertyName: actionType
         mapping:
-          ARIES_OOB: '#/components/schemas/AriesOOBAction'
+          ARIES_OOB: '#/components/schemas/AriesOOBActionRequest'
     StepActionsResponse:
       properties:
         actions:
@@ -2130,6 +2131,15 @@ components:
           properties:
             proofRequest:
               $ref: '#/components/schemas/AriesProofRequest'
+    AriesOOBActionRequest:
+      allOf:
+        - $ref: '#/components/schemas/StepActionRequest'
+        - type: object
+          required:
+            - proofRequest
+          properties:
+            proofRequest:
+              $ref: '#/components/schemas/AriesProofRequestRequest'
     AriesProofRequest:
       type: object
       required:
@@ -2165,6 +2175,29 @@ components:
           description: Date and time the Aries proof request was last updated
           format: date-time
           example: 2025-03-06T11:30:16.573Z
+    AriesProofRequestRequest:
+      type: object
+      required:
+        - id
+        - attributes
+        - predicates
+      properties:
+        attributes:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/AriesRequestCredentialAttributes'
+          description: Map of attribute groups requested in the proof
+          example:
+            name:
+              value: John Doe
+        predicates:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/AriesRequestCredentialPredicates'
+          description: Map of predicate groups requested in the proof
+          example:
+            age:
+              value: 30
     AriesRequestCredentialAttributes:
       type: object
       properties:

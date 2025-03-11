@@ -24,7 +24,6 @@
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.2.17",
-    "@testcontainers/postgresql": "^10.18.0",
     "@types/cors": "^2.8.17",
     "@types/dotenv-flow": "^3.3.3",
     "@types/express": "^5.0.0",

@@ -23,7 +23,6 @@ export class DatabaseService {
 
       const migrationsFolder = path.resolve(__dirname, '../database/migrations')
       await migrate(this.db, { migrationsFolder })
-      console.log('Database migrations completed successfully')
     }
 
     return this.db

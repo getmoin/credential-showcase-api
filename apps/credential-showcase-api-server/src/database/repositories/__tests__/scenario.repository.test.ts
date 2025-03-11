@@ -11,6 +11,7 @@ import CredentialDefinitionRepository from '../../../database/repositories/Crede
 import AssetRepository from '../../../database/repositories/AssetRepository'
 import PersonaRepository from '../PersonaRepository'
 import RelyingPartyRepository from '../RelyingPartyRepository'
+import CredentialSchemaRepository from '../CredentialSchemaRepository'
 import * as schema from '../../../database/schema'
 import {
   Asset,
@@ -38,7 +39,6 @@ import {
   StepActionType,
   StepType,
 } from '../../../types'
-import { CredentialSchemaRepository } from '../CredentialSchemaRepository'
 
 describe('Database scenario repository tests', (): void => {
   let client: PGlite

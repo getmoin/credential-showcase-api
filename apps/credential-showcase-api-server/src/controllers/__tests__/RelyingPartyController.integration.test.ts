@@ -6,30 +6,37 @@ import { Application } from 'express'
 import { CredentialAttributeType, CredentialType, IdentifierType, RelyingPartyType } from '../../types'
 import { RelyingPartyRequest } from 'credential-showcase-openapi'
 import AssetRepository from '../../database/repositories/AssetRepository'
-import { CredentialSchemaRepository } from '../../database/repositories/CredentialSchemaRepository'
+import CredentialSchemaRepository from '../../database/repositories/CredentialSchemaRepository'
 import CredentialDefinitionRepository from '../../database/repositories/CredentialDefinitionRepository'
 import RelyingPartyRepository from '../../database/repositories/RelyingPartyRepository'
 import RelyingPartyService from '../../services/RelyingPartyService'
-import testDbContainer from './testDbContainer'
 import supertest = require('supertest')
-
-let app: Application
-let request: any
+import {PGlite} from "@electric-sql/pglite";
+import {drizzle} from "drizzle-orm/pglite";
+import * as schema from "../../database/schema";
+import {NodePgDatabase} from "drizzle-orm/node-postgres";
+import {migrate} from "drizzle-orm/node-postgres/migrator";
+import DatabaseService from "../../services/DatabaseService";
 
 describe('RelyingPartyController Integration Tests', () => {
+  let client: PGlite
+  let app: Application
+  let request: any
+
   beforeAll(async () => {
-    await testDbContainer.start()
-
+    client = new PGlite()
+    const database = drizzle(client, { schema }) as unknown as NodePgDatabase
+    await migrate(database, { migrationsFolder: './apps/credential-showcase-api-server/src/database/migrations' })
+    const mockDatabaseService = {
+      getConnection: jest.fn().mockResolvedValue(database),
+    }
+    Container.set(DatabaseService, mockDatabaseService)
     useContainer(Container)
-
-    // Initialize necessary repositories and services
     Container.get(AssetRepository)
     Container.get(CredentialSchemaRepository)
     Container.get(CredentialDefinitionRepository)
     Container.get(RelyingPartyRepository)
     Container.get(RelyingPartyService)
-
-    // Create Express server using routing-controllers
     app = createExpressServer({
       controllers: [RelyingPartyController],
     })
@@ -37,7 +44,7 @@ describe('RelyingPartyController Integration Tests', () => {
   })
 
   afterAll(async () => {
-    await testDbContainer.stop()
+    await client.close()
     Container.reset()
   })
 

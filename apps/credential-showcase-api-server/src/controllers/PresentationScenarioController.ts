@@ -1,7 +1,21 @@
-import { Body, Delete, Get, HttpCode, JsonController, OnUndefined, Param, Post, Put } from 'routing-controllers'
+import {
+  BadRequestError,
+  Body,
+  Delete,
+  Get,
+  HttpCode,
+  JsonController,
+  OnUndefined,
+  Param,
+  Post,
+  Put
+} from 'routing-controllers'
 import { Service } from 'typedi'
 import ScenarioService from '../services/ScenarioService'
 import {
+  instanceOfPresentationScenarioRequest,
+  instanceOfStepActionRequest,
+  instanceOfStepRequest,
   PresentationScenarioRequest,
   PresentationScenarioRequestToJSONTyped,
   PresentationScenarioResponse,
@@ -23,7 +37,6 @@ import {
 } from 'credential-showcase-openapi'
 import { presentationScenarioDTOFrom, stepDTOFrom } from '../utils/mappers'
 import { ScenarioType } from '../types'
-import { NotFoundError } from '../errors'
 
 @JsonController('/scenarios/presentations')
 @Service()
@@ -33,11 +46,11 @@ class PresentationScenarioController {
   @Get('/')
   public async getAllPresentationScenarios(): Promise<PresentationScenariosResponse> {
     try {
-      const result = await this.scenarioService.getScenarios({ filter: { scenarioType: ScenarioType.ISSUANCE } })
+      const result = await this.scenarioService.getScenarios({ filter: { scenarioType: ScenarioType.PRESENTATION } })
       const presentationScenarios = result.map((presentationScenario) => presentationScenarioDTOFrom(presentationScenario))
       return PresentationScenariosResponseFromJSONTyped({ presentationScenarios }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Get all presentation scenarios failed:`, e)
       }
       return Promise.reject(e)
@@ -50,7 +63,7 @@ class PresentationScenarioController {
       const result = await this.scenarioService.getScenario(presentationScenarioId)
       return PresentationScenarioResponseFromJSONTyped({ presentationScenario: presentationScenarioDTOFrom(result) }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Get presentation scenario id=${presentationScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -61,10 +74,13 @@ class PresentationScenarioController {
   @Post('/')
   public async postPresentationScenario(@Body() presentationScenarioRequest: PresentationScenarioRequest): Promise<PresentationScenarioResponse> {
     try {
+      if (!instanceOfPresentationScenarioRequest(presentationScenarioRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
       const result = await this.scenarioService.createScenario(PresentationScenarioRequestToJSONTyped(presentationScenarioRequest))
       return PresentationScenarioResponseFromJSONTyped({ presentationScenario: presentationScenarioDTOFrom(result) }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Create presentation scenario failed:`, e)
       }
       return Promise.reject(e)
@@ -77,13 +93,16 @@ class PresentationScenarioController {
     @Body() presentationScenarioRequest: PresentationScenarioRequest,
   ): Promise<PresentationScenarioResponse> {
     try {
+      if (!instanceOfPresentationScenarioRequest(presentationScenarioRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
       const result = await this.scenarioService.updateScenario(
         presentationScenarioId,
         PresentationScenarioRequestToJSONTyped(presentationScenarioRequest),
       )
       return PresentationScenarioResponseFromJSONTyped({ presentationScenario: presentationScenarioDTOFrom(result) }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Update presentation scenario id=${presentationScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -96,7 +115,7 @@ class PresentationScenarioController {
     try {
       return await this.scenarioService.deleteScenario(presentationScenarioId)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Delete presentation scenario id=${presentationScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -110,7 +129,7 @@ class PresentationScenarioController {
       const steps = result.map((step) => stepDTOFrom(step))
       return StepsResponseFromJSONTyped({ steps }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Get all steps for presentation scenario id=${presentationScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -126,7 +145,7 @@ class PresentationScenarioController {
       const result = await this.scenarioService.getScenarioStep(presentationScenarioId, stepId)
       return StepResponseFromJSONTyped({ step: stepDTOFrom(result) }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Get step id=${stepId} for presentation scenario id=${presentationScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -140,10 +159,13 @@ class PresentationScenarioController {
     @Body() stepRequest: StepRequest,
   ): Promise<StepResponse> {
     try {
+      if (!instanceOfStepRequest(stepRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
       const result = await this.scenarioService.createScenarioStep(presentationScenarioId, StepRequestToJSONTyped(stepRequest))
       return StepResponseFromJSONTyped({ step: stepDTOFrom(result) }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Create step for presentation scenario id=${presentationScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -157,10 +179,13 @@ class PresentationScenarioController {
     @Body() stepRequest: StepRequest,
   ): Promise<StepResponse> {
     try {
+      if (!instanceOfStepRequest(stepRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
       const result = await this.scenarioService.updateScenarioStep(presentationScenarioId, stepId, StepRequestToJSONTyped(stepRequest))
       return StepResponseFromJSONTyped({ step: stepDTOFrom(result) }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Update step id=${stepId} for presentation scenario id=${presentationScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -176,7 +201,7 @@ class PresentationScenarioController {
     try {
       return this.scenarioService.deleteScenarioStep(presentationScenarioId, stepId)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Delete step id=${stepId} for presentation scenario id=${presentationScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -193,7 +218,7 @@ class PresentationScenarioController {
       const actions = result.map((action) => action)
       return StepActionsResponseFromJSONTyped({ actions }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Get all actions for step id=${stepId}, presentation scenario id=${presentationScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -210,7 +235,7 @@ class PresentationScenarioController {
       const result = await this.scenarioService.getScenarioStepAction(presentationScenarioId, stepId, actionId)
       return StepActionResponseFromJSONTyped({ action: result }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Get action id=${actionId} for step id=${stepId}, presentation scenario id=${presentationScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -225,10 +250,13 @@ class PresentationScenarioController {
     @Body() actionRequest: StepActionRequest,
   ): Promise<StepActionResponse> {
     try {
+      if (!instanceOfStepActionRequest(actionRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
       const result = await this.scenarioService.createScenarioStepAction(presentationScenarioId, stepId, StepActionRequestToJSONTyped(actionRequest))
       return StepActionResponseFromJSONTyped({ action: result }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Create action for step id=${stepId}, presentation scenario id=${presentationScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -243,6 +271,9 @@ class PresentationScenarioController {
     @Body() actionRequest: StepActionRequest,
   ): Promise<StepActionResponse> {
     try {
+      if (!instanceOfStepActionRequest(actionRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
       const result = await this.scenarioService.updateScenarioStepAction(
         presentationScenarioId,
         stepId,
@@ -251,7 +282,7 @@ class PresentationScenarioController {
       )
       return StepActionResponseFromJSONTyped({ action: result }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Update action id=${actionId} for step id=${stepId}, presentation scenario id=${presentationScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -268,7 +299,7 @@ class PresentationScenarioController {
     try {
       return this.scenarioService.deleteScenarioStepAction(presentationScenarioId, stepId, actionId)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Delete action id=${actionId} for step id=${stepId}, presentation scenario id=${presentationScenarioId} failed:`, e)
       }
       return Promise.reject(e)

@@ -1,4 +1,15 @@
-import { Body, Delete, Get, HttpCode, JsonController, OnUndefined, Param, Post, Put } from 'routing-controllers'
+import {
+  BadRequestError,
+  Body,
+  Delete,
+  Get,
+  HttpCode,
+  JsonController,
+  OnUndefined,
+  Param,
+  Post,
+  Put
+} from 'routing-controllers'
 import { Service } from 'typedi'
 import ScenarioService from '../services/ScenarioService'
 import {
@@ -20,10 +31,12 @@ import {
   StepActionRequestToJSONTyped,
   IssuanceScenarioRequest,
   IssuanceScenarioRequestToJSONTyped,
+  instanceOfIssuanceScenarioRequest,
+  instanceOfStepRequest,
+  instanceOfStepActionRequest,
 } from 'credential-showcase-openapi'
 import { issuanceScenarioDTOFrom, stepDTOFrom } from '../utils/mappers'
 import { ScenarioType } from '../types'
-import { NotFoundError } from '../errors/NotFoundError'
 
 @JsonController('/scenarios/issuances')
 @Service()
@@ -37,7 +50,7 @@ class IssuanceScenarioController {
       const issuanceScenarios = result.map((issuanceScenario) => issuanceScenarioDTOFrom(issuanceScenario))
       return IssuanceScenariosResponseFromJSONTyped({ issuanceScenarios }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Get all issuance scenarios failed:`, e)
       }
       return Promise.reject(e)
@@ -50,7 +63,7 @@ class IssuanceScenarioController {
       const result = await this.scenarioService.getScenario(issuanceScenarioId)
       return IssuanceScenarioResponseFromJSONTyped({ issuanceScenario: issuanceScenarioDTOFrom(result) }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Get issuance scenario id=${issuanceScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -61,10 +74,13 @@ class IssuanceScenarioController {
   @Post('/')
   public async postIssuanceScenario(@Body() issuanceScenarioRequest: IssuanceScenarioRequest): Promise<IssuanceScenarioResponse> {
     try {
+      if (!instanceOfIssuanceScenarioRequest(issuanceScenarioRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
       const result = await this.scenarioService.createScenario(IssuanceScenarioRequestToJSONTyped(issuanceScenarioRequest))
       return IssuanceScenarioResponseFromJSONTyped({ issuanceScenario: issuanceScenarioDTOFrom(result) }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Create issuance scenario failed:`, e)
       }
       return Promise.reject(e)
@@ -77,10 +93,13 @@ class IssuanceScenarioController {
     @Body() issuanceScenarioRequest: IssuanceScenarioRequest,
   ): Promise<IssuanceScenarioResponse> {
     try {
+      if (!instanceOfIssuanceScenarioRequest(issuanceScenarioRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
       const result = await this.scenarioService.updateScenario(issuanceScenarioId, IssuanceScenarioRequestToJSONTyped(issuanceScenarioRequest))
       return IssuanceScenarioResponseFromJSONTyped({ issuanceScenario: issuanceScenarioDTOFrom(result) }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Update issuance scenario id=${issuanceScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -93,7 +112,7 @@ class IssuanceScenarioController {
     try {
       return await this.scenarioService.deleteScenario(issuanceScenarioId)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Delete issuance scenario id=${issuanceScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -107,7 +126,7 @@ class IssuanceScenarioController {
       const steps = result.map((step) => stepDTOFrom(step))
       return StepsResponseFromJSONTyped({ steps }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Get all steps for issuance scenario id=${issuanceScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -123,7 +142,7 @@ class IssuanceScenarioController {
       const result = await this.scenarioService.getScenarioStep(issuanceScenarioId, stepId)
       return StepResponseFromJSONTyped({ step: stepDTOFrom(result) }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Get step id=${stepId} for issuance scenario id=${issuanceScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -137,10 +156,13 @@ class IssuanceScenarioController {
     @Body() stepRequest: StepRequest,
   ): Promise<StepResponse> {
     try {
+      if (!instanceOfStepRequest(stepRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
       const result = await this.scenarioService.createScenarioStep(issuanceScenarioId, StepRequestToJSONTyped(stepRequest))
       return StepResponseFromJSONTyped({ step: stepDTOFrom(result) }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Create step for issuance scenario id=${issuanceScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -154,10 +176,13 @@ class IssuanceScenarioController {
     @Body() stepRequest: StepRequest,
   ): Promise<StepResponse> {
     try {
+      if (!instanceOfStepRequest(stepRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
       const result = await this.scenarioService.updateScenarioStep(issuanceScenarioId, stepId, StepRequestToJSONTyped(stepRequest))
       return StepResponseFromJSONTyped({ step: stepDTOFrom(result) }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Update step id=${stepId} for issuance scenario id=${issuanceScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -170,7 +195,7 @@ class IssuanceScenarioController {
     try {
       return this.scenarioService.deleteScenarioStep(issuanceScenarioId, stepId)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Delete step id=${stepId} for issuance scenario id=${issuanceScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -187,7 +212,7 @@ class IssuanceScenarioController {
       const actions = result.map((action) => action)
       return StepActionsResponseFromJSONTyped({ actions }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Get all actions for step id=${stepId}, issuance scenario id=${issuanceScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -204,7 +229,7 @@ class IssuanceScenarioController {
       const result = await this.scenarioService.getScenarioStepAction(issuanceScenarioId, stepId, actionId)
       return StepActionResponseFromJSONTyped({ action: result }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Get action id=${actionId} for step id=${stepId}, issuance scenario id=${issuanceScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -219,10 +244,13 @@ class IssuanceScenarioController {
     @Body() actionRequest: StepActionRequest,
   ): Promise<StepActionResponse> {
     try {
+      if (!instanceOfStepActionRequest(actionRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
       const result = await this.scenarioService.createScenarioStepAction(issuanceScenarioId, stepId, StepActionRequestToJSONTyped(actionRequest))
       return StepActionResponseFromJSONTyped({ action: result }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Create action for step id=${stepId}, issuance scenario id=${issuanceScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -237,6 +265,9 @@ class IssuanceScenarioController {
     @Body() actionRequest: StepActionRequest,
   ): Promise<StepActionResponse> {
     try {
+      if (!instanceOfStepActionRequest(actionRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
       const result = await this.scenarioService.updateScenarioStepAction(
         issuanceScenarioId,
         stepId,
@@ -245,7 +276,7 @@ class IssuanceScenarioController {
       )
       return StepActionResponseFromJSONTyped({ action: result }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Update action id=${actionId} for step id=${stepId}, issuance scenario id=${issuanceScenarioId} failed:`, e)
       }
       return Promise.reject(e)
@@ -262,7 +293,7 @@ class IssuanceScenarioController {
     try {
       return this.scenarioService.deleteScenarioStepAction(issuanceScenarioId, stepId, actionId)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Delete action id=${actionId} for step id=${stepId}, issuance scenario id=${issuanceScenarioId} failed:`, e)
       }
       return Promise.reject(e)

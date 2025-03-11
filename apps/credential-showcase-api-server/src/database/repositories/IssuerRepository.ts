@@ -1,14 +1,19 @@
 import { eq, inArray } from 'drizzle-orm'
 import { Service } from 'typedi'
+import { BadRequestError } from 'routing-controllers'
 import DatabaseService from '../../services/DatabaseService'
 import CredentialDefinitionRepository from './CredentialDefinitionRepository'
 import AssetRepository from './AssetRepository'
+import CredentialSchemaRepository from './CredentialSchemaRepository'
 import { NotFoundError } from '../../errors'
-import { credentialDefinitions, credentialSchemas, issuers, issuersToCredentialDefinitions } from '../schema'
+import {
+  credentialDefinitions,
+  credentialSchemas,
+  issuers,
+  issuersToCredentialDefinitions,
+  issuersToCredentialSchemas
+} from '../schema'
 import { Issuer, NewIssuer, RepositoryDefinition } from '../../types'
-import { issuersToCredentialSchemas } from '../schema'
-import { CredentialSchemaRepository } from './CredentialSchemaRepository'
-import { BadRequestError } from 'routing-controllers'
 
 @Service()
 class IssuerRepository implements RepositoryDefinition<Issuer, NewIssuer> {

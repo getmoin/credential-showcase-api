@@ -1,6 +1,18 @@
-import { Body, Delete, Get, HttpCode, JsonController, OnUndefined, Param, Post, Put } from 'routing-controllers'
+import {
+  BadRequestError,
+  Body,
+  Delete,
+  Get,
+  HttpCode,
+  JsonController,
+  OnUndefined,
+  Param,
+  Post,
+  Put
+} from 'routing-controllers'
 import { Service } from 'typedi'
 import {
+  instanceOfRelyingPartyRequest,
   RelyingPartiesResponse,
   RelyingPartiesResponseFromJSONTyped,
   RelyingPartyRequest,
@@ -10,7 +22,6 @@ import {
 } from 'credential-showcase-openapi'
 import RelyingPartyService from '../services/RelyingPartyService'
 import { relyingPartyDTOFrom } from '../utils/mappers'
-import { NotFoundError } from '../errors/NotFoundError'
 
 @JsonController('/roles/relying-parties')
 @Service()
@@ -24,7 +35,7 @@ class RelyingPartyController {
       const relyingParties = result.map((relyingParty) => relyingPartyDTOFrom(relyingParty))
       return RelyingPartiesResponseFromJSONTyped({ relyingParties }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Get all relying parties failed:`, e)
       }
       return Promise.reject(e)
@@ -37,7 +48,7 @@ class RelyingPartyController {
       const result = await this.relyingPartyService.getRelyingParty(id)
       return RelyingPartyResponseFromJSONTyped({ relyingParty: relyingPartyDTOFrom(result) }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Get relying party id=${id} failed:`, e)
       }
       return Promise.reject(e)
@@ -48,10 +59,13 @@ class RelyingPartyController {
   @Post('/')
   public async post(@Body() relyingPartyRequest: RelyingPartyRequest): Promise<RelyingPartyResponse> {
     try {
+      if (!instanceOfRelyingPartyRequest(relyingPartyRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
       const result = await this.relyingPartyService.createRelyingParty(RelyingPartyRequestToJSONTyped(relyingPartyRequest))
       return RelyingPartyResponseFromJSONTyped({ relyingParty: relyingPartyDTOFrom(result) }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Create relying party failed:`, e)
       }
       return Promise.reject(e)
@@ -61,10 +75,13 @@ class RelyingPartyController {
   @Put('/:id')
   public async put(@Param('id') id: string, @Body() relyingPartyRequest: RelyingPartyRequest): Promise<RelyingPartyResponse> {
     try {
+      if (!instanceOfRelyingPartyRequest(relyingPartyRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
       const result = await this.relyingPartyService.updateRelyingParty(id, RelyingPartyRequestToJSONTyped(relyingPartyRequest))
       return RelyingPartyResponseFromJSONTyped({ relyingParty: relyingPartyDTOFrom(result) }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Update relying party id=${id} failed:`, e)
       }
       return Promise.reject(e)
@@ -77,7 +94,7 @@ class RelyingPartyController {
     try {
       return this.relyingPartyService.deleteRelyingParty(id)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Delete relying party id=${id} failed:`, e)
       }
       return Promise.reject(e)

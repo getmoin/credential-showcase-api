@@ -1,4 +1,15 @@
-import { Body, Delete, Get, HttpCode, JsonController, OnUndefined, Param, Post, Put } from 'routing-controllers'
+import {
+  BadRequestError,
+  Body,
+  Delete,
+  Get,
+  HttpCode,
+  JsonController,
+  OnUndefined,
+  Param,
+  Post,
+  Put
+} from 'routing-controllers'
 import { Service } from 'typedi'
 import CredentialSchemaService from '../services/CredentialSchemaService'
 import {
@@ -8,8 +19,8 @@ import {
   CredentialSchemaResponseFromJSONTyped,
   CredentialSchemasResponse,
   CredentialSchemasResponseFromJSONTyped,
+  instanceOfCredentialSchemaRequest,
 } from 'credential-showcase-openapi'
-import { NotFoundError } from '../errors'
 
 @JsonController('/credentials/schemas')
 @Service()
@@ -22,7 +33,7 @@ export class CredentialSchemaController {
       const result = await this.credentialSchemaService.getCredentialSchemas()
       return CredentialSchemasResponseFromJSONTyped({ result }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error('getAll schemas failed:', e)
       }
       return Promise.reject(e)
@@ -35,7 +46,7 @@ export class CredentialSchemaController {
       const credentialSchema = await this.credentialSchemaService.getCredentialSchema(id)
       return CredentialSchemaResponseFromJSONTyped({ credentialSchema }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`getOne schema id=${id} failed:`, e)
       }
       return Promise.reject(e)
@@ -46,10 +57,13 @@ export class CredentialSchemaController {
   @Post('/')
   public async post(@Body() credentialSchemaRequest: CredentialSchemaRequest): Promise<CredentialSchemaResponse> {
     try {
+      if (!instanceOfCredentialSchemaRequest(credentialSchemaRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
       const credentialSchema = await this.credentialSchemaService.createCredentialSchema(CredentialSchemaRequestToJSONTyped(credentialSchemaRequest))
       return CredentialSchemaResponseFromJSONTyped({ credentialSchema }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error('credentialSchemaRequest post failed:', e)
       }
       return Promise.reject(e)
@@ -59,13 +73,16 @@ export class CredentialSchemaController {
   @Put('/:id')
   public async put(@Param('id') id: string, @Body() credentialSchemaRequest: CredentialSchemaRequest): Promise<CredentialSchemaResponse> {
     try {
+      if (!instanceOfCredentialSchemaRequest(credentialSchemaRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
       const credentialSchema = await this.credentialSchemaService.updateCredentialSchema(
         id,
         CredentialSchemaRequestToJSONTyped(credentialSchemaRequest),
       )
       return CredentialSchemaResponseFromJSONTyped({ credentialSchema }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`put schema id=${id} failed:`, e)
       }
       return Promise.reject(e)
@@ -78,7 +95,7 @@ export class CredentialSchemaController {
     try {
       return this.credentialSchemaService.deleteCredentialSchema(id)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`delete schema id=${id} failed:`, e)
       }
       return Promise.reject(e)

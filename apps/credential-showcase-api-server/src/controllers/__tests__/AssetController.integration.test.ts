@@ -5,20 +5,30 @@ import AssetController from '../AssetController'
 import AssetService from '../../services/AssetService'
 import AssetRepository from '../../database/repositories/AssetRepository'
 import { Application } from 'express'
-import testDbContainer from './testDbContainer'
 import supertest = require('supertest')
+import {PGlite} from "@electric-sql/pglite";
+import {drizzle} from "drizzle-orm/pglite";
+import * as schema from "../../database/schema";
+import {NodePgDatabase} from "drizzle-orm/node-postgres";
+import {migrate} from "drizzle-orm/node-postgres/migrator";
+import DatabaseService from "../../services/DatabaseService";
 
 describe('AssetController Integration Tests', () => {
   let app: Application
   let request: any
+  let client: PGlite
 
   beforeAll(async () => {
-    await testDbContainer.start()
-
+    client = new PGlite()
+    const database = drizzle(client, { schema }) as unknown as NodePgDatabase
+    await migrate(database, { migrationsFolder: './apps/credential-showcase-api-server/src/database/migrations' })
+    const mockDatabaseService = {
+      getConnection: jest.fn().mockResolvedValue(database),
+    }
+    Container.set(DatabaseService, mockDatabaseService)
     useContainer(Container)
     Container.get(AssetRepository)
     Container.get(AssetService)
-
     app = createExpressServer({
       controllers: [AssetController],
     })
@@ -27,7 +37,7 @@ describe('AssetController Integration Tests', () => {
 
   afterAll(async () => {
     Container.reset()
-    await testDbContainer.stop()
+    await client.close()
   })
 
   it('should create, retrieve, update, and delete an asset', async () => {

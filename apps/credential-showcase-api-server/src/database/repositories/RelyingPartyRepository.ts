@@ -1,12 +1,12 @@
 import { eq, inArray } from 'drizzle-orm'
 import { Service } from 'typedi'
+import { BadRequestError } from 'routing-controllers'
 import DatabaseService from '../../services/DatabaseService'
 import CredentialDefinitionRepository from './CredentialDefinitionRepository'
 import AssetRepository from './AssetRepository'
 import { NotFoundError } from '../../errors'
 import { credentialDefinitions, relyingParties, relyingPartiesToCredentialDefinitions } from '../schema'
 import { RelyingParty, NewRelyingParty, RepositoryDefinition } from '../../types'
-import { BadRequestError } from 'routing-controllers'
 
 @Service()
 class RelyingPartyRepository implements RepositoryDefinition<RelyingParty, NewRelyingParty> {

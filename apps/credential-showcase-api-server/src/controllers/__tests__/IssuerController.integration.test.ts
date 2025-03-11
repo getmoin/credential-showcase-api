@@ -6,19 +6,34 @@ import IssuerService from '../../services/IssuerService'
 import IssuerRepository from '../../database/repositories/IssuerRepository'
 import AssetRepository from '../../database/repositories/AssetRepository'
 import CredentialDefinitionRepository from '../../database/repositories/CredentialDefinitionRepository'
-import { CredentialSchemaRepository } from '../../database/repositories/CredentialSchemaRepository'
+import CredentialSchemaRepository from '../../database/repositories/CredentialSchemaRepository'
 import { Application } from 'express'
-import { CredentialAttributeType, CredentialType, IdentifierType } from '../../types'
-import { IssuerRequest } from 'credential-showcase-openapi'
-import testDbContainer from './testDbContainer'
+import {CredentialAttributeType, CredentialType, IdentifierType, RelyingPartyType} from '../../types'
+import {IssuerRequest} from 'credential-showcase-openapi'
 import supertest = require('supertest')
-
-let app: Application
-let request: any
+import {PGlite} from "@electric-sql/pglite";
+import {drizzle} from "drizzle-orm/pglite";
+import * as schema from "../../database/schema";
+import {NodePgDatabase} from "drizzle-orm/node-postgres";
+import {migrate} from "drizzle-orm/node-postgres/migrator";
+import DatabaseService from "../../services/DatabaseService";
 
 describe('IssuerController Integration Tests', () => {
+  let client: PGlite
+  let app: Application
+  let request: any
+
   beforeAll(async () => {
-    await testDbContainer.start()
+    //await testDbContainer.start()
+
+    client = new PGlite()
+    const database = drizzle(client, { schema }) as unknown as NodePgDatabase
+    await migrate(database, { migrationsFolder: './apps/credential-showcase-api-server/src/database/migrations' })
+    const mockDatabaseService = {
+      getConnection: jest.fn().mockResolvedValue(database),
+    }
+    Container.set(DatabaseService, mockDatabaseService)
+
 
     useContainer(Container)
 
@@ -36,7 +51,8 @@ describe('IssuerController Integration Tests', () => {
   })
 
   afterAll(async () => {
-    await testDbContainer.stop()
+    //await testDbContainer.stop()
+    await client.close()
     Container.reset()
   })
 
@@ -136,5 +152,118 @@ describe('IssuerController Integration Tests', () => {
 
     // Verify deletion (should return 404)
     await request.get(`/roles/issuers/${created.id}`).expect(404)
+  })
+
+  it('should handle errors when accessing non-existent resources', async () => {
+    const nonExistentId = '00000000-0000-0000-0000-000000000000'
+
+    // Try to get a non-existent issuer
+    await request.get(`/roles/issuers/${nonExistentId}`).expect(404)
+
+    // Try to update a non-existent issuer
+    const updateRequest: IssuerRequest = {
+      name: 'Non-existent Issuer',
+      description: 'This issuer does not exist',
+      type: RelyingPartyType.ARIES,
+      credentialDefinitions: [],
+      credentialSchemas: [],
+    }
+
+    await request.put(`/roles/issuers/${nonExistentId}`).send(updateRequest).expect(404)
+
+    // Try to delete a non-existent issuer
+    await request.delete(`/roles/issuers/${nonExistentId}`).expect(404)
+  })
+
+  it('should validate request data when creating a issuer', async () => {
+    // Attempt to create an issuer with missing required fields
+    const invalidIssuerRequest = {
+      // Missing name, description, etc.
+    }
+
+    await request.post('/roles/issuers').send(invalidIssuerRequest).expect(400)
+
+    // Attempt to create an issuer with a non-existent credential definition
+    const nonExistentId = '00000000-0000-0000-0000-000000000000'
+    const invalidIssuerRequest2: IssuerRequest = {
+      name: 'Invalid Issuer',
+      description: 'Test description',
+      type: RelyingPartyType.ARIES,
+      credentialDefinitions: [nonExistentId],
+      credentialSchemas: [nonExistentId],
+    }
+
+    await request.post('/roles/issuers').send(invalidIssuerRequest2).expect(404)
+  })
+
+  it('should handle creating a issuer with multiple credential definitions', async () => {
+    const assetRepository = Container.get(AssetRepository)
+    const asset = await assetRepository.create({
+      mediaType: 'image/png',
+      fileName: 'test.png',
+      description: 'Test image',
+      content: Buffer.from('binary data'),
+    })
+
+    const credentialSchemaRepository = Container.get(CredentialSchemaRepository)
+    const credentialSchema = await credentialSchemaRepository.create({
+      name: 'example_name',
+      version: 'example_version',
+      identifierType: IdentifierType.DID,
+      identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
+      attributes: [
+        {
+          name: 'example_attribute_name1',
+          value: 'example_attribute_value1',
+          type: CredentialAttributeType.STRING,
+        },
+      ],
+    })
+
+    const credentialDefinitionRepository = Container.get(CredentialDefinitionRepository)
+    const credentialDefinition1 = await credentialDefinitionRepository.create({
+      name: 'Test Definition 1',
+      version: '1.0',
+      identifierType: IdentifierType.DID,
+      identifier: 'did:test:123',
+      icon: asset.id,
+      type: CredentialType.ANONCRED,
+      credentialSchema: credentialSchema.id,
+    })
+
+    const credentialDefinition2 = await credentialDefinitionRepository.create({
+      name: 'Test Definition 2',
+      version: '1.0',
+      identifierType: IdentifierType.DID,
+      identifier: 'did:test:456',
+      icon: asset.id,
+      type: CredentialType.ANONCRED,
+      credentialSchema: credentialSchema.id,
+    })
+
+    const issuerRequest: IssuerRequest = {
+      name: 'Multi-Cred Issuer',
+      description: 'Issuer with multiple credential definitions',
+      type: RelyingPartyType.ARIES,
+      organization: 'Test Organization',
+      logo: asset.id,
+      credentialDefinitions: [credentialDefinition1.id, credentialDefinition2.id],
+      credentialSchemas: [credentialSchema.id]
+    }
+
+    const createResponse = await request.post('/roles/issuers').send(issuerRequest).expect(201)
+
+    const createdIssuer = createResponse.body.issuer
+    expect(createdIssuer).toHaveProperty('id')
+    expect(createdIssuer.name).toEqual('Multi-Cred Issuer')
+    expect(createdIssuer.credentialDefinitions.length).toBe(2)
+
+    // Verify that both credential definitions are included
+    const credentialDefIds = createdIssuer.credentialDefinitions.map((def: { id: string }) => def.id)
+    expect(credentialDefIds).toContain(credentialDefinition1.id)
+    expect(credentialDefIds).toContain(credentialDefinition2.id)
+
+    // Clean up by deleting the issuer
+    await request.delete(`/roles/issuers/${createdIssuer.id}`).expect(204)
   })
 })

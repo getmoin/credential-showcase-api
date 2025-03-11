@@ -1,6 +1,18 @@
-import { Body, Delete, Get, HttpCode, JsonController, OnUndefined, Param, Post, Put } from 'routing-controllers'
+import {
+  BadRequestError,
+  Body,
+  Delete,
+  Get,
+  HttpCode,
+  JsonController,
+  OnUndefined,
+  Param,
+  Post,
+  Put
+} from 'routing-controllers'
 import { Service } from 'typedi'
 import {
+  instanceOfIssuerRequest,
   IssuerRequest,
   IssuerRequestToJSONTyped,
   IssuerResponse,
@@ -10,7 +22,6 @@ import {
 } from 'credential-showcase-openapi'
 import IssuerService from '../services/IssuerService'
 import { issuerDTOFrom } from '../utils/mappers'
-import { NotFoundError } from '../errors'
 
 @JsonController('/roles/issuers')
 @Service()
@@ -24,7 +35,7 @@ class IssuerController {
       const issuers = result.map((issuer) => issuerDTOFrom(issuer))
       return IssuersResponseFromJSONTyped({ issuers }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Get all issuers failed:`, e)
       }
       return Promise.reject(e)
@@ -37,7 +48,7 @@ class IssuerController {
       const result = await this.issuerService.getIssuer(id)
       return IssuerResponseFromJSONTyped({ issuer: issuerDTOFrom(result) }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Get issuer id=${id} failed:`, e)
       }
       return Promise.reject(e)
@@ -48,10 +59,13 @@ class IssuerController {
   @Post('/')
   public async post(@Body() issuerRequest: IssuerRequest): Promise<IssuerResponse> {
     try {
+      if (!instanceOfIssuerRequest(issuerRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
       const result = await this.issuerService.createIssuer(IssuerRequestToJSONTyped(issuerRequest))
       return IssuerResponseFromJSONTyped({ issuer: issuerDTOFrom(result) }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Create issuer failed:`, e)
       }
       return Promise.reject(e)
@@ -61,10 +75,13 @@ class IssuerController {
   @Put('/:id')
   public async put(@Param('id') id: string, @Body() issuerRequest: IssuerRequest): Promise<IssuerResponse> {
     try {
+      if (!instanceOfIssuerRequest(issuerRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
       const result = await this.issuerService.updateIssuer(id, IssuerRequestToJSONTyped(issuerRequest))
       return IssuerResponseFromJSONTyped({ issuer: issuerDTOFrom(result) }, false)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Update issuer id=${id} failed:`, e)
       }
       return Promise.reject(e)
@@ -77,7 +94,7 @@ class IssuerController {
     try {
       return this.issuerService.deleteIssuer(id)
     } catch (e) {
-      if (!(e instanceof NotFoundError)) {
+      if (e.httpCode !== 404) {
         console.error(`Delete issuer id=${id} failed:`, e)
       }
       return Promise.reject(e)

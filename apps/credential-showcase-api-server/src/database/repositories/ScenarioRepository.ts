@@ -1,5 +1,6 @@
 import { and, eq, inArray } from 'drizzle-orm'
 import { Service } from 'typedi'
+import { BadRequestError } from 'routing-controllers'
 import DatabaseService from '../../services/DatabaseService'
 import PersonaRepository from './PersonaRepository'
 import IssuerRepository from './IssuerRepository'
@@ -8,7 +9,15 @@ import AssetRepository from './AssetRepository'
 import { isIssuanceScenario, isPresentationScenario } from '../../utils/mappers'
 import { sortSteps } from '../../utils/sortUtils'
 import { NotFoundError } from '../../errors'
-import { ariesProofRequests, assets, credentialDefinitions, stepActions, steps, scenarios, scenariosToPersonas } from '../schema'
+import {
+  ariesProofRequests,
+  assets,
+  credentialDefinitions,
+  stepActions,
+  steps,
+  scenarios,
+  scenariosToPersonas
+} from '../schema'
 import {
   AriesOOBAction,
   Issuer,
@@ -24,7 +33,6 @@ import {
   Step,
   ScenarioType,
 } from '../../types'
-import { BadRequestError } from 'routing-controllers'
 
 @Service()
 class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> {
@@ -363,6 +371,15 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
                 },
               },
             },
+            css: {
+              with: {
+                cs: {
+                  with: {
+                    attributes: true,
+                  },
+                },
+              },
+            },
             logo: true,
           },
         },
@@ -391,6 +408,7 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
         issuer: {
           ...(result.issuer as any), // TODO check this typing issue at a later point in time
           credentialDefinitions: result.issuer!.cds.map((credentialDefinition) => credentialDefinition.cd),
+          credentialSchemas: result.issuer!.css.map((credentialSchema: any) => credentialSchema.cs),
         },
       }),
       ...(result.relyingParty && {
@@ -459,6 +477,15 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
                 },
               },
             },
+            css: {
+              with: {
+                cs: {
+                  with: {
+                    attributes: true,
+                  },
+                },
+              },
+            },
             logo: true,
           },
         },
@@ -483,6 +510,7 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
         issuer: {
           ...(scenario.issuer as any), // TODO check this typing issue at a later point in time
           credentialDefinitions: scenario.issuer!.cds.map((credentialDefinition: any) => credentialDefinition.cd),
+          credentialSchemas: scenario.issuer!.css.map((credentialSchema: any) => credentialSchema.cs),
         },
       }),
       ...(scenario.relyingParty && {
@@ -628,6 +656,7 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
   }
 
   async findAllSteps(scenarioId: string): Promise<Step[]> {
+    await this.findById(scenarioId)
     const result = await (
       await this.databaseService.getConnection()
     ).query.steps.findMany({

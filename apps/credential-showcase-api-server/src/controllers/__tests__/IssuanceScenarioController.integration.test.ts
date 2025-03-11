@@ -3,28 +3,50 @@ import { createExpressServer, useContainer } from 'routing-controllers'
 import { Container } from 'typedi'
 import IssuanceScenarioController from '../IssuanceScenarioController'
 import { Application } from 'express'
-import { CredentialAttributeType, CredentialType, IdentifierType, IssuerType, NewPersona, ScenarioType, StepActionType } from '../../types'
-import { IssuanceScenarioRequest, StepActionRequest, StepRequest, StepType } from 'credential-showcase-openapi'
+import {
+  AriesOOBActionRequest,
+  IssuanceScenarioRequest,
+  StepRequest,
+  StepType
+} from 'credential-showcase-openapi'
 import AssetRepository from '../../database/repositories/AssetRepository'
-import { CredentialSchemaRepository } from '../../database/repositories/CredentialSchemaRepository'
+import CredentialSchemaRepository from '../../database/repositories/CredentialSchemaRepository'
 import CredentialDefinitionRepository from '../../database/repositories/CredentialDefinitionRepository'
 import IssuerRepository from '../../database/repositories/IssuerRepository'
 import PersonaRepository from '../../database/repositories/PersonaRepository'
 import ScenarioRepository from '../../database/repositories/ScenarioRepository'
 import ScenarioService from '../../services/ScenarioService'
-import testDbContainer from './testDbContainer'
 import supertest = require('supertest')
-
-let app: Application
-let request: any
+import {PGlite} from "@electric-sql/pglite"
+import {drizzle} from "drizzle-orm/pglite"
+import * as schema from "../../database/schema"
+import {NodePgDatabase} from "drizzle-orm/node-postgres"
+import {migrate} from "drizzle-orm/node-postgres/migrator"
+import DatabaseService from "../../services/DatabaseService"
+import {
+  CredentialAttributeType,
+  CredentialType,
+  IdentifierType,
+  IssuerType,
+  NewPersona,
+  ScenarioType,
+  StepActionType
+} from '../../types'
 
 describe('IssuanceScenarioController Integration Tests', () => {
+  let client: PGlite
+  let app: Application
+  let request: any
+
   beforeAll(async () => {
-    await testDbContainer.start()
-
+    client = new PGlite()
+    const database = drizzle(client, { schema }) as unknown as NodePgDatabase
+    await migrate(database, { migrationsFolder: './apps/credential-showcase-api-server/src/database/migrations' })
+    const mockDatabaseService = {
+      getConnection: jest.fn().mockResolvedValue(database),
+    }
+    Container.set(DatabaseService, mockDatabaseService)
     useContainer(Container)
-
-    // Initialize necessary repositories and services
     Container.get(AssetRepository)
     Container.get(CredentialSchemaRepository)
     Container.get(CredentialDefinitionRepository)
@@ -32,8 +54,6 @@ describe('IssuanceScenarioController Integration Tests', () => {
     Container.get(PersonaRepository)
     Container.get(ScenarioRepository)
     Container.get(ScenarioService)
-
-    // Create Express server using routing-controllers
     app = createExpressServer({
       controllers: [IssuanceScenarioController],
     })
@@ -41,7 +61,7 @@ describe('IssuanceScenarioController Integration Tests', () => {
   })
 
   afterAll(async () => {
-    await testDbContainer.stop()
+    await client.close()
     Container.reset()
   })
 
@@ -125,6 +145,32 @@ describe('IssuanceScenarioController Integration Tests', () => {
               title: 'Initial Action',
               actionType: StepActionType.ARIES_OOB,
               text: 'Initial action text',
+              proofRequest: {
+                attributes: {
+                  attribute1: {
+                    attributes: ['attribute1', 'attribute2'],
+                    restrictions: ['restriction1', 'restriction2'],
+                  },
+                  attribute2: {
+                    attributes: ['attribute1', 'attribute2'],
+                    restrictions: ['restriction1', 'restriction2'],
+                  },
+                },
+                predicates: {
+                  predicate1: {
+                    name: 'example_name',
+                    type: 'example_type',
+                    value: 'example_value',
+                    restrictions: ['restriction1', 'restriction2'],
+                  },
+                  predicate2: {
+                    name: 'example_name',
+                    type: 'example_type',
+                    value: 'example_value',
+                    restrictions: ['restriction1', 'restriction2'],
+                  },
+                },
+              },
             },
           ],
         },
@@ -174,6 +220,32 @@ describe('IssuanceScenarioController Integration Tests', () => {
           title: 'Additional Step Action',
           actionType: StepActionType.ARIES_OOB,
           text: 'Additional step action text',
+          proofRequest: {
+            attributes: {
+              attribute1: {
+                attributes: ['attribute1', 'attribute2'],
+                restrictions: ['restriction1', 'restriction2'],
+              },
+              attribute2: {
+                attributes: ['attribute1', 'attribute2'],
+                restrictions: ['restriction1', 'restriction2'],
+              },
+            },
+            predicates: {
+              predicate1: {
+                name: 'example_name',
+                type: 'example_type',
+                value: 'example_value',
+                restrictions: ['restriction1', 'restriction2'],
+              },
+              predicate2: {
+                name: 'example_name',
+                type: 'example_type',
+                value: 'example_value',
+                restrictions: ['restriction1', 'restriction2'],
+              },
+            },
+          },
         },
       ],
     }
@@ -205,10 +277,36 @@ describe('IssuanceScenarioController Integration Tests', () => {
     expect(updateStepResponse.body.step.title).toEqual('Updated Step Title')
 
     // 10. Create an additional action for the step
-    const actionRequest: StepActionRequest = {
+    const actionRequest: AriesOOBActionRequest = {
       title: 'Additional Action',
       actionType: StepActionType.ARIES_OOB,
       text: 'Additional action text',
+      proofRequest: {
+        attributes: {
+          attribute1: {
+            attributes: ['attribute1', 'attribute2'],
+            restrictions: ['restriction1', 'restriction2'],
+          },
+          attribute2: {
+            attributes: ['attribute1', 'attribute2'],
+            restrictions: ['restriction1', 'restriction2'],
+          },
+        },
+        predicates: {
+          predicate1: {
+            name: 'example_name',
+            type: 'example_type',
+            value: 'example_value',
+            restrictions: ['restriction1', 'restriction2'],
+          },
+          predicate2: {
+            name: 'example_name',
+            type: 'example_type',
+            value: 'example_value',
+            restrictions: ['restriction1', 'restriction2'],
+          },
+        },
+      },
     }
 
     const createActionResponse = await request
@@ -287,6 +385,32 @@ describe('IssuanceScenarioController Integration Tests', () => {
           title: 'Test Action',
           actionType: StepActionType.ARIES_OOB,
           text: 'Test action text',
+          proofRequest: {
+            attributes: {
+              attribute1: {
+                attributes: ['attribute1', 'attribute2'],
+                restrictions: ['restriction1', 'restriction2'],
+              },
+              attribute2: {
+                attributes: ['attribute1', 'attribute2'],
+                restrictions: ['restriction1', 'restriction2'],
+              },
+            },
+            predicates: {
+              predicate1: {
+                name: 'example_name',
+                type: 'example_type',
+                value: 'example_value',
+                restrictions: ['restriction1', 'restriction2'],
+              },
+              predicate2: {
+                name: 'example_name',
+                type: 'example_type',
+                value: 'example_value',
+                restrictions: ['restriction1', 'restriction2'],
+              },
+            },
+          },
         },
       ],
     }
@@ -339,6 +463,32 @@ describe('IssuanceScenarioController Integration Tests', () => {
               title: 'Test Action',
               actionType: StepActionType.ARIES_OOB,
               text: 'Test action text',
+              proofRequest: {
+                attributes: {
+                  attribute1: {
+                    attributes: ['attribute1', 'attribute2'],
+                    restrictions: ['restriction1', 'restriction2'],
+                  },
+                  attribute2: {
+                    attributes: ['attribute1', 'attribute2'],
+                    restrictions: ['restriction1', 'restriction2'],
+                  },
+                },
+                predicates: {
+                  predicate1: {
+                    name: 'example_name',
+                    type: 'example_type',
+                    value: 'example_value',
+                    restrictions: ['restriction1', 'restriction2'],
+                  },
+                  predicate2: {
+                    name: 'example_name',
+                    type: 'example_type',
+                    value: 'example_value',
+                    restrictions: ['restriction1', 'restriction2'],
+                  },
+                },
+              },
             },
           ],
         },
