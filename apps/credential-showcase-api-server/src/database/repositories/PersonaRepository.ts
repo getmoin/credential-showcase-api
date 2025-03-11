@@ -94,7 +94,7 @@ class PersonaRepository implements RepositoryDefinition<Persona, NewPersona> {
     })
 
     if (!result) {
-      throw new NotFoundError(`No persona found for id: ${id}`)
+      return Promise.reject(new NotFoundError(`No persona found for id: ${id}`))
     }
 
     return result

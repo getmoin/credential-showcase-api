@@ -1,5 +1,6 @@
 import { and, eq, inArray } from 'drizzle-orm'
 import { Service } from 'typedi'
+import { BadRequestError } from 'routing-controllers'
 import DatabaseService from '../../services/DatabaseService'
 import PersonaRepository from './PersonaRepository'
 import IssuerRepository from './IssuerRepository'
@@ -9,7 +10,15 @@ import { isIssuanceScenario, isPresentationScenario } from '../../utils/mappers'
 import { sortSteps } from '../../utils/sort'
 import { generateSlug } from '../../utils/slug'
 import { NotFoundError } from '../../errors'
-import { ariesProofRequests, assets, credentialDefinitions, stepActions, steps, scenarios, scenariosToPersonas } from '../schema'
+import {
+  ariesProofRequests,
+  assets,
+  credentialDefinitions,
+  stepActions,
+  steps,
+  scenarios,
+  scenariosToPersonas
+} from '../schema'
 import {
   AriesOOBAction,
   Issuer,
@@ -38,10 +47,10 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
 
   async create(scenario: NewScenario): Promise<Scenario> {
     if (scenario.steps.length === 0) {
-      return Promise.reject(Error('At least one step is required'))
+      return Promise.reject(new BadRequestError('At least one step is required'))
     }
     if (scenario.personas.length === 0) {
-      return Promise.reject(Error('At least one persona is required'))
+      return Promise.reject(new BadRequestError('At least one persona is required'))
     }
 
     const bannerImageResult = scenario.bannerImage ? await this.assetRepository.findById(scenario.bannerImage) : null
@@ -183,10 +192,10 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
 
   async update(scenarioId: string, scenario: NewScenario): Promise<Scenario> {
     if (scenario.steps.length === 0) {
-      return Promise.reject(Error('At least one step is required'))
+      return Promise.reject(new BadRequestError('At least one step is required'))
     }
     if (scenario.personas.length === 0) {
-      return Promise.reject(Error('At least one persona is required'))
+      return Promise.reject(new BadRequestError('At least one persona is required'))
     }
 
     const bannerImageResult = scenario.bannerImage ? await this.assetRepository.findById(scenario.bannerImage) : null
@@ -382,6 +391,15 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
                 },
               },
             },
+            css: {
+              with: {
+                cs: {
+                  with: {
+                    attributes: true,
+                  },
+                },
+              },
+            },
             logo: true,
           },
         },
@@ -410,6 +428,7 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
         issuer: {
           ...(result.issuer as any), // TODO check this typing issue at a later point in time
           credentialDefinitions: result.issuer!.cds.map((credentialDefinition) => credentialDefinition.cd),
+          credentialSchemas: result.issuer!.css.map((credentialSchema: any) => credentialSchema.cs),
         },
       }),
       ...(result.relyingParty && {
@@ -478,6 +497,15 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
                 },
               },
             },
+            css: {
+              with: {
+                cs: {
+                  with: {
+                    attributes: true,
+                  },
+                },
+              },
+            },
             logo: true,
           },
         },
@@ -502,6 +530,7 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
         issuer: {
           ...(scenario.issuer as any), // TODO check this typing issue at a later point in time
           credentialDefinitions: scenario.issuer!.cds.map((credentialDefinition: any) => credentialDefinition.cd),
+          credentialSchemas: scenario.issuer!.css.map((credentialSchema: any) => credentialSchema.cs),
         },
       }),
       ...(scenario.relyingParty && {
@@ -518,7 +547,7 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
     await this.findById(scenarioId)
 
     if (step.actions.length === 0) {
-      return Promise.reject(Error('At least one action is required'))
+      return Promise.reject(new BadRequestError('At least one action is required'))
     }
 
     const assetResult = step.asset ? await this.assetRepository.findById(step.asset) : null
@@ -574,7 +603,7 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
     await this.findById(scenarioId)
 
     if (step.actions.length === 0) {
-      return Promise.reject(Error('At least one action is required'))
+      return Promise.reject(new BadRequestError('At least one action is required'))
     }
 
     const assetResult = step.asset ? await this.assetRepository.findById(step.asset) : null
@@ -647,6 +676,7 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
   }
 
   async findAllSteps(scenarioId: string): Promise<Step[]> {
+    await this.findById(scenarioId)
     const result = await (
       await this.databaseService.getConnection()
     ).query.steps.findMany({

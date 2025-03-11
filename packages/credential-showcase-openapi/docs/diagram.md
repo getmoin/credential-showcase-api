@@ -131,8 +131,8 @@ classDiagram
     class CredentialSchema {
         +name: String
         +version: String
-        +identifierType: IdentifierType
-        +identifier: String
+        identifierType: IdentifierType
+        identifier: String
         +attributes: List~CredentialAttribute~
     }
     class IdentifierType {
@@ -141,8 +141,8 @@ classDiagram
     class CredentialDefinition {
         +name : String
         +version : String
-        +identifierType: IdentifierType
-        +identifier: String
+        identifierType: IdentifierType
+        identifier: String
         +icon: Asset
         +type: CredentialType
          credentialSchema: CredentialSchema

@@ -1,5 +1,6 @@
 import { inArray, eq } from 'drizzle-orm'
 import { Service } from 'typedi'
+import { BadRequestError } from 'routing-controllers'
 import DatabaseService from '../../services/DatabaseService'
 import CredentialDefinitionRepository from './CredentialDefinitionRepository'
 import PersonaRepository from './PersonaRepository'
@@ -31,13 +32,13 @@ class ShowcaseRepository implements RepositoryDefinition<Showcase, NewShowcase> 
 
   async create(showcase: NewShowcase): Promise<Showcase> {
     if (showcase.personas.length === 0) {
-      return Promise.reject(Error('At least one persona is required'))
+      return Promise.reject(new BadRequestError('At least one persona is required'))
     }
     if (showcase.credentialDefinitions.length === 0) {
-      return Promise.reject(Error('At least one credential definition is required'))
+      return Promise.reject(new BadRequestError('At least one credential definition is required'))
     }
     if (showcase.scenarios.length === 0) {
-      return Promise.reject(Error('At least one scenario is required'))
+      return Promise.reject(new BadRequestError('At least one scenario is required'))
     }
     const bannerImageResult = showcase.bannerImage ? await this.assetRepository.findById(showcase.bannerImage) : null
     const personaPromises = showcase.personas.map(async (persona) => await this.personaRepository.findById(persona))
@@ -130,7 +131,15 @@ class ShowcaseRepository implements RepositoryDefinition<Showcase, NewShowcase> 
                   },
                 },
               },
-              css: true,
+              css: {
+                with: {
+                  cs: {
+                    with: {
+                      attributes: true,
+                    },
+                  },
+                },
+              },
               logo: true,
             },
           },
@@ -211,7 +220,7 @@ class ShowcaseRepository implements RepositoryDefinition<Showcase, NewShowcase> 
             issuer: {
               ...(scenario.issuer as any), // TODO check this typing issue at a later point in time
               credentialDefinitions: scenario.issuer!.cds.map((credentialDefinition) => credentialDefinition.cd),
-              credentialSchemas: scenario.issuer!.css.map((credentialSchema) => credentialSchema.credentialSchema),
+              credentialSchemas: scenario.issuer!.css.map((credentialSchema) => credentialSchema.cs),
             },
           }),
           personas: scenario.personas.map((item) => item.persona),
@@ -234,13 +243,13 @@ class ShowcaseRepository implements RepositoryDefinition<Showcase, NewShowcase> 
   async update(id: string, showcase: NewShowcase): Promise<Showcase> {
     await this.findById(id)
     if (showcase.personas.length === 0) {
-      return Promise.reject(Error('At least one persona is required'))
+      return Promise.reject(new BadRequestError('At least one persona is required'))
     }
     if (showcase.credentialDefinitions.length === 0) {
-      return Promise.reject(Error('At least one credential definition is required'))
+      return Promise.reject(new BadRequestError('At least one credential definition is required'))
     }
     if (showcase.scenarios.length === 0) {
-      return Promise.reject(Error('At least one scenario is required'))
+      return Promise.reject(new BadRequestError('At least one scenario is required'))
     }
 
     const bannerImageResult = showcase.bannerImage ? await this.assetRepository.findById(showcase.bannerImage) : null
@@ -341,6 +350,15 @@ class ShowcaseRepository implements RepositoryDefinition<Showcase, NewShowcase> 
                   },
                 },
               },
+              css: {
+                with: {
+                  cs: {
+                    with: {
+                      attributes: true,
+                    },
+                  },
+                },
+              },
               logo: true,
             },
           },
@@ -421,6 +439,7 @@ class ShowcaseRepository implements RepositoryDefinition<Showcase, NewShowcase> 
             issuer: {
               ...(scenario.issuer as any), // TODO check this typing issue at a later point in time
               credentialDefinitions: scenario.issuer!.cds.map((credentialDefinition) => credentialDefinition.cd),
+              credentialSchemas: scenario.issuer!.css.map((credentialSchema) => credentialSchema.cs),
             },
           }),
           personas: scenario.personas.map((item) => item.persona),
@@ -485,6 +504,16 @@ class ShowcaseRepository implements RepositoryDefinition<Showcase, NewShowcase> 
                             },
                             representations: true,
                             revocation: true,
+                          },
+                        },
+
+                      },
+                    },
+                    css: {
+                      with: {
+                        cs: {
+                          with: {
+                            attributes: true,
                           },
                         },
                       },
@@ -560,13 +589,14 @@ class ShowcaseRepository implements RepositoryDefinition<Showcase, NewShowcase> 
           issuer: {
             ...(scenario.scenario.issuer as any), // TODO check this typing issue at a later point in time
             credentialDefinitions: scenario.scenario.issuer!.cds.map((credentialDefinition) => credentialDefinition.cd),
+            credentialSchemas: scenario.scenario.issuer!.css.map((credentialSchema: any) => credentialSchema.cs),
           },
         }),
         personas: scenario.scenario.personas.map((item) => item.persona),
       })),
       credentialDefinitions: result.credentialDefinitions.map((item: any) => ({
-        ...item,
-        credentialSchema: item.cs,
+        ...item.credentialDefinition,
+        credentialSchema: item.credentialDefinition.cs,
       })),
       personas: result.personas.map((item) => item.persona),
     }
@@ -621,6 +651,15 @@ class ShowcaseRepository implements RepositoryDefinition<Showcase, NewShowcase> 
                             },
                             representations: true,
                             revocation: true,
+                          },
+                        },
+                      },
+                    },
+                    css: {
+                      with: {
+                        cs: {
+                          with: {
+                            attributes: true,
                           },
                         },
                       },
@@ -692,11 +731,15 @@ class ShowcaseRepository implements RepositoryDefinition<Showcase, NewShowcase> 
           issuer: {
             ...(scenario.scenario.issuer as any), // TODO check this typing issue at a later point in time
             credentialDefinitions: scenario.scenario.issuer!.cds.map((credentialDefinition: any) => credentialDefinition.cd),
+            credentialSchemas: scenario.scenario.issuer!.css.map((credentialSchema: any) => credentialSchema.cs),
           },
         }),
         personas: scenario.scenario.personas.map((item: any) => item.persona), // TODO check this typing issue at a later point in time
       })),
-      credentialDefinitions: showcase.credentialDefinitions.map((item: any) => item.credentialDefinition), // TODO check this typing issue at a later point in time
+      credentialDefinitions: showcase.credentialDefinitions.map((item: any) => ({ // TODO check this typing issue at a later point in time
+        ...item.credentialDefinition,
+        credentialSchema: item.credentialDefinition.cs,
+      })),
       personas: showcase.personas.map((item: any) => item.persona), // TODO check this typing issue at a later point in time
     }))
   }

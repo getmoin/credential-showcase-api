@@ -40,8 +40,8 @@ CREATE TABLE "credentialDefinition" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" text NOT NULL,
 	"version" text NOT NULL,
-	"identifier_type" "IdentifierType" NOT NULL,
-	"identifier" text NOT NULL,
+	"identifier_type" "IdentifierType",
+	"identifier" text,
 	"credential_schema" uuid NOT NULL,
 	"icon" uuid NOT NULL,
 	"type" "CredentialType" NOT NULL,
@@ -58,8 +58,8 @@ CREATE TABLE "credentialRepresentation" (
 --> statement-breakpoint
 CREATE TABLE "credentialSchema" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"identifier_type" "IdentifierType" NOT NULL,
-	"identifier" text NOT NULL,
+	"identifier_type" "IdentifierType",
+	"identifier" text,
 	"name" text NOT NULL,
 	"version" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,

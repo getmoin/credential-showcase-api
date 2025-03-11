@@ -13,6 +13,7 @@ import CredentialSchemaRepository from '../CredentialSchemaRepository'
 import AssetRepository from '../AssetRepository'
 import PersonaRepository from '../PersonaRepository'
 import ScenarioRepository from '../ScenarioRepository'
+import CredentialSchemaRepository from '../CredentialSchemaRepository'
 import {
   Asset,
   CredentialAttributeType,
