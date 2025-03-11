@@ -6,7 +6,7 @@ import { credentialAttributes, credentialSchemas } from '../schema'
 import { CredentialSchema, NewCredentialAttribute, NewCredentialSchema, RepositoryDefinition } from '../../types'
 
 @Service()
-export class CredentialSchemaRepository implements RepositoryDefinition<CredentialSchema, NewCredentialSchema> {
+class CredentialSchemaRepository implements RepositoryDefinition<CredentialSchema, NewCredentialSchema> {
   constructor(private readonly databaseService: DatabaseService) {}
 
   async create(credentialSchema: NewCredentialSchema): Promise<CredentialSchema> {
@@ -113,3 +113,5 @@ export class CredentialSchemaRepository implements RepositoryDefinition<Credenti
     })
   }
 }
+
+export default CredentialSchemaRepository

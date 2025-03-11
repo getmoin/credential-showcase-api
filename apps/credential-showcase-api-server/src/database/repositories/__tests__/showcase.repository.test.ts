@@ -12,6 +12,7 @@ import CredentialDefinitionRepository from '../CredentialDefinitionRepository'
 import AssetRepository from '../AssetRepository'
 import PersonaRepository from '../PersonaRepository'
 import ScenarioRepository from '../ScenarioRepository'
+import CredentialSchemaRepository from '../CredentialSchemaRepository'
 import {
   Asset,
   CredentialAttributeType,
@@ -32,7 +33,6 @@ import {
   StepActionType,
   StepType,
 } from '../../../types'
-import { CredentialSchemaRepository } from '../CredentialSchemaRepository'
 
 describe('Database showcase repository tests', (): void => {
   let client: PGlite

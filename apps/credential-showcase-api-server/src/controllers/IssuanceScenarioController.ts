@@ -1,4 +1,15 @@
-import { Body, Delete, Get, HttpCode, JsonController, OnUndefined, Param, Post, Put } from 'routing-controllers'
+import {
+  BadRequestError,
+  Body,
+  Delete,
+  Get,
+  HttpCode,
+  JsonController,
+  OnUndefined,
+  Param,
+  Post,
+  Put
+} from 'routing-controllers'
 import { Service } from 'typedi'
 import ScenarioService from '../services/ScenarioService'
 import {
@@ -20,6 +31,9 @@ import {
   StepActionRequestToJSONTyped,
   IssuanceScenarioRequest,
   IssuanceScenarioRequestToJSONTyped,
+  instanceOfIssuanceScenarioRequest,
+  instanceOfStepRequest,
+  instanceOfStepActionRequest,
 } from 'credential-showcase-openapi'
 import { issuanceScenarioDTOFrom, stepDTOFrom } from '../utils/mappers'
 import { ScenarioType } from '../types'
@@ -31,22 +45,46 @@ class IssuanceScenarioController {
 
   @Get('/')
   public async getAllIssuanceScenarios(): Promise<IssuanceScenariosResponse> {
-    const result = await this.scenarioService.getScenarios({ filter: { scenarioType: ScenarioType.ISSUANCE } })
-    const issuanceScenarios = result.map((issuanceScenario) => issuanceScenarioDTOFrom(issuanceScenario))
-    return IssuanceScenariosResponseFromJSONTyped({ issuanceScenarios }, false)
+    try {
+      const result = await this.scenarioService.getScenarios({ filter: { scenarioType: ScenarioType.ISSUANCE } })
+      const issuanceScenarios = result.map((issuanceScenario) => issuanceScenarioDTOFrom(issuanceScenario))
+      return IssuanceScenariosResponseFromJSONTyped({ issuanceScenarios }, false)
+    } catch (e) {
+      if (e.httpCode !== 404) {
+        console.error(`Get all issuance scenarios failed:`, e)
+      }
+      return Promise.reject(e)
+    }
   }
 
   @Get('/:issuanceScenarioId')
   public async getOneIssuanceScenario(@Param('issuanceScenarioId') issuanceScenarioId: string): Promise<IssuanceScenarioResponse> {
-    const result = await this.scenarioService.getScenario(issuanceScenarioId)
-    return IssuanceScenarioResponseFromJSONTyped({ issuanceScenario: issuanceScenarioDTOFrom(result) }, false)
+    try {
+      const result = await this.scenarioService.getScenario(issuanceScenarioId)
+      return IssuanceScenarioResponseFromJSONTyped({ issuanceScenario: issuanceScenarioDTOFrom(result) }, false)
+    } catch (e) {
+      if (e.httpCode !== 404) {
+        console.error(`Get issuance scenario id=${issuanceScenarioId} failed:`, e)
+      }
+      return Promise.reject(e)
+    }
   }
 
   @HttpCode(201)
   @Post('/')
   public async postIssuanceScenario(@Body() issuanceScenarioRequest: IssuanceScenarioRequest): Promise<IssuanceScenarioResponse> {
-    const result = await this.scenarioService.createScenario(IssuanceScenarioRequestToJSONTyped(issuanceScenarioRequest))
-    return IssuanceScenarioResponseFromJSONTyped({ issuanceScenario: issuanceScenarioDTOFrom(result) }, false)
+    try {
+      if (!instanceOfIssuanceScenarioRequest(issuanceScenarioRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
+      const result = await this.scenarioService.createScenario(IssuanceScenarioRequestToJSONTyped(issuanceScenarioRequest))
+      return IssuanceScenarioResponseFromJSONTyped({ issuanceScenario: issuanceScenarioDTOFrom(result) }, false)
+    } catch (e) {
+      if (e.httpCode !== 404) {
+        console.error(`Create issuance scenario failed:`, e)
+      }
+      return Promise.reject(e)
+    }
   }
 
   @Put('/:issuanceScenarioId')
@@ -54,21 +92,45 @@ class IssuanceScenarioController {
     @Param('issuanceScenarioId') issuanceScenarioId: string,
     @Body() issuanceScenarioRequest: IssuanceScenarioRequest,
   ): Promise<IssuanceScenarioResponse> {
-    const result = await this.scenarioService.updateScenario(issuanceScenarioId, IssuanceScenarioRequestToJSONTyped(issuanceScenarioRequest))
-    return IssuanceScenarioResponseFromJSONTyped({ issuanceScenario: issuanceScenarioDTOFrom(result) }, false)
+    try {
+      if (!instanceOfIssuanceScenarioRequest(issuanceScenarioRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
+      const result = await this.scenarioService.updateScenario(issuanceScenarioId, IssuanceScenarioRequestToJSONTyped(issuanceScenarioRequest))
+      return IssuanceScenarioResponseFromJSONTyped({ issuanceScenario: issuanceScenarioDTOFrom(result) }, false)
+    } catch (e) {
+      if (e.httpCode !== 404) {
+        console.error(`Update issuance scenario id=${issuanceScenarioId} failed:`, e)
+      }
+      return Promise.reject(e)
+    }
   }
 
   @OnUndefined(204)
   @Delete('/:issuanceScenarioId')
   public async deleteIssuanceScenario(@Param('issuanceScenarioId') issuanceScenarioId: string): Promise<void> {
-    return await this.scenarioService.deleteScenario(issuanceScenarioId)
+    try {
+      return await this.scenarioService.deleteScenario(issuanceScenarioId)
+    } catch (e) {
+      if (e.httpCode !== 404) {
+        console.error(`Delete issuance scenario id=${issuanceScenarioId} failed:`, e)
+      }
+      return Promise.reject(e)
+    }
   }
 
   @Get('/:issuanceScenarioId/steps')
   public async getAllSteps(@Param('issuanceScenarioId') issuanceScenarioId: string): Promise<StepsResponse> {
-    const result = await this.scenarioService.getScenarioSteps(issuanceScenarioId)
-    const steps = result.map((step) => stepDTOFrom(step))
-    return StepsResponseFromJSONTyped({ steps }, false)
+    try {
+      const result = await this.scenarioService.getScenarioSteps(issuanceScenarioId)
+      const steps = result.map((step) => stepDTOFrom(step))
+      return StepsResponseFromJSONTyped({ steps }, false)
+    } catch (e) {
+      if (e.httpCode !== 404) {
+        console.error(`Get all steps for issuance scenario id=${issuanceScenarioId} failed:`, e)
+      }
+      return Promise.reject(e)
+    }
   }
 
   @Get('/:issuanceScenarioId/steps/:stepId')
@@ -76,8 +138,15 @@ class IssuanceScenarioController {
     @Param('issuanceScenarioId') issuanceScenarioId: string,
     @Param('stepId') stepId: string,
   ): Promise<StepResponse> {
-    const result = await this.scenarioService.getScenarioStep(issuanceScenarioId, stepId)
-    return StepResponseFromJSONTyped({ step: stepDTOFrom(result) }, false)
+    try {
+      const result = await this.scenarioService.getScenarioStep(issuanceScenarioId, stepId)
+      return StepResponseFromJSONTyped({ step: stepDTOFrom(result) }, false)
+    } catch (e) {
+      if (e.httpCode !== 404) {
+        console.error(`Get step id=${stepId} for issuance scenario id=${issuanceScenarioId} failed:`, e)
+      }
+      return Promise.reject(e)
+    }
   }
 
   @HttpCode(201)
@@ -86,8 +155,18 @@ class IssuanceScenarioController {
     @Param('issuanceScenarioId') issuanceScenarioId: string,
     @Body() stepRequest: StepRequest,
   ): Promise<StepResponse> {
-    const result = await this.scenarioService.createScenarioStep(issuanceScenarioId, StepRequestToJSONTyped(stepRequest))
-    return StepResponseFromJSONTyped({ step: stepDTOFrom(result) }, false)
+    try {
+      if (!instanceOfStepRequest(stepRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
+      const result = await this.scenarioService.createScenarioStep(issuanceScenarioId, StepRequestToJSONTyped(stepRequest))
+      return StepResponseFromJSONTyped({ step: stepDTOFrom(result) }, false)
+    } catch (e) {
+      if (e.httpCode !== 404) {
+        console.error(`Create step for issuance scenario id=${issuanceScenarioId} failed:`, e)
+      }
+      return Promise.reject(e)
+    }
   }
 
   @Put('/:issuanceScenarioId/steps/:stepId')
@@ -96,14 +175,31 @@ class IssuanceScenarioController {
     @Param('stepId') stepId: string,
     @Body() stepRequest: StepRequest,
   ): Promise<StepResponse> {
-    const result = await this.scenarioService.updateScenarioStep(issuanceScenarioId, stepId, StepRequestToJSONTyped(stepRequest))
-    return StepResponseFromJSONTyped({ step: stepDTOFrom(result) }, false)
+    try {
+      if (!instanceOfStepRequest(stepRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
+      const result = await this.scenarioService.updateScenarioStep(issuanceScenarioId, stepId, StepRequestToJSONTyped(stepRequest))
+      return StepResponseFromJSONTyped({ step: stepDTOFrom(result) }, false)
+    } catch (e) {
+      if (e.httpCode !== 404) {
+        console.error(`Update step id=${stepId} for issuance scenario id=${issuanceScenarioId} failed:`, e)
+      }
+      return Promise.reject(e)
+    }
   }
 
   @OnUndefined(204)
   @Delete('/:issuanceScenarioId/steps/:stepId')
   public async deleteIssuanceScenarioStep(@Param('issuanceScenarioId') issuanceScenarioId: string, @Param('stepId') stepId: string): Promise<void> {
-    return this.scenarioService.deleteScenarioStep(issuanceScenarioId, stepId)
+    try {
+      return this.scenarioService.deleteScenarioStep(issuanceScenarioId, stepId)
+    } catch (e) {
+      if (e.httpCode !== 404) {
+        console.error(`Delete step id=${stepId} for issuance scenario id=${issuanceScenarioId} failed:`, e)
+      }
+      return Promise.reject(e)
+    }
   }
 
   @Get('/:issuanceScenarioId/steps/:stepId/actions')
@@ -111,9 +207,16 @@ class IssuanceScenarioController {
     @Param('issuanceScenarioId') issuanceScenarioId: string,
     @Param('stepId') stepId: string,
   ): Promise<StepActionsResponse> {
-    const result = await this.scenarioService.getScenarioStepActions(issuanceScenarioId, stepId)
-    const actions = result.map((action) => action)
-    return StepActionsResponseFromJSONTyped({ actions }, false)
+    try {
+      const result = await this.scenarioService.getScenarioStepActions(issuanceScenarioId, stepId)
+      const actions = result.map((action) => action)
+      return StepActionsResponseFromJSONTyped({ actions }, false)
+    } catch (e) {
+      if (e.httpCode !== 404) {
+        console.error(`Get all actions for step id=${stepId}, issuance scenario id=${issuanceScenarioId} failed:`, e)
+      }
+      return Promise.reject(e)
+    }
   }
 
   @Get('/:issuanceScenarioId/steps/:stepId/actions/:actionId')
@@ -122,8 +225,15 @@ class IssuanceScenarioController {
     @Param('stepId') stepId: string,
     @Param('actionId') actionId: string,
   ): Promise<StepActionResponse> {
-    const result = await this.scenarioService.getScenarioStepAction(issuanceScenarioId, stepId, actionId)
-    return StepActionResponseFromJSONTyped({ action: result }, false)
+    try {
+      const result = await this.scenarioService.getScenarioStepAction(issuanceScenarioId, stepId, actionId)
+      return StepActionResponseFromJSONTyped({ action: result }, false)
+    } catch (e) {
+      if (e.httpCode !== 404) {
+        console.error(`Get action id=${actionId} for step id=${stepId}, issuance scenario id=${issuanceScenarioId} failed:`, e)
+      }
+      return Promise.reject(e)
+    }
   }
 
   @HttpCode(201)
@@ -133,8 +243,18 @@ class IssuanceScenarioController {
     @Param('stepId') stepId: string,
     @Body() actionRequest: StepActionRequest,
   ): Promise<StepActionResponse> {
-    const result = await this.scenarioService.createScenarioStepAction(issuanceScenarioId, stepId, StepActionRequestToJSONTyped(actionRequest))
-    return StepActionResponseFromJSONTyped({ action: result }, false)
+    try {
+      if (!instanceOfStepActionRequest(actionRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
+      const result = await this.scenarioService.createScenarioStepAction(issuanceScenarioId, stepId, StepActionRequestToJSONTyped(actionRequest))
+      return StepActionResponseFromJSONTyped({ action: result }, false)
+    } catch (e) {
+      if (e.httpCode !== 404) {
+        console.error(`Create action for step id=${stepId}, issuance scenario id=${issuanceScenarioId} failed:`, e)
+      }
+      return Promise.reject(e)
+    }
   }
 
   @Put('/:issuanceScenarioId/steps/:stepId/actions/:actionId')
@@ -144,13 +264,23 @@ class IssuanceScenarioController {
     @Param('actionId') actionId: string,
     @Body() actionRequest: StepActionRequest,
   ): Promise<StepActionResponse> {
-    const result = await this.scenarioService.updateScenarioStepAction(
-      issuanceScenarioId,
-      stepId,
-      actionId,
-      StepActionRequestToJSONTyped(actionRequest),
-    )
-    return StepActionResponseFromJSONTyped({ action: result }, false)
+    try {
+      if (!instanceOfStepActionRequest(actionRequest)) {
+        return Promise.reject(new BadRequestError())
+      }
+      const result = await this.scenarioService.updateScenarioStepAction(
+        issuanceScenarioId,
+        stepId,
+        actionId,
+        StepActionRequestToJSONTyped(actionRequest),
+      )
+      return StepActionResponseFromJSONTyped({ action: result }, false)
+    } catch (e) {
+      if (e.httpCode !== 404) {
+        console.error(`Update action id=${actionId} for step id=${stepId}, issuance scenario id=${issuanceScenarioId} failed:`, e)
+      }
+      return Promise.reject(e)
+    }
   }
 
   @OnUndefined(204)
@@ -160,7 +290,14 @@ class IssuanceScenarioController {
     @Param('stepId') stepId: string,
     @Param('actionId') actionId: string,
   ): Promise<void> {
-    return this.scenarioService.deleteScenarioStepAction(issuanceScenarioId, stepId, actionId)
+    try {
+      return this.scenarioService.deleteScenarioStepAction(issuanceScenarioId, stepId, actionId)
+    } catch (e) {
+      if (e.httpCode !== 404) {
+        console.error(`Delete action id=${actionId} for step id=${stepId}, issuance scenario id=${issuanceScenarioId} failed:`, e)
+      }
+      return Promise.reject(e)
+    }
   }
 }
 
