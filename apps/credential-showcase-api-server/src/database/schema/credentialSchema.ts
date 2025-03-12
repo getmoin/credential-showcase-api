@@ -8,7 +8,7 @@ import { SourcePg } from './sourceType'
 export const credentialSchemas = pgTable('credentialSchema', {
   id: uuid('id').notNull().primaryKey().defaultRandom(),
   identifierType: IdentifierTypePg('identifier_type').$type<IdentifierType>(),
-  source: SourcePg('source').$type<Source>().default(Source.CREATED),
+  source: SourcePg().$type<Source>().default(Source.CREATED),
   identifier: text(),
   name: text().notNull(),
   version: text().notNull(),
