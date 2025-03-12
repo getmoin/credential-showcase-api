@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - "apps/credential-showcase-api-server/**"
-      - "apps/credential-showcase-traction-adapter/**"
+      - "packages/credential-showcase-traction-adapter/**"
       - "docker/dev/**"
       - "charts/**"
     types:
@@ -134,7 +134,7 @@ jobs:
             | Deployment | Resource | Location |
             | --- | --- | --- |
             | Credential Showcase | | 
-            | | API Server | https://pr-${{ github.event.number }}-credential-showcase-api-server-dev.apps.silver.devops.gov.bc.ca/api/doc |
-            | | Traction Adapter | https://pr-${{ github.event.number }}-credential-showcase-traction-adapter-dev.apps.silver.devops.gov.bc.ca/api/doc |
+            | | API Server | https://pr-${{ github.event.number }}-credential-showcase-api-server-dev.apps.silver.devops.gov.bc.ca/ |
+            | | Traction Adapter | https://pr-${{ github.event.number }}-credential-showcase-traction-adapter-dev.apps.silver.devops.gov.bc.ca/ |
 
             Deployment URLs ready for review.

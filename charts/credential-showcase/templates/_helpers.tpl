@@ -57,10 +57,7 @@ Get PostgreSQL admin password
 Get RabbitMQ password
 */}}
 {{- define "rabbitmq.password" -}}
-{{- if .Values.rabbitmq.auth.existingSecret -}}
-{{- .Values.rabbitmq.auth.existingSecret -}}
-{{- else -}}
 {{- $secretName := printf "%s-rabbitmq" (include "credential-showcase.fullname" .) -}}
-{{- dict "Name" $secretName "Namespace" .Release.Namespace "Key" "password" "Length" 16 | include "getOrGeneratePass" -}}
-{{- end -}}
+{{- $password := dict "Name" $secretName "Namespace" .Release.Namespace "Key" "password" "Length" 16 | include "getOrGeneratePass" -}}
+{{- $password -}}
 {{- end }} 
