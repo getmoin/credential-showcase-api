@@ -70,6 +70,26 @@ jobs:
     outputs:
       image_tag: ${{ steps.builder.outputs.image_tag }}
 
+  image-scan:
+    name: Image Scan - ${{ inputs.package_name }}
+    needs: build_api_server, build_traction_adapter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Scan API Server Docker Image
+        uses: ./.github/actions/trivy-scan
+        with:
+          scan-type: 'image'
+          scan-ref: 'public.ecr.aws/k8o4d9r5/bcshowcase/credential-showcase-api-server:${{ github.sha }}'
+          scan-title: 'Docker Image Scan Results for credential-showcase-api-server'
+      - name: Scan Traction Adapter Docker Image
+        uses: ./.github/actions/trivy-scan
+        with:
+          scan-type: 'image'
+          scan-ref: 'public.ecr.aws/k8o4d9r5/bcshowcase/credential-showcase-traction-adapter:${{ github.sha }}'
+          scan-title: 'Docker Image Scan Results for credential-showcase-traction-adapter'
+
   deploy:
     name: Deploy PR
     environment: development
