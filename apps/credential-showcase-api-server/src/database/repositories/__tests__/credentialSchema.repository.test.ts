@@ -7,7 +7,7 @@ import { Container } from 'typedi'
 import DatabaseService from '../../../services/DatabaseService'
 import CredentialSchemaRepository from '../CredentialSchemaRepository'
 import * as schema from '../../schema'
-import { CredentialAttributeType, IdentifierType, NewCredentialSchema, OriginType } from '../../../types'
+import { CredentialAttributeType, IdentifierType, NewCredentialSchema, Source } from '../../../types'
 
 describe('Database credential schema repository tests', (): void => {
   let client: PGlite
@@ -36,7 +36,7 @@ describe('Database credential schema repository tests', (): void => {
       version: 'example_version',
       identifierType: IdentifierType.DID,
       identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
-      originType: OriginType.CREATED,
+      source: Source.CREATED,
       attributes: [
         {
           name: 'example_attribute_name1',
@@ -59,7 +59,7 @@ describe('Database credential schema repository tests', (): void => {
     expect(created.identifierType).toBe(newSchema.identifierType)
     expect(created.version).toBe(newSchema.version)
     expect(created.attributes).toHaveLength(2)
-    expect(created.originType).toBe(newSchema.originType)
+    expect(created.source).toBe(newSchema.source)
 
     const retrieved = await credentialSchemaRepository.findById(created.id)
     expect(retrieved).toBeDefined()
@@ -78,7 +78,7 @@ describe('Database credential schema repository tests', (): void => {
       version: 'original_version',
       identifierType: IdentifierType.DID,
       identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
-      originType: OriginType.CREATED,
+      source: Source.CREATED,
       attributes: [
         {
           name: 'original_attribute_name',
@@ -95,7 +95,7 @@ describe('Database credential schema repository tests', (): void => {
       version: 'updated_version',
       identifierType: IdentifierType.DID,
       identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
-      originType: OriginType.CREATED,
+      source: Source.CREATED,
       attributes: [
         {
           name: 'original_attribute_name',
@@ -109,7 +109,7 @@ describe('Database credential schema repository tests', (): void => {
 
     expect(updated).toBeDefined()
     expect(updated.id).toBe(created.id)
-    expect(updated.originType).toBe(OriginType.CREATED)
+    expect(updated.source).toBe(Source.CREATED)
     expect(updated.name).toBe('updated_name')
     expect(updated.version).toBe('updated_version')
     expect(updated.attributes).toHaveLength(1)
@@ -121,7 +121,7 @@ describe('Database credential schema repository tests', (): void => {
       version: 'delete_version',
       identifierType: IdentifierType.DID,
       identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
-      originType: OriginType.CREATED,
+      source: Source.CREATED,
       attributes: [
         {
           name: 'delete_test_attribute',
@@ -149,7 +149,7 @@ describe('Database credential schema repository tests', (): void => {
       version: 'first_version',
       identifierType: IdentifierType.DID,
       identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
-      originType: OriginType.CREATED,
+      source: Source.CREATED,
       attributes: [
         {
           name: 'first_attribute',
@@ -164,7 +164,7 @@ describe('Database credential schema repository tests', (): void => {
       version: 'second_version',
       identifierType: IdentifierType.DID,
       identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
-      originType: OriginType.CREATED,
+      source: Source.CREATED,
       attributes: [
         {
           name: 'second_attribute',

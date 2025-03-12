@@ -112,7 +112,7 @@ export enum IdentifierType {
   DID = 'DID',
 }
 
-export enum OriginType {
+export enum Source {
   IMPORTED = 'IMPORTED',
   CREATED = 'CREATED',
 }

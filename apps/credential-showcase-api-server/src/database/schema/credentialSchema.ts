@@ -1,14 +1,14 @@
 import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
 import { IdentifierTypePg } from './identifierType'
-import { IdentifierType, OriginType } from '../../types'
+import { IdentifierType, Source } from '../../types'
 import { relations } from 'drizzle-orm'
 import { credentialAttributes } from './credentialAttribute'
-import { OriginTypePg } from './originType'
+import { SourcePg } from './sourceType'
 
 export const credentialSchemas = pgTable('credentialSchema', {
   id: uuid('id').notNull().primaryKey().defaultRandom(),
   identifierType: IdentifierTypePg('identifier_type').$type<IdentifierType>(),
-  originType: OriginTypePg('origin_type').$type<OriginType>().default(OriginType.CREATED),
+  source: SourcePg('source').$type<Source>().default(Source.CREATED),
   identifier: text(),
   name: text().notNull(),
   version: text().notNull(),

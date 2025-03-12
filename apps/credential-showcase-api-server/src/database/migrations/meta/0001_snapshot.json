@@ -364,9 +364,9 @@
           "primaryKey": false,
           "notNull": false
         },
-        "origin_type": {
-          "name": "origin_type",
-          "type": "OriginType",
+        "source": {
+          "name": "source",
+          "type": "Source",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": false,
@@ -1593,8 +1593,8 @@
       "schema": "public",
       "values": ["PENDING", "ACTIVE", "ARCHIVED"]
     },
-    "public.OriginType": {
-      "name": "OriginType",
+    "public.Source": {
+      "name": "Source",
       "schema": "public",
       "values": ["IMPORTED", "CREATED"]
     },
