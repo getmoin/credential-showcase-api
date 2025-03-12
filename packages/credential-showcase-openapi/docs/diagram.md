@@ -134,8 +134,12 @@ classDiagram
         identifierType: IdentifierType
         identifier: String
         +attributes: List~CredentialAttribute~
+        originType: OriginType 
     }
     class IdentifierType {
+        <<enumeration>>
+    }
+    class OriginType {
         <<enumeration>>
     }
     class CredentialDefinition {
