@@ -95,7 +95,7 @@ describe('Database credential schema repository tests', (): void => {
       version: 'updated_version',
       identifierType: IdentifierType.DID,
       identifier: 'did:sov:XUeUZauFLeBNofY3NhaZCB',
-      source: Source.CREATED,
+      source: Source.IMPORTED,
       attributes: [
         {
           name: 'original_attribute_name',
@@ -109,10 +109,10 @@ describe('Database credential schema repository tests', (): void => {
 
     expect(updated).toBeDefined()
     expect(updated.id).toBe(created.id)
-    expect(updated.source).toBe(Source.CREATED)
-    expect(updated.name).toBe('updated_name')
-    expect(updated.version).toBe('updated_version')
-    expect(updated.attributes).toHaveLength(1)
+    expect(updated.source).toBe(updatedSchema.source)
+    expect(updated.name).toBe(updatedSchema.name)
+    expect(updated.version).toBe(updatedSchema.version)
+    expect(updated.attributes).toHaveLength(updatedSchema.attributes.length)
   })
 
   it('should delete a credential schema', async (): Promise<void> => {
