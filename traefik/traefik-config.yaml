@@ -33,7 +33,7 @@ spec:
       middlewares:
         - name: redirect-https
   tls:
-    certResolver: letsencrypt
+    secretName: showcase-tls
 ---
 # IngressRoute for traction-adapter
 apiVersion: traefik.containo.us/v1alpha1
@@ -52,4 +52,4 @@ spec:
       middlewares:
         - name: redirect-https
   tls:
-    certResolver: letsencrypt 
+    secretName: showcase-tls 

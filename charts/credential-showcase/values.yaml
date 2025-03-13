@@ -17,10 +17,10 @@ api_server:
   env:
     APP_NAME: credential-showcase-api
     LOG_LEVEL: debug
-    DB_HOST: postgresql
+    DB_HOST: credential-showcase-postgresql
     DB_PORT: "5432"
     DB_NAME: showcase-db
-    DB_USER: showcase-user
+    DB_USERNAME: showcase-user
     CORS_DISABLED: false
     ALLOW_ORIGINS: "*"
     ALLOW_METHODS: "GET, POST, PUT, DELETE, OPTIONS"
