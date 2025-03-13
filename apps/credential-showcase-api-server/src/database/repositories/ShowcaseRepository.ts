@@ -455,7 +455,7 @@ class ShowcaseRepository implements RepositoryDefinition<Showcase, NewShowcase> 
   }
 
   async findById(id: string): Promise<Showcase> {
-    const result = await (
+    const prepared = (
       await this.databaseService.getConnection()
     ).query.showcases.findFirst({
       where: eq(showcases.id, id),
@@ -567,7 +567,9 @@ class ShowcaseRepository implements RepositoryDefinition<Showcase, NewShowcase> 
         },
         bannerImage: true,
       },
-    })
+    }).prepare("statement_name")
+
+    const result = await prepared.execute();
 
     if (!result) {
       return Promise.reject(new NotFoundError(`No showcase found for id: ${id}`))

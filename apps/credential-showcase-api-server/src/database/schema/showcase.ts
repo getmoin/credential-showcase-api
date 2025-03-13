@@ -1,4 +1,4 @@
-import { boolean, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
+import {boolean, index, pgTable, text, timestamp, uuid} from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import { showcasesToCredentialDefinitions } from './showcasesToCredentialDefinitions'
 import { showcasesToPersonas } from './showcasesToPersonas'
@@ -21,7 +21,9 @@ export const showcases = pgTable('showcase', {
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
-})
+}, (t) => [
+  index("idx_bannerImage").on(t.bannerImage),
+])
 
 export const showcaseRelations = relations(showcases, ({ many, one }) => ({
   scenarios: many(showcasesToScenarios),

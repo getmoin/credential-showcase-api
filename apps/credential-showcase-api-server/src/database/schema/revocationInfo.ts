@@ -1,4 +1,4 @@
-import { pgTable, uuid, timestamp, text } from 'drizzle-orm/pg-core'
+import {pgTable, uuid, timestamp, text, index} from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import { credentialDefinitions } from './credentialDefinition'
 
@@ -15,7 +15,9 @@ export const revocationInfo = pgTable('revocationInfo', {
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
-})
+},(t) => [
+  index("idx_revocation_info").on(t.credentialDefinition),
+])
 
 export const revocationInfoRelations = relations(revocationInfo, ({ one }) => ({
   credentialDefinition: one(credentialDefinitions, {

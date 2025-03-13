@@ -1,4 +1,4 @@
-import { pgTable, uuid, timestamp, text } from 'drizzle-orm/pg-core'
+import {pgTable, uuid, timestamp, text, index} from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import { RelyingPartyTypePg } from './relyingPartyType'
 import { assets } from './asset'
@@ -17,7 +17,9 @@ export const relyingParties = pgTable('relyingParty', {
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
-})
+},(t) => [
+  index("idx_logo").on(t.logo),
+])
 
 export const relyingPartyRelations = relations(relyingParties, ({ one, many }) => ({
   cds: many(relyingPartiesToCredentialDefinitions),

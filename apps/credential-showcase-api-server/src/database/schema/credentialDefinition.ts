@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm'
-import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
+import {index, pgTable, text, timestamp, uuid} from 'drizzle-orm/pg-core'
 import { assets } from './asset'
 import { CredentialTypePg } from './credentialType'
 import { credentialRepresentations } from './credentialRepresentation'
@@ -27,7 +27,10 @@ export const credentialDefinitions = pgTable('credentialDefinition', {
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
-})
+},(t) => [
+  index("idx_icon").on(t.icon),
+  index("idx_credentialSchema").on(t.credentialSchema),
+])
 
 export const credentialDefinitionRelations = relations(credentialDefinitions, ({ one, many }) => ({
   cs: one(credentialSchemas, {

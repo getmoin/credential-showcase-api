@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm'
-import { boolean, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
+import {boolean, index, pgTable, text, timestamp, uuid} from 'drizzle-orm/pg-core'
 import { assets } from './asset'
 
 export const personas = pgTable('persona', {
@@ -16,7 +16,10 @@ export const personas = pgTable('persona', {
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
-})
+},(t) => [
+  index("idx_headshotImage").on(t.headshotImage),
+  index("idx_bodyImage").on(t.bodyImage),
+])
 
 export const personaRelations = relations(personas, ({ one }) => ({
   headshotImage: one(assets, {
