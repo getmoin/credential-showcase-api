@@ -103,16 +103,15 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             # Run Helm commands on the EC2 instance
-            helm upgrade --install credential-showcase -f helm-k8s/credential-showcase/charts/credential-showcase/values.yaml \
-              --set api_server.image.tag=${{ github.sha }} \ --set traction_adapter.image.tag=${{ github.sha }} \
-              helm-k8s/credential-showcase/charts/credential-showcase/ --wait
+            cd /home/ubuntu/helm-k8s/credential-showcase-api
+            helm upgrade --install credential-showcase -f ./charts/credential-showcase/values.yaml --set api_server.image.tag=${{ github.sha }} --set traction_adapter.image.tag=${{ github.sha }} ./charts/credential-showcase --wait
             
             # Create Certificate
-            cat <<EOF | kubectl apply -f -
+            cat <<EOF | sudo kubectl apply -f -
             apiVersion: cert-manager.io/v1
             kind: Certificate
             metadata:
-              name: showcase-tls
+              name: showcase-tls-test
             spec:
               secretName: showcase-tls
               issuerRef:
@@ -124,7 +123,7 @@ jobs:
             EOF
             
             # Create Traefik IngressRoute
-            cat <<EOF | kubectl apply -f -
+            cat <<EOF | sudo kubectl apply -f -
             apiVersion: traefik.containo.us/v1alpha1
             kind: IngressRoute
             metadata:
@@ -146,7 +145,7 @@ jobs:
             ##---------------------------------------------##
             
             # Create Traefik IngressRoute
-            cat <<EOF | kubectl apply -f -
+            cat <<EOF | sudo kubectl apply -f -
             apiVersion: traefik.containo.us/v1alpha1
             kind: IngressRoute
             metadata:
