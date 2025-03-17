@@ -1,9 +1,6 @@
-
 import 'reflect-metadata'
 import { createExpressServer, useContainer } from 'routing-controllers'
 import Container from 'typedi'
-import express from 'express'
-import cors from 'cors'
 
 import { ExpressErrorHandler } from './middleware/ExpressErrorHandler'
 import AssetController from './controllers/AssetController'
@@ -15,7 +12,7 @@ import PresentationScenarioController from './controllers/PresentationScenarioCo
 import ShowcaseController from './controllers/ShowcaseController'
 import { CredentialDefinitionController } from './controllers/CredentialDefinitionController'
 import { CredentialSchemaController } from './controllers/CredentialSchemaController'
-
+import cors from 'cors'
 require('dotenv-flow').config()
 
 // Ensure routing-controllers uses typedi for DI
@@ -23,19 +20,8 @@ useContainer(Container)
 
 async function bootstrap() {
   try {
-    // Create a base Express app first
-    const app = express()
-    
-    // Apply CORS middleware BEFORE routing-controllers
-    app.use(cors({
-      origin: ['https://bcshowcase-api-dev.nborbit.ca', 'https://bcshowcase-api.dev.nborbit.ca'],
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization'],
-      credentials: true
-    }))
-    
-    // Now use routing-controllers with the existing Express app
-    const routingControllersOptions = {
+    // Create and configure Express server
+    const app = createExpressServer({
       controllers: [
         AssetController,
         PersonaController,
@@ -49,16 +35,21 @@ async function bootstrap() {
       ],
       middlewares: [ExpressErrorHandler],
       defaultErrorHandler: false,
-      routePrefix: '/',
-    }
-    
-    // Apply routing-controllers to the existing app
-    const server = createExpressServer(routingControllersOptions)
+    })
+
+    app.use(
+      cors({
+        origin: ['https://bcshowcase-api-dev.nborbit.ca', 'https://bcshowcase-api.dev.nborbit.ca'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        credentials: true,
+      }),
+    )
 
     // Start the server
     const port = Number(process.env.PORT)
 
-    server.listen(port, (): void => {
+    app.listen(port, (): void => {
       console.log(`Server is running on port ${port}`)
     })
   } catch (error) {
