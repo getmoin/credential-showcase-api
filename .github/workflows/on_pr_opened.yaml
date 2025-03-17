@@ -205,6 +205,16 @@ jobs:
                   hosts:
                     - pr-${{ github.event.number }}-api.dev.nborbit.ca
                     - pr-${{ github.event.number }}-traction.dev.nborbit.ca
+        
+            postgresql:
+              enabled: true
+              auth:
+                username: "showcase-user"
+                database: "showcase-db"
+                existingSecret: "{{ .Release.Name }}-postgresql"
+                secretKeys:
+                  adminPasswordKey: "postgres-password"
+                  userPasswordKey: "password"
             EOF
 
             # Create PR-specific Certificate
