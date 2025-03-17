@@ -175,9 +175,10 @@ ingress:
 postgresql:
   enabled: true
   auth:
+    enablePostgresUser: true
     username: "showcase-user"
     database: "showcase-db"
-    existingSecret: "{{ .Release.Name }}-postgresql"
+    # Don't specify existingSecret - let PostgreSQL create its own
     secretKeys:
       adminPasswordKey: "postgres-password"
       userPasswordKey: "password"
@@ -200,7 +201,6 @@ rabbitmq:
   enabled: true
   auth:
     username: "guest"
-    # existingSecret: "{{ .Release.Name }}-rabbitmq"
     password: ""
     secretKeys:
       passwordKey: "rabbitmq-password"

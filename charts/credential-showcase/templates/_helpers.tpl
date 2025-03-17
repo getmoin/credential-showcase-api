@@ -67,10 +67,14 @@ it randomly.
 {{- end }}
 
 {{/*
-Define database secret name
+Define database secret name - used to reference PostgreSQL generated secret
 */}}
 {{- define "credential-showcase.database.secret.name" -}}
-{{- printf "%s-postgresql" .Release.Name -}}
+{{- if .Values.postgresql.auth.existingSecret -}}
+    {{- .Values.postgresql.auth.existingSecret -}}
+{{- else -}}
+    {{- printf "%s-postgresql" .Release.Name -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
@@ -78,9 +82,9 @@ Get the admin-password key.
 */}}
 {{- define "credential-showcase.database.adminPasswordKey" -}}
 {{- if .Values.postgresql.auth.secretKeys.adminPasswordKey -}}
-{{- printf "%s" (tpl .Values.postgresql.auth.secretKeys.adminPasswordKey $) -}}
+    {{- printf "%s" (tpl .Values.postgresql.auth.secretKeys.adminPasswordKey $) -}}
 {{- else -}}
-postgres-password
+    {{- printf "postgres-password" -}}
 {{- end -}}
 {{- end -}}
 
@@ -89,9 +93,9 @@ Get the user-password key.
 */}}
 {{- define "credential-showcase.database.userPasswordKey" -}}
 {{- if .Values.postgresql.auth.secretKeys.userPasswordKey -}}
-{{- printf "%s" (tpl .Values.postgresql.auth.secretKeys.userPasswordKey $) -}}
+    {{- printf "%s" (tpl .Values.postgresql.auth.secretKeys.userPasswordKey $) -}}
 {{- else -}}
-password
+    {{- printf "password" -}}
 {{- end -}}
 {{- end -}}
 

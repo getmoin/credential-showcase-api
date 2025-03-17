@@ -21,24 +21,18 @@ spec:
         ports:
         - containerPort: {{ .Values.api_server.port }}
         env:
-        # Define a list of environment variables to override
-        {{- $overrideEnvs := list "DB_HOST" "DB_PORT" "DB_NAME" "DB_USERNAME" "DB_PASSWORD" }}
-        # First add the environment variables from values.yaml, excluding the ones we'll override
+        # Add standard environment variables from values.yaml
         {{- range $key, $value := .Values.api_server.env }}
-        {{- if not (has $key $overrideEnvs) }}
+        {{- if kindIs "map" $value }}
+        - name: {{ $key }}
+          valueFrom:
+            {{- toYaml $value | nindent 12 }}
+        {{- else }}
         - name: {{ $key }}
           value: {{ $value | quote }}
         {{- end }}
         {{- end }}
-        # Then add our overridden environment variables
-        - name: DB_HOST
-          value: "credential-showcase-postgresql"
-        - name: DB_PORT
-          value: "5432"
-        - name: DB_NAME
-          value: {{ .Values.postgresql.auth.database | quote }}
-        - name: DB_USERNAME
-          value: {{ .Values.postgresql.auth.username | quote }}
+        # Add PostgreSQL password from Bitnami-created secret
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -89,16 +83,21 @@ spec:
         - containerPort: {{ .Values.traction_adapter.port }}
         env:
         {{- range $key, $value := .Values.traction_adapter.env }}
+        {{- if kindIs "map" $value }}
+        - name: {{ $key }}
+          valueFrom:
+            {{- toYaml $value | nindent 12 }}
+        {{- else }}
         - name: {{ $key }}
           value: {{ $value | quote }}
         {{- end }}
+        {{- end }}
+        # Get RabbitMQ password from Bitnami-created secret
         - name: RABBITMQ_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ include "credential-showcase.rabbitmq.secret.name" . }}
-              key: rabbitmq-password
-        - name: RABBITMQ_USERNAME
-          value: {{ .Values.rabbitmq.auth.username | default "guest" | quote }}
+              key: {{ include "credential-showcase.rabbitmq.passwordKey" . }}
         resources:
           {{- toYaml .Values.traction_adapter.resources | nindent 12 }}
       serviceAccountName: {{ if .Values.traction_adapter.serviceAccount.create }}{{ if .Values.traction_adapter.serviceAccount.name }}{{ .Values.traction_adapter.serviceAccount.name }}{{ else }}{{ $.Release.Name }}-{{ .Values.traction_adapter.name }}{{ end }}{{ end }}
