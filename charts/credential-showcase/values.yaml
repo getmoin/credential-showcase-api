@@ -50,12 +50,16 @@ api_server:
       podSelector: {}
   openshift:
     route:
-      enabled: false
+      enabled: true
       path: "/"
       targetPort: http
+      timeout: 2m
+      host: ""
       tls:
         enabled: true
+        insecureEdgeTerminationPolicy: Redirect
         termination: edge
+      wildcardPolicy: None
   enabled: true
   serviceAccount:
     create: false
@@ -69,13 +73,6 @@ api_server:
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
     stabilizationWindowSeconds: 300
-  ingress:
-    enabled: true
-    annotations:
-      kubernetes.io/ingress.class: "traefik"
-      traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-      traefik.ingress.kubernetes.io/router.tls: "true"
-    host: "bcshowcase-api.dev.nborbit.ca"
 
 traction_adapter:
   name: credential-showcase-traction-adapter
@@ -127,50 +124,22 @@ traction_adapter:
       podSelector: {}
   openshift:
     route:
-      enabled: false
+      enabled: true
       path: "/"
       targetPort: http
+      timeout: 2m
+      host: ""
       tls:
         enabled: true
+        insecureEdgeTerminationPolicy: Redirect
         termination: edge
+      wildcardPolicy: None
   enabled: true
   serviceAccount:
     create: false
     annotations: {}
     automountServiceAccountToken: true
     name: ""
-  ingress:
-    enabled: true
-    annotations:
-      kubernetes.io/ingress.class: "traefik"
-      traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-      traefik.ingress.kubernetes.io/router.tls: "true"
-    host: "bcshowcase-traction.dev.nborbit.ca"
-
-# Global ingress settings
-ingress:
-  enabled: true
-  className: "traefik"
-  annotations:
-    kubernetes.io/ingress.class: "traefik"
-    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-  hosts:
-    - host: bcshowcase-api.dev.nborbit.ca
-      paths:
-        - path: /
-          pathType: Prefix
-          service: api-server
-    - host: bcshowcase-traction.dev.nborbit.ca
-      paths:
-        - path: /
-          pathType: Prefix
-          service: traction-adapter
-  tls:
-    - secretName: showcase-tls
-      hosts:
-        - bcshowcase-api.dev.nborbit.ca
-        - bcshowcase-traction.dev.nborbit.ca
 
 postgresql:
   enabled: true
@@ -240,3 +209,7 @@ global:
   namespaceOverride: ""
 
 debug: true  # Enable debug mode to create the debug-helper ConfigMap
+
+openshift:
+  enabled: true
+  routeSuffix: "apps.silver.devops.gov.bc.ca" #needs to change accordingly

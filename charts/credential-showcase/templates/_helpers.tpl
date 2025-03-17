@@ -133,4 +133,56 @@ Define a FIXED auth token secret name that can be shared between frontend and ba
 */}}
 {{- define "credential-showcase.authtoken.secret.name" -}}
 showcase-authtoken
+{{- end -}}
+
+{{/* 
+Generate api-server openshift route tls config
+*/}}
+{{- define "credential-showcase.api-server.openshift.route.tls" -}}
+{{- if (.Values.api_server.openshift.route.tls.enabled) -}}
+tls:
+  insecureEdgeTerminationPolicy: {{ .Values.api_server.openshift.route.tls.insecureEdgeTerminationPolicy }}
+  termination: {{ .Values.api_server.openshift.route.tls.termination }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Generate traction-adapter openshift route tls config
+*/}}
+{{- define "credential-showcase.traction-adapter.openshift.route.tls" -}}
+{{- if (.Values.traction_adapter.openshift.route.tls.enabled) -}}
+tls:
+  insecureEdgeTerminationPolicy: {{ .Values.traction_adapter.openshift.route.tls.insecureEdgeTerminationPolicy }}
+  termination: {{ .Values.traction_adapter.openshift.route.tls.termination }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+API Server Route Host
+*/}}
+{{- define "credential-showcase.api-server.host" -}}
+{{- if .Values.api_server.openshift.route.host -}}
+{{- .Values.api_server.openshift.route.host -}}
+{{- else -}}
+{{- if .Values.openshift.routeSuffix -}}
+{{- printf "%s-%s.%s" .Release.Name "api" .Values.openshift.routeSuffix -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name "api" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Traction Adapter Route Host
+*/}}
+{{- define "credential-showcase.traction-adapter.host" -}}
+{{- if .Values.traction_adapter.openshift.route.host -}}
+{{- .Values.traction_adapter.openshift.route.host -}}
+{{- else -}}
+{{- if .Values.openshift.routeSuffix -}}
+{{- printf "%s-%s.%s" .Release.Name "traction" .Values.openshift.routeSuffix -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name "traction" -}}
+{{- end -}}
+{{- end -}}
 {{- end -}} 
