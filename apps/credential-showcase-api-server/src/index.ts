@@ -38,12 +38,7 @@ async function bootstrap() {
     })
 
     app.use(
-      cors({
-        origin: ['https://bcshowcase-api-dev.nborbit.ca', 'https://bcshowcase-api.dev.nborbit.ca'],
-        methods: ['GET', 'POST', 'PUT', 'DELETE'],
-        allowedHeaders: ['Content-Type', 'Authorization'],
-        credentials: true,
-      }),
+      cors(),
     )
 
     // Start the server
