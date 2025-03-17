@@ -13,31 +13,36 @@ on:
 
 jobs:
   uninstall:
-    name: Uninstall PR
+    name: Uninstall PR Environment
     environment: development
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     if: github.repository_owner == '4sure-tech' #'bcgov'
     steps:
-      - name: Authenticate and set context
-        uses: redhat-actions/oc-login@v1
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Uninstall via SSH to EC2 instance
+      - name: Uninstall from EC2 via SSH
+        uses: appleboy/ssh-action@v0.1.10
         with:
-          openshift_server_url: ${{ secrets.OPENSHIFT_SERVER }}
-          openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
-          certificate_authority_data: ${{ secrets.OPENSHIFT_CA_CRT }}
-          namespace: ${{ secrets.OPENSHIFT_NAMESPACE }}
-
-      - name: Uninstall Credential Showcase resources via Helm
-        continue-on-error: true
-        run: |
-          helm uninstall pr-${{ github.event.number }}-credential-showcase
-
-      - name: Remove Credential Showcase Openshift Objects
-        continue-on-error: true
-        run: |
-          oc delete secret,pvc --selector "app.kubernetes.io/instance"=pr-${{ github.event.number }}-credential-showcase
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            # Uninstall PR-specific Helm release
+            helm uninstall pr-${{ github.event.number }}-credential-showcase
+            
+            # Clean up any leftover Kubernetes resources
+            kubectl delete secret,pvc,ingress,service,deployment,statefulset,configmap \
+              --selector "app.kubernetes.io/instance=pr-${{ github.event.number }}-credential-showcase"
+            
+            # Remove PR-specific IngressRoutes and Certificate
+            kubectl delete ingressroute pr-${{ github.event.number }}-api-server-route -n kube-system
+            kubectl delete ingressroute pr-${{ github.event.number }}-traction-adapter-route -n kube-system
+            kubectl delete certificate pr-${{ github.event.number }}-showcase-tls
 
   # clean-ghcr:
-  #   runs-on: ubuntu-22.04
+  #   runs-on: ubuntu-latest
   #   if: ${{ false }}
   #   name: Delete closed PR images
   #   steps:

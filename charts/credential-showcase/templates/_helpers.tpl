@@ -103,22 +103,14 @@ password
 Create a default fully qualified rabbitmq name.
 */}}
 {{- define "credential-showcase.rabbitmq.secret.name" -}}
-{{- if .Values.rabbitmq.auth.existingSecret -}}
-{{- .Values.rabbitmq.auth.existingSecret -}}
-{{- else -}}
-{{ .Release.Name }}-rabbitmq
-{{- end -}}
+{{- printf "%s-rabbitmq" .Release.Name -}}
 {{- end -}}
 
 {{/*
 Get the rabbitmq password key.
 */}}
 {{- define "credential-showcase.rabbitmq.passwordKey" -}}
-{{- if .Values.rabbitmq.auth.secretKeys.passwordKey -}}
-{{- printf "%s" (tpl .Values.rabbitmq.auth.secretKeys.passwordKey $) -}}
-{{- else -}}
-rabbitmq-password
-{{- end -}}
+{{- .Values.rabbitmq.auth.secretKeys.passwordKey | default "rabbitmq-password" -}}
 {{- end -}}
 
 {{/*
@@ -167,4 +159,11 @@ RabbitMQ password
     {{/* Secret doesn't exist, generate new password */}}
     {{- randAlphaNum 16 | b64enc -}}
 {{- end -}}
+{{- end -}}
+
+{{/*
+Define a FIXED auth token secret name that can be shared between frontend and backend
+*/}}
+{{- define "credential-showcase.authtoken.secret.name" -}}
+showcase-authtoken
 {{- end -}} 

@@ -44,6 +44,12 @@ spec:
             secretKeyRef:
               name: {{ include "credential-showcase.database.secret.name" . }}
               key: {{ include "credential-showcase.database.userPasswordKey" . }}
+        # Add auth token environment variable
+        - name: AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "credential-showcase.authtoken.secret.name" . }}
+              key: token
       serviceAccountName: {{ if .Values.api_server.serviceAccount.create }}{{ if .Values.api_server.serviceAccount.name }}{{ .Values.api_server.serviceAccount.name }}{{ else }}{{ $.Release.Name }}-{{ .Values.api_server.name }}{{ end }}{{ end }}
 ---
 {{- end }}
