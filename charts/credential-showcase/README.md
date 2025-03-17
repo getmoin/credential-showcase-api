@@ -1,2 +1,2 @@
 # About this project
-Into the space and out of consciousness! 
+Out of the space and beyond of consciousness! 
