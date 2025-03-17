@@ -91,7 +91,7 @@ jobs:
 
   image-scan:
     name: Image Scan - ${{ inputs.package_name }}
-    needs: build_api_server, build_traction_adapter
+    # needs: build_api_server, build_traction_adapter
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
