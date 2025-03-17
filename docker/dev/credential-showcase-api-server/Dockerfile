@@ -7,12 +7,11 @@ ENV PATH=$PNPM_HOME:$PATH
 # Install pnpm
 RUN npm -g install pnpm && pnpm setup && source /root/.bashrc && pnpm self-update && pnpm setup && pnpm config set store-dir "/usr/local/share/pnpm/store/v10" --global
 
-# Install Maven (needed for OpenAPI generation)
 RUN apt-get update && \
-    apt-get install -y maven && \
+    apt-get install -y maven build-essential python3 make g++ openjdk-17-jdk && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
-
+RUN pnpm install -g drizzle-kit
 WORKDIR /build
 
 COPY . /build
@@ -28,6 +27,12 @@ RUN pnpm deploy /deploy --filter credential-showcase-api-server --prod --no-opti
 FROM node:20-bookworm-slim
 WORKDIR /app
 COPY --from=builder /deploy /app
+COPY --from=builder /build/apps/credential-showcase-api-server/src/database/migrations /app/dist/database/migrations
 ENV NODE_ENV=production
 RUN echo PORT=3000  > .env
-CMD ["node", "dist/index.js"]
+
+#USE THIS SCRIPT IF YOU ARE USING DOCKER-COMPOSE. SINCE APP IS STARTING BEFORE DATABASE IS READY.
+RUN echo '#!/bin/sh\necho "Waiting for database to start..."\nsleep 10\necho "Starting application..."\nexec node dist/index.js' > /start.sh && \
+    chmod +x /start.sh
+
+CMD ["/start.sh"]

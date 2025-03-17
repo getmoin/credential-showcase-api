@@ -13,6 +13,13 @@ RUN apt-get update && apt-get install -y \
 
 RUN npm -g install pnpm && pnpm setup && source /root/.bashrc && pnpm self-update && pnpm setup && pnpm config set store-dir "/usr/local/share/pnpm/store/v10" --global
 
+# Install Maven
+# In your builder stage, add:
+  RUN apt-get update && \
+  apt-get install -y maven build-essential python3 make g++ && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*
+
 WORKDIR /build
 COPY . /build
 
@@ -21,7 +28,7 @@ RUN mvn -version
 RUN pnpm store prune && pnpm install -g rimraf typescript tslib turbo
 RUN pnpm install --no-frozen-lockfile
 RUN pnpm build
-RUN pnpm deploy /deploy --filter credential-showcase-traction-adapter --prod
+RUN pnpm deploy /deploy --filter credential-showcase-traction-adapter --prod --no-optional
 
 # Runtime stage
 FROM node:20-bookworm-slim
