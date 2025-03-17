@@ -111,7 +111,7 @@ jobs:
             apiVersion: cert-manager.io/v1
             kind: Certificate
             metadata:
-              name: showcase-tls-test
+              name: showcase-tls
             spec:
               secretName: showcase-tls
               issuerRef:
@@ -171,8 +171,8 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            kubectl rollout restart deployment credential-showcase-api-server
-            kubectl rollout restart deployment credential-showcase-traction-adapter
+            kubectl rollout restart deployment credential-showcase-credential-showcase-api-server
+            kubectl rollout restart deployment credential-showcase-credential-showcase-traction-adapter
 
 
   deploymenturls:
