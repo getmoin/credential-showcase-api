@@ -7,7 +7,7 @@ api_server:
     repository: public.ecr.aws/k8o4d9r5/bcshowcase/credential-showcase-api-server
     pullPolicy: IfNotPresent
     pullSecrets: []
-    tag: ""
+    tag: "sha256:7d54dbc5c90cfa183589e647ce951f2b559f8bd3e08a5661f97d7671fe6bbfad"
   replicaCount: 1
   labelOverride: ""
   port: 3000
@@ -78,7 +78,7 @@ traction_adapter:
     repository: public.ecr.aws/k8o4d9r5/bcshowcase/credential-showcase-traction-adapter
     pullPolicy: IfNotPresent
     pullSecrets: []
-    tag: ""
+    tag: "sha256:5a8968b75a9f1d6be4da71b2805703096ee2e98124e61e2f3cea2b13170adb85"
   replicaCount: 1
   autoscaling:
     enabled: false

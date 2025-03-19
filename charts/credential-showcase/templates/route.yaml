@@ -1,0 +1,39 @@
+{{- if .Values.api_server.enabled }}
+{{- if .Values.api_server.openshift.route.enabled }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.api_server.name }}
+  namespace: {{ .Values.global.namespaceOverride | default .Release.Namespace }}
+spec:
+  host: {{ include "credential-showcase.api-server.host" . }}
+  path: {{ .Values.api_server.openshift.route.path }}
+  port:
+    targetPort: {{ .Values.api_server.openshift.route.targetPort }}
+  to:
+    kind: Service
+    name: {{ .Release.Name }}-{{ .Values.api_server.name }}
+  {{- include "credential-showcase.api-server.openshift.route.tls" . | nindent 2 }}
+  wildcardPolicy: {{ .Values.api_server.openshift.route.wildcardPolicy }}
+{{- end }}
+---
+{{- end }}
+{{- if .Values.traction_adapter.enabled }}
+{{- if .Values.traction_adapter.openshift.route.enabled }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.traction_adapter.name }}
+  namespace: {{ .Values.global.namespaceOverride | default .Release.Namespace }}
+spec:
+  host: {{ include "credential-showcase.traction-adapter.host" . }}
+  path: {{ .Values.traction_adapter.openshift.route.path }}
+  port:
+    targetPort: {{ .Values.traction_adapter.openshift.route.targetPort }}
+  to:
+    kind: Service
+    name: {{ .Release.Name }}-{{ .Values.traction_adapter.name }}
+  {{- include "credential-showcase.traction-adapter.openshift.route.tls" . | nindent 2 }}
+  wildcardPolicy: {{ .Values.traction_adapter.openshift.route.wildcardPolicy }}
+{{- end }}
+{{- end }} 
