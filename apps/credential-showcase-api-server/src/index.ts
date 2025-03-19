@@ -52,4 +52,4 @@ async function bootstrap() {
 }
 
 // Start the application
-bootstrap()
+void bootstrap()
