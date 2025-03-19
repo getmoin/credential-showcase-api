@@ -1,8 +1,6 @@
 nameOverride: ""
 fullnameOverride: ""
 
-#ingressSuffix: -dev.apps.silver.devops.gov.bc.ca
-
 api_server:
   name: credential-showcase-api-server
   image:
@@ -147,7 +145,6 @@ postgresql:
     enablePostgresUser: true
     username: "showcase-user"
     database: "showcase-db"
-    # Don't specify existingSecret - let PostgreSQL create its own
     secretKeys:
       adminPasswordKey: "postgres-password"
       userPasswordKey: "password"
@@ -207,9 +204,3 @@ rabbitmq:
 
 global:
   namespaceOverride: ""
-
-debug: true  # Enable debug mode to create the debug-helper ConfigMap
-
-openshift:
-  enabled: true
-  routeSuffix: "apps.silver.devops.gov.bc.ca" #needs to change accordingly

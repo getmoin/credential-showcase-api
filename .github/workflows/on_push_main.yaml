@@ -12,8 +12,21 @@ on:
         - "charts/**"
 
 jobs:
+  test_api_server:
+    name: "Test API Server"
+    uses: ./.github/workflows/test.yaml
+    with:
+      package_name: "credential-showcase-api-server"
+
+  test_traction_adapter:
+    name: "Test Traction Adapter"
+    uses: ./.github/workflows/test.yaml
+    with:
+      package_name: "credential-showcase-traction-adapter"
+
   build_api_server:
-    name: "Build Credential Showcase API Server"
+    name: "Build API Server"
+    needs: test_api_server
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,7 +45,8 @@ jobs:
       image_tag: ${{ steps.builder.outputs.image_tag }}
 
   build_traction_adapter:
-    name: "Build Credential Showcase Traction Adapter"
+    name: "Build Traction Adapter"
+    needs: test_traction_adapter
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -50,8 +64,8 @@ jobs:
     outputs:
       image_tag: ${{ steps.builder.outputs.image_tag }}
   
-  deploy:
-    name: Deploy
+  deploy_dev:
+    name: Deploy to Development
     environment: development
     runs-on: ubuntu-latest
     needs:
@@ -78,40 +92,77 @@ jobs:
         run: |
           cd charts/credential-showcase
           
-          # Create environment-specific values
-          cat > openshift-values.yaml <<EOF
-          openshift:
-            enabled: true
-            routeSuffix: "${{ secrets.OPENSHIFT_ROUTE_SUFFIX }}"
-          
-          api_server:
-            image:
-              repository: ghcr.io/${{ github.repository_owner }}/credential-showcase-api-server
-              tag: ${{ needs.build_api_server.outputs.image_tag }}
-            openshift:
-              route:
-                enabled: true
-                host: "api-${{ secrets.OPENSHIFT_PROJECT }}-${{ secrets.OPENSHIFT_ROUTE_SUFFIX }}"
-          
-          traction_adapter:
-            image:
-              repository: ghcr.io/${{ github.repository_owner }}/credential-showcase-traction-adapter
-              tag: ${{ needs.build_traction_adapter.outputs.image_tag }}
-            openshift:
-              route:
-                enabled: true
-                host: "traction-${{ secrets.OPENSHIFT_PROJECT }}-${{ secrets.OPENSHIFT_ROUTE_SUFFIX }}"
-          EOF
-          
-          # Deploy with Helm
           helm dependency update
           helm upgrade --install credential-showcase \
-            -f ./values.yaml -f ./openshift-values.yaml \
-            --set api_server.image.repository=ghcr.io/${{ github.repository_owner }}/credential-showcase-api-server \
-            --set api_server.image.tag=${{ needs.build_api_server.outputs.image_tag }} \
-            --set traction_adapter.image.repository=ghcr.io/${{ github.repository_owner }}/credential-showcase-traction-adapter \
-            --set traction_adapter.image.tag=${{ needs.build_traction_adapter.outputs.image_tag }} \
-            . --wait
+            --namespace ${{ secrets.OPENSHIFT_NAMESPACE }} -f ./values.yaml --set api_server.image.tag=${{ needs.build_api_server.outputs.image_tag }} --set traction_adapter.image.tag=${{ needs.build_traction_adapter.outputs.image_tag }} . --wait
+      
+      - name: Restart Deployments
+        run: |
+          oc rollout restart deployment/credential-showcase-credential-showcase-api-server
+          oc rollout restart deployment/credential-showcase-credential-showcase-traction-adapter
+
+  deploy_uat:
+    name: Deploy to UAT
+    environment: uat  # This creates a manual approval gate
+    runs-on: ubuntu-latest
+    needs: deploy_dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install OpenShift CLI tools
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: "4.14"
+
+      - name: Authenticate and set context
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ secrets.OPENSHIFT_SERVER }}
+          openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
+          certificate_authority_data: ${{ secrets.OPENSHIFT_CA_CRT }}
+          namespace: ${{ secrets.OPENSHIFT_UAT_NAMESPACE }}
+     
+      - name: Deploy to OpenShift with Helm
+        run: |
+          cd charts/credential-showcase
+          
+          helm dependency update
+          helm upgrade --install credential-showcase \
+            --namespace ${{ secrets.OPENSHIFT_UAT_NAMESPACE }} -f ./values.yaml -f ./values-uat.yaml --set api_server.image.tag=${{ needs.build_api_server.outputs.image_tag }} --set traction_adapter.image.tag=${{ needs.build_traction_adapter.outputs.image_tag }} . --wait
+      
+      - name: Restart Deployments
+        run: |
+          oc rollout restart deployment/credential-showcase-credential-showcase-api-server
+          oc rollout restart deployment/credential-showcase-credential-showcase-traction-adapter
+
+  deploy_prod:
+    name: Deploy to Production
+    environment: production  # This creates a manual approval gate
+    runs-on: ubuntu-latest
+    needs: deploy_uat
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install OpenShift CLI tools
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: "4.14"
+
+      - name: Authenticate and set context
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ secrets.OPENSHIFT_SERVER }}
+          openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
+          certificate_authority_data: ${{ secrets.OPENSHIFT_CA_CRT }}
+          namespace: ${{ secrets.OPENSHIFT_PROD_NAMESPACE }}
+     
+      - name: Deploy to OpenShift with Helm
+        run: |
+          cd charts/credential-showcase
+          
+          helm dependency update
+          helm upgrade --install credential-showcase \
+            --namespace ${{ secrets.OPENSHIFT_PROD_NAMESPACE }} -f ./values.yaml -f ./values-prod.yaml --set api_server.image.tag=${{ needs.build_api_server.outputs.image_tag }} --set traction_adapter.image.tag=${{ needs.build_traction_adapter.outputs.image_tag }} . --wait
       
       - name: Restart Deployments
         run: |
