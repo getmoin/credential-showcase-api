@@ -146,15 +146,15 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
 
       const stepIconDarksResult = await tx.query.assets.findMany({
         where: inArray(
-            assets.id,
-            stepsResult.map((step) => step.iconDark).filter((assetId) => assetId !== null),
+          assets.id,
+          stepsResult.map((step) => step.iconDark).filter((assetId) => assetId !== null),
         ),
       })
 
       const stepIconLightsResult = await tx.query.assets.findMany({
         where: inArray(
-            assets.id,
-            stepsResult.map((step) => step.iconLight).filter((assetId) => assetId !== null),
+          assets.id,
+          stepsResult.map((step) => step.iconLight).filter((assetId) => assetId !== null),
         ),
       })
 
@@ -313,15 +313,15 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
 
       const stepIconDarksResult = await tx.query.assets.findMany({
         where: inArray(
-            assets.id,
-            stepsResult.map((step) => step.iconDark).filter((assetId) => assetId !== null),
+          assets.id,
+          stepsResult.map((step) => step.iconDark).filter((assetId) => assetId !== null),
         ),
       })
 
       const stepIconLightsResult = await tx.query.assets.findMany({
         where: inArray(
-            assets.id,
-            stepsResult.map((step) => step.iconLight).filter((assetId) => assetId !== null),
+          assets.id,
+          stepsResult.map((step) => step.iconLight).filter((assetId) => assetId !== null),
         ),
       })
 
@@ -621,7 +621,7 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
         })),
         asset: assetResult,
         iconDark: iconDarkResult,
-        iconLight: iconLightResult
+        iconLight: iconLightResult,
       }
     })
   }
@@ -684,7 +684,7 @@ class ScenarioRepository implements RepositoryDefinition<Scenario, NewScenario> 
         })),
         asset: assetResult,
         iconDark: iconDarkResult,
-        iconLight: iconLightResult
+        iconLight: iconLightResult,
       }
     })
   }

@@ -54,12 +54,8 @@
           "name": "ariesProofRequest_step_action_stepAction_id_fk",
           "tableFrom": "ariesProofRequest",
           "tableTo": "stepAction",
-          "columnsFrom": [
-            "step_action"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["step_action"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -69,9 +65,7 @@
         "ariesProofRequest_step_action_unique": {
           "name": "ariesProofRequest_step_action_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "step_action"
-          ]
+          "columns": ["step_action"]
         }
       },
       "policies": {},
@@ -209,12 +203,8 @@
           "name": "credentialAttribute_credential_schema_credentialSchema_id_fk",
           "tableFrom": "credentialAttribute",
           "tableTo": "credentialSchema",
-          "columnsFrom": [
-            "credential_schema"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["credential_schema"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -332,12 +322,8 @@
           "name": "credentialDefinition_credential_schema_credentialSchema_id_fk",
           "tableFrom": "credentialDefinition",
           "tableTo": "credentialSchema",
-          "columnsFrom": [
-            "credential_schema"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["credential_schema"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -345,12 +331,8 @@
           "name": "credentialDefinition_icon_asset_id_fk",
           "tableFrom": "credentialDefinition",
           "tableTo": "asset",
-          "columnsFrom": [
-            "icon"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["icon"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -415,12 +397,8 @@
           "name": "credentialRepresentation_credential_definition_credentialDefinition_id_fk",
           "tableFrom": "credentialRepresentation",
           "tableTo": "credentialDefinition",
-          "columnsFrom": [
-            "credential_definition"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["credential_definition"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -551,12 +529,8 @@
           "name": "relyingPartiesToCredentialDefinitions_relying_party_relyingParty_id_fk",
           "tableFrom": "relyingPartiesToCredentialDefinitions",
           "tableTo": "relyingParty",
-          "columnsFrom": [
-            "relying_party"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["relying_party"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -564,12 +538,8 @@
           "name": "relyingPartiesToCredentialDefinitions_credential_definition_credentialDefinition_id_fk",
           "tableFrom": "relyingPartiesToCredentialDefinitions",
           "tableTo": "credentialDefinition",
-          "columnsFrom": [
-            "credential_definition"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["credential_definition"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -577,10 +547,7 @@
       "compositePrimaryKeys": {
         "relyingPartiesToCredentialDefinitions_relying_party_credential_definition_pk": {
           "name": "relyingPartiesToCredentialDefinitions_relying_party_credential_definition_pk",
-          "columns": [
-            "relying_party",
-            "credential_definition"
-          ]
+          "columns": ["relying_party", "credential_definition"]
         }
       },
       "uniqueConstraints": {},
@@ -667,12 +634,8 @@
           "name": "relyingParty_logo_asset_id_fk",
           "tableFrom": "relyingParty",
           "tableTo": "asset",
-          "columnsFrom": [
-            "logo"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["logo"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -762,12 +725,8 @@
           "name": "issuer_logo_asset_id_fk",
           "tableFrom": "issuer",
           "tableTo": "asset",
-          "columnsFrom": [
-            "logo"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["logo"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -831,12 +790,8 @@
           "name": "issuersToCredentialDefinitions_issuer_issuer_id_fk",
           "tableFrom": "issuersToCredentialDefinitions",
           "tableTo": "issuer",
-          "columnsFrom": [
-            "issuer"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["issuer"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -844,12 +799,8 @@
           "name": "issuersToCredentialDefinitions_credential_definition_credentialDefinition_id_fk",
           "tableFrom": "issuersToCredentialDefinitions",
           "tableTo": "credentialDefinition",
-          "columnsFrom": [
-            "credential_definition"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["credential_definition"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -857,10 +808,7 @@
       "compositePrimaryKeys": {
         "issuersToCredentialDefinitions_issuer_credential_definition_pk": {
           "name": "issuersToCredentialDefinitions_issuer_credential_definition_pk",
-          "columns": [
-            "issuer",
-            "credential_definition"
-          ]
+          "columns": ["issuer", "credential_definition"]
         }
       },
       "uniqueConstraints": {},
@@ -907,12 +855,8 @@
           "name": "issuersToCredentialSchemas_issuer_issuer_id_fk",
           "tableFrom": "issuersToCredentialSchemas",
           "tableTo": "issuer",
-          "columnsFrom": [
-            "issuer"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["issuer"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -920,12 +864,8 @@
           "name": "issuersToCredentialSchemas_credential_schema_credentialSchema_id_fk",
           "tableFrom": "issuersToCredentialSchemas",
           "tableTo": "credentialSchema",
-          "columnsFrom": [
-            "credential_schema"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["credential_schema"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -933,10 +873,7 @@
       "compositePrimaryKeys": {
         "issuersToCredentialSchemas_issuer_credential_schema_pk": {
           "name": "issuersToCredentialSchemas_issuer_credential_schema_pk",
-          "columns": [
-            "issuer",
-            "credential_schema"
-          ]
+          "columns": ["issuer", "credential_schema"]
         }
       },
       "uniqueConstraints": {},
@@ -1098,12 +1035,8 @@
           "name": "step_sub_scenario_scenario_id_fk",
           "tableFrom": "step",
           "tableTo": "scenario",
-          "columnsFrom": [
-            "sub_scenario"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["sub_scenario"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1111,12 +1044,8 @@
           "name": "step_scenario_scenario_id_fk",
           "tableFrom": "step",
           "tableTo": "scenario",
-          "columnsFrom": [
-            "scenario"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["scenario"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1124,12 +1053,8 @@
           "name": "step_asset_asset_id_fk",
           "tableFrom": "step",
           "tableTo": "asset",
-          "columnsFrom": [
-            "asset"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["asset"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1137,12 +1062,8 @@
           "name": "step_iconDark_asset_id_fk",
           "tableFrom": "step",
           "tableTo": "asset",
-          "columnsFrom": [
-            "iconDark"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["iconDark"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1150,12 +1071,8 @@
           "name": "step_iconLight_asset_id_fk",
           "tableFrom": "step",
           "tableTo": "asset",
-          "columnsFrom": [
-            "iconLight"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["iconLight"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1165,10 +1082,7 @@
         "step_order_scenario_unique": {
           "name": "step_order_scenario_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "order",
-            "scenario"
-          ]
+          "columns": ["order", "scenario"]
         }
       },
       "policies": {},
@@ -1247,12 +1161,8 @@
           "name": "stepAction_step_step_id_fk",
           "tableFrom": "stepAction",
           "tableTo": "step",
-          "columnsFrom": [
-            "step"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["step"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1391,12 +1301,8 @@
           "name": "scenario_issuer_issuer_id_fk",
           "tableFrom": "scenario",
           "tableTo": "issuer",
-          "columnsFrom": [
-            "issuer"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["issuer"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1404,12 +1310,8 @@
           "name": "scenario_relying_party_relyingParty_id_fk",
           "tableFrom": "scenario",
           "tableTo": "relyingParty",
-          "columnsFrom": [
-            "relying_party"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["relying_party"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1417,12 +1319,8 @@
           "name": "scenario_banner_image_asset_id_fk",
           "tableFrom": "scenario",
           "tableTo": "asset",
-          "columnsFrom": [
-            "banner_image"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["banner_image"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1432,9 +1330,7 @@
         "scenario_slug_unique": {
           "name": "scenario_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {},
@@ -1512,12 +1408,8 @@
           "name": "revocationInfo_credential_definition_credentialDefinition_id_fk",
           "tableFrom": "revocationInfo",
           "tableTo": "credentialDefinition",
-          "columnsFrom": [
-            "credential_definition"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["credential_definition"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1527,9 +1419,7 @@
         "revocationInfo_credential_definition_unique": {
           "name": "revocationInfo_credential_definition_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "credential_definition"
-          ]
+          "columns": ["credential_definition"]
         }
       },
       "policies": {},
@@ -1642,12 +1532,8 @@
           "name": "persona_headshot_image_asset_id_fk",
           "tableFrom": "persona",
           "tableTo": "asset",
-          "columnsFrom": [
-            "headshot_image"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["headshot_image"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1655,12 +1541,8 @@
           "name": "persona_body_image_asset_id_fk",
           "tableFrom": "persona",
           "tableTo": "asset",
-          "columnsFrom": [
-            "body_image"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["body_image"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1670,9 +1552,7 @@
         "persona_slug_unique": {
           "name": "persona_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {},
@@ -1732,12 +1612,8 @@
           "name": "scenariosToPersonas_scenario_scenario_id_fk",
           "tableFrom": "scenariosToPersonas",
           "tableTo": "scenario",
-          "columnsFrom": [
-            "scenario"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["scenario"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1745,12 +1621,8 @@
           "name": "scenariosToPersonas_persona_persona_id_fk",
           "tableFrom": "scenariosToPersonas",
           "tableTo": "persona",
-          "columnsFrom": [
-            "persona"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["persona"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1758,10 +1630,7 @@
       "compositePrimaryKeys": {
         "scenariosToPersonas_scenario_persona_pk": {
           "name": "scenariosToPersonas_scenario_persona_pk",
-          "columns": [
-            "scenario",
-            "persona"
-          ]
+          "columns": ["scenario", "persona"]
         }
       },
       "uniqueConstraints": {},
@@ -1861,12 +1730,8 @@
           "name": "showcase_banner_image_asset_id_fk",
           "tableFrom": "showcase",
           "tableTo": "asset",
-          "columnsFrom": [
-            "banner_image"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["banner_image"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1876,9 +1741,7 @@
         "showcase_slug_unique": {
           "name": "showcase_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {},
@@ -1938,12 +1801,8 @@
           "name": "showcasesToCredentialDefinitions_showcase_showcase_id_fk",
           "tableFrom": "showcasesToCredentialDefinitions",
           "tableTo": "showcase",
-          "columnsFrom": [
-            "showcase"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["showcase"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1951,12 +1810,8 @@
           "name": "showcasesToCredentialDefinitions_credential_definition_credentialDefinition_id_fk",
           "tableFrom": "showcasesToCredentialDefinitions",
           "tableTo": "credentialDefinition",
-          "columnsFrom": [
-            "credential_definition"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["credential_definition"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1964,10 +1819,7 @@
       "compositePrimaryKeys": {
         "showcasesToCredentialDefinitions_showcase_credential_definition_pk": {
           "name": "showcasesToCredentialDefinitions_showcase_credential_definition_pk",
-          "columns": [
-            "showcase",
-            "credential_definition"
-          ]
+          "columns": ["showcase", "credential_definition"]
         }
       },
       "uniqueConstraints": {},
@@ -2028,12 +1880,8 @@
           "name": "showcasesToPersonas_showcase_showcase_id_fk",
           "tableFrom": "showcasesToPersonas",
           "tableTo": "showcase",
-          "columnsFrom": [
-            "showcase"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["showcase"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2041,12 +1889,8 @@
           "name": "showcasesToPersonas_persona_persona_id_fk",
           "tableFrom": "showcasesToPersonas",
           "tableTo": "persona",
-          "columnsFrom": [
-            "persona"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["persona"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2054,10 +1898,7 @@
       "compositePrimaryKeys": {
         "showcasesToPersonas_showcase_persona_pk": {
           "name": "showcasesToPersonas_showcase_persona_pk",
-          "columns": [
-            "showcase",
-            "persona"
-          ]
+          "columns": ["showcase", "persona"]
         }
       },
       "uniqueConstraints": {},
@@ -2118,12 +1959,8 @@
           "name": "showcasesToScenarios_showcase_showcase_id_fk",
           "tableFrom": "showcasesToScenarios",
           "tableTo": "showcase",
-          "columnsFrom": [
-            "showcase"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["showcase"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2131,12 +1968,8 @@
           "name": "showcasesToScenarios_scenario_scenario_id_fk",
           "tableFrom": "showcasesToScenarios",
           "tableTo": "scenario",
-          "columnsFrom": [
-            "scenario"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["scenario"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2144,10 +1977,7 @@
       "compositePrimaryKeys": {
         "showcasesToScenarios_showcase_scenario_pk": {
           "name": "showcasesToScenarios_showcase_scenario_pk",
-          "columns": [
-            "showcase",
-            "scenario"
-          ]
+          "columns": ["showcase", "scenario"]
         }
       },
       "uniqueConstraints": {},
@@ -2160,75 +1990,47 @@
     "public.CredentialAttributeType": {
       "name": "CredentialAttributeType",
       "schema": "public",
-      "values": [
-        "STRING",
-        "INTEGER",
-        "FLOAT",
-        "BOOLEAN",
-        "DATE"
-      ]
+      "values": ["STRING", "INTEGER", "FLOAT", "BOOLEAN", "DATE"]
     },
     "public.CredentialType": {
       "name": "CredentialType",
       "schema": "public",
-      "values": [
-        "ANONCRED"
-      ]
+      "values": ["ANONCRED"]
     },
     "public.IdentifierType": {
       "name": "IdentifierType",
       "schema": "public",
-      "values": [
-        "DID"
-      ]
+      "values": ["DID"]
     },
     "public.IssuerType": {
       "name": "IssuerType",
       "schema": "public",
-      "values": [
-        "ARIES"
-      ]
+      "values": ["ARIES"]
     },
     "public.StepType": {
       "name": "StepType",
       "schema": "public",
-      "values": [
-        "HUMAN_TASK",
-        "SERVICE",
-        "SCENARIO"
-      ]
+      "values": ["HUMAN_TASK", "SERVICE", "SCENARIO"]
     },
     "public.ScenarioType": {
       "name": "ScenarioType",
       "schema": "public",
-      "values": [
-        "ISSUANCE",
-        "PRESENTATION"
-      ]
+      "values": ["ISSUANCE", "PRESENTATION"]
     },
     "public.ShowcaseStatus": {
       "name": "ShowcaseStatus",
       "schema": "public",
-      "values": [
-        "PENDING",
-        "ACTIVE",
-        "ARCHIVED"
-      ]
+      "values": ["PENDING", "ACTIVE", "ARCHIVED"]
     },
     "public.RelyingPartyType": {
       "name": "RelyingPartyType",
       "schema": "public",
-      "values": [
-        "ARIES"
-      ]
+      "values": ["ARIES"]
     },
     "public.Source": {
       "name": "Source",
       "schema": "public",
-      "values": [
-        "IMPORTED",
-        "CREATED"
-      ]
+      "values": ["IMPORTED", "CREATED"]
     }
   },
   "schemas": {},
