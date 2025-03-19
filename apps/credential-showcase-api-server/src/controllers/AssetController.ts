@@ -1,16 +1,4 @@
-import {
-  BadRequestError,
-  Body,
-  Delete,
-  Get,
-  HttpCode,
-  JsonController,
-  OnUndefined,
-  Param,
-  Post,
-  Put,
-  Res
-} from 'routing-controllers'
+import { BadRequestError, Body, Delete, Get, HttpCode, JsonController, OnUndefined, Param, Post, Put, Res } from 'routing-controllers'
 import { Service } from 'typedi'
 import { Response } from 'express'
 import {
@@ -102,11 +90,11 @@ class AssetController {
   public async getAssetAsFile(@Param('id') id: string, @Res() res: Response): Promise<Response> {
     try {
       const result = await this.assetService.getAsset(id)
-      res.setHeader('Content-Type', result.mediaType);
-      return res.send(Buffer.from(result.content.toString(), 'base64'));
+      res.setHeader('Content-Type', result.mediaType)
+      return res.send(Buffer.from(result.content.toString(), 'base64'))
     } catch (e) {
       if (e.httpCode !== 404) {
-        console.error(`getFile id=${id} failed:`, e)
+        console.error(`getAssetAsFile id=${id} failed:`, e)
       }
       return Promise.reject(e)
     }
