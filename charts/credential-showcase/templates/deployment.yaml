@@ -4,6 +4,10 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-{{ .Values.api_server.name }}
   namespace: {{ .Values.global.namespaceOverride | default .Release.Namespace }}
+  labels:
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: credential-showcase
+    {{- include "credential-showcase.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.api_server.replicaCount }}
   selector:
@@ -13,13 +17,29 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}-{{ .Values.api_server.name }}
+        app.kubernetes.io/component: api
+        app.kubernetes.io/part-of: credential-showcase
+        {{- include "credential-showcase.labels" . | nindent 8 }}
+      {{- with .Values.api_server.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
+      {{- with .Values.api_server.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
       - name: {{ .Values.api_server.name }}
         image: "{{ .Values.api_server.image.repository }}:{{ .Values.api_server.image.tag }}"
         imagePullPolicy: {{ .Values.api_server.image.pullPolicy }}
+        {{- with .Values.api_server.containerSecurityContext }}
+        securityContext:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
         ports:
         - containerPort: {{ .Values.api_server.port }}
+          name: http
         env:
         - name: DB_HOST
           value: {{ .Release.Name }}-postgresql
@@ -43,6 +63,8 @@ spec:
             secretKeyRef:
               name: {{ include "credential-showcase.authtoken.secret.name" . }}
               key: token
+        resources:
+          {{- toYaml .Values.api_server.resources | nindent 12 }}
       serviceAccountName: {{ if .Values.api_server.serviceAccount.create }}{{ if .Values.api_server.serviceAccount.name }}{{ .Values.api_server.serviceAccount.name }}{{ else }}{{ $.Release.Name }}-{{ .Values.api_server.name }}{{ end }}{{ end }}
 ---
 {{- end }}
@@ -52,6 +74,10 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-{{ .Values.traction_adapter.name }}
   namespace: {{ .Values.global.namespaceOverride | default .Release.Namespace }}
+  labels:
+    app.kubernetes.io/component: adapter
+    app.kubernetes.io/part-of: credential-showcase
+    {{- include "credential-showcase.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.traction_adapter.replicaCount }}
   selector:
@@ -61,6 +87,9 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}-{{ .Values.traction_adapter.name }}
+        app.kubernetes.io/component: adapter
+        app.kubernetes.io/part-of: credential-showcase
+        {{- include "credential-showcase.labels" . | nindent 8 }}
       {{- with .Values.traction_adapter.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
@@ -80,6 +109,7 @@ spec:
         {{- end }}
         ports:
         - containerPort: {{ .Values.traction_adapter.port }}
+          name: http
         env:
         - name: RABBITMQ_HOST
           value: {{ .Release.Name }}-rabbitmq
