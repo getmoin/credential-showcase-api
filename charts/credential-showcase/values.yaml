@@ -8,12 +8,12 @@ ingress:
     kubernetes.io/ingress.class: openshift-default
     route.openshift.io/termination: edge
   hosts:
-    - host: api.credential-showcase.example.com
+    - host: credential-showcase-api-dev.apps.silver.devops.gov.bc.ca
       paths:
         - path: /
           pathType: Prefix
           service: api-server
-    - host: traction.credential-showcase.example.com
+    - host: credential-showcase-traction-adapter-dev.apps.silver.devops.gov.bc.ca
       paths:
         - path: /
           pathType: Prefix
