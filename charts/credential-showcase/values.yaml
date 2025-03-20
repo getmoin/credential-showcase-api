@@ -60,9 +60,9 @@ api_server:
   nodeSelector: {}
   tolerations: []
   networkPolicy:
-    enabled: false
+    enabled: true
     ingress:
-      enabled: false
+      enabled: true
       namespaceSelector: {}
       podSelector: {}
   openshift:
@@ -134,9 +134,9 @@ traction_adapter:
   nodeSelector: {}
   tolerations: []
   networkPolicy:
-    enabled: false
+    enabled: true
     ingress:
-      enabled: false
+      enabled: true
       namespaceSelector: {}
       podSelector: {}
   openshift:
@@ -181,6 +181,8 @@ postgresql:
       requests:
         cpu: 100m
         memory: 128Mi
+  networkPolicy:
+    enabled: true
 
 rabbitmq:
   enabled: true
@@ -220,6 +222,8 @@ rabbitmq:
   pdb:
     create: true
     minAvailable: 1
+  networkPolicy:
+    enabled: true
 
 global:
   namespaceOverride: ""

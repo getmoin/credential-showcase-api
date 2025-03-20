@@ -1,5 +1,5 @@
 # Network policy for API server
-{{- if .Values.api_server.enabled }}
+{{- if and .Values.api_server.enabled .Values.api_server.networkPolicy.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -38,7 +38,7 @@ spec:
           app: {{ .Release.Name }}-{{ .Values.api_server.name }}
     ports:
     - protocol: TCP
-      port: 5432
+      port: {{ .Values.postgresql.primary.service.ports.postgresql }}
 ---
 # Network policy for UI to API
 apiVersion: networking.k8s.io/v1
@@ -61,12 +61,12 @@ spec:
           app.kubernetes.io/component: ui
     ports:
     - protocol: TCP
-      port: 80
+      port: {{ .Values.api_server.service.port }}
 ---
 {{- end }}
 
 # Network policy for Traction Adapter
-{{- if .Values.traction_adapter.enabled }}
+{{- if and .Values.traction_adapter.enabled .Values.traction_adapter.networkPolicy.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -105,5 +105,23 @@ spec:
           app: {{ .Release.Name }}-{{ .Values.traction_adapter.name }}
     ports:
     - protocol: TCP
-      port: 5672
+      port: {{ .Values.rabbitmq.service.ports.amqp }}
+{{- end }}
+
+{{- if or (and .Values.api_server.enabled .Values.api_server.networkPolicy.enabled) (and .Values.traction_adapter.enabled .Values.traction_adapter.networkPolicy.enabled) }}
+---
+# Default deny all ingress traffic except what's explicitly allowed
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-default-deny
+  namespace: {{ .Values.global.namespaceOverride | default .Release.Namespace }}
+  labels:
+    app.kubernetes.io/part-of: credential-showcase
+    {{- include "credential-showcase.labels" . | nindent 4 }}
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: []
 {{- end }} 

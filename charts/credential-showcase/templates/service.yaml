@@ -11,7 +11,7 @@ metadata:
 spec:
   type: {{ .Values.api_server.service.type }}
   ports:
-    - port: 80
+    - port: {{ .Values.api_server.service.port }}
       targetPort: {{ .Values.api_server.port }}
       protocol: TCP
       name: http
@@ -32,7 +32,7 @@ metadata:
 spec:
   type: {{ .Values.traction_adapter.service.type }}
   ports:
-    - port: 80
+    - port: {{ .Values.traction_adapter.service.port }}
       targetPort: {{ .Values.traction_adapter.port }}
       protocol: TCP
       name: http

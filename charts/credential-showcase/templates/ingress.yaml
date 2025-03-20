@@ -28,11 +28,11 @@ spec:
             {{- if eq .service "api-server" }}
             name: {{ $.Release.Name }}-{{ $.Values.api_server.name }}
             port:
-              number: {{ $.Values.api_server.service.port }} #number: 80
+              number: {{ $.Values.api_server.service.port }}
             {{- else if eq .service "traction-adapter" }}
             name: {{ $.Release.Name }}-{{ $.Values.traction_adapter.name }}
             port:
-              number: {{ $.Values.traction_adapter.service.port }} #number: 80
+              number: {{ $.Values.traction_adapter.service.port }}
             {{- end }}
       {{- end }}
   {{- end }}
